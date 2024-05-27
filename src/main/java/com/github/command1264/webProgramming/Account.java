@@ -22,4 +22,15 @@ public class Account extends User {
         this.loginPassword = loginPassword;
         return true;
     }
+    @Override
+    public String get(String key) {
+        if (key == null) return null;
+        return switch (key.toLowerCase()) {
+            default -> null;
+            case "id" -> this.id;
+            case "name" -> this.name;
+            case "loginaccount" -> this.loginAccount;
+            case "loginpassword" -> this.loginPassword;
+        };
+    }
 }

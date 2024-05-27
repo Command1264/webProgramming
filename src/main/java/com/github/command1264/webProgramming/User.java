@@ -23,4 +23,13 @@ public class User {
         this.id = id;
         return true;
     }
+
+    public String get(String key) {
+        if (key == null) return null;
+        return switch (key.toLowerCase()) {
+            default -> null;
+            case "id" -> this.id;
+            case "name" -> this.name;
+        };
+    }
 }
