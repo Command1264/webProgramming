@@ -1,0 +1,24 @@
+{
+    "user": "Command1",
+    "receiver": "Taiwan_PingLord",
+    "messages": [
+        {
+            "sender": "Command1",
+            "message": "test1",
+            "type": "text",
+            "time": "Wed, 07 Jun 2023 11:43:57 GMT"
+        },
+        {
+            "sender": "Command1",
+            "message": "test2",
+            "type": "text",
+            "time": "Wed, 07 Jun 2023 11:43:57 GMT"
+        },
+        {
+            "sender": "Taiwan_PingLord",
+            "message": "test3",
+            "type": "text",
+            "time": "Wed, 07 Jun 2023 11:43:57 GMT"
+        }
+    ]
+}
