@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +43,33 @@ public class MyController {
 
     @RequestMapping("/test")
     public void test(@RequestBody String json) {
+        JsonObject returnJsonObject = new JsonObject();
+
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        JsonArray users = jsonObject.getAsJsonArray("users");
+        List<User> usersList = new ArrayList<>();
+
+        for (JsonElement jsonElement : users.asList()) {
+            try {
+                User user = sqlGetUser(jsonElement.getAsString());
+                usersList.add(user);
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
+        }
+
+        if (usersList.isEmpty()) {
+            returnJsonObject.addProperty("success", false);
+            returnJsonObject.addProperty("errorMessage", "人數不能為0");
+            return;
+        }
+        usersList.sort((User user1, User user2) -> user1.id.compareTo(user2.id));
+        for(User user : usersList) {
+            System.out.println("userId: " + user.id);
+            System.out.println("userName: " + user.name);
+            System.out.println("=================================");
+        }
 //        System.out.println("id: " + checkRepeat("accountInfo", "id", jsonObject.get("id").getAsString()));
 //        System.out.println("loginAccount: " + checkRepeat("accountInfo", "loginAccount", jsonObject.get("loginAccount").getAsString()));
 //        try (Statement stmt = conn.createStatement()) {
@@ -114,7 +141,7 @@ public class MyController {
     private boolean checkRepeat(String table, String key, String value) {
         if (conn == null) return true;
         try (Statement stmt = conn.createStatement()) {
-            ResultSet set = stmt.executeQuery(String.format("select * from %s where %s=\"%s\"", table, key, value));
+            ResultSet set = stmt.executeQuery(String.format("select * from %s where %s='%s'", table, key, value));
             if (set != null) {
                 int size = 0;
                 while(set.next()) ++size;
@@ -130,16 +157,16 @@ public class MyController {
 
     @RequestMapping("/api/v1/getUserName")
     public String getUserName(@RequestBody String json) {
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-
         JsonObject returnJsonObject = new JsonObject();
         if (conn == null) {
             returnJsonObject.addProperty("success", false);
             returnJsonObject.addProperty("errorMessage", "未連接資料庫");
             return gson.toJson(returnJsonObject, JsonObject.class);
         }
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+
         try (Statement stmt = conn.createStatement()) {
-            ResultSet set = stmt.executeQuery(String.format("select * from accountInfo where id=\"%s\"", jsonObject.get("id").getAsString()));
+            ResultSet set = stmt.executeQuery(String.format("select * from accountInfo where id='%s'", jsonObject.get("id").getAsString()));
             int size = 0;
             String name = "";
             while(set.next()) {
@@ -166,6 +193,11 @@ public class MyController {
 
     public String getUser(@RequestBody String json) {
         JsonObject returnJsonObject = new JsonObject();
+        if (conn == null) {
+            returnJsonObject.addProperty("success", false);
+            returnJsonObject.addProperty("errorMessage", "未連接資料庫");
+            return gson.toJson(returnJsonObject, JsonObject.class);
+        }
         try {
             returnJsonObject.addProperty("success", true);
         } catch (Exception e) {
@@ -183,7 +215,7 @@ public class MyController {
         if (conn == null) return null;
 
         try (Statement stmt = conn.createStatement()) {
-            ResultSet set = stmt.executeQuery(String.format("select * from accountInfo where id=\"%s\"", id));
+            ResultSet set = stmt.executeQuery(String.format("select * from accountInfo where id='%s'", id));
             int size = 0;
             Account account = null;
             while(set.next()) {
@@ -205,49 +237,125 @@ public class MyController {
 
     @RequestMapping("/api/v1/getUserChatRoom")
     public String getUserChatRoom(@RequestBody String json) {
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-
-//        String senderId = jsonObject.get("sender").getAsString();
-//        String receiverId = jsonObject.get("receiver").getAsString();
-//        User sender = new User()
-//        User receiver = gson.fromJson(, User.class);
-
-        return "";
-    }
-    @RequestMapping("/api/v1/createUserChatRoom")
-    public String createUserChatRoom(@RequestBody String json) {
         JsonObject returnJsonObject = new JsonObject();
+        if (conn == null) {
+            returnJsonObject.addProperty("success", false);
+            returnJsonObject.addProperty("errorMessage", "未連接資料庫");
+            return gson.toJson(returnJsonObject, JsonObject.class);
+        }
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         JsonArray users = jsonObject.getAsJsonArray("users");
-        List<User> usersList = new ArrayList<>();
+        List<String> usersIdList = new ArrayList<>();
 
         for (JsonElement jsonElement : users.asList()) {
             try {
                 User user = sqlGetUser(jsonElement.getAsString());
-                usersList.add(user);
+                if (user == null) continue;
+
+//                usersList.add(user);
+                usersIdList.add(user.id);
             } catch (Exception e) {
                 e.printStackTrace();
                 continue;
             }
         }
 
-        if (usersList.isEmpty()) {
+        if (usersIdList.isEmpty()) {
             returnJsonObject.addProperty("success", false);
             returnJsonObject.addProperty("errorMessage", "人數不能為0");
             return gson.toJson(returnJsonObject, JsonObject.class);
         }
+        // 排序，讓之後的聊天室更好判斷
+//        usersList.sort(Comparator.comparing((User user) -> user.id));
+        usersIdList.sort(Comparator.naturalOrder());
+        try (Statement stmt = conn.createStatement()){
+            String usersIdListJsonStr = gson.toJson(gson.toJsonTree(usersIdList, new TypeToken<List<String>>() {}.getType()).getAsJsonArray(), JsonArray.class);
+            ResultSet set = stmt.executeQuery(String.format("select * from userchatrooms where users='%s'", usersIdListJsonStr));
+            int size = 0;
+            UUID chatUUID = null;
+            while (set.next()) {
+                try {
+                    chatUUID = UUID.fromString(set.getString("uuid"));
+                } catch (IllegalArgumentException ignored) {}
+                ++size;
+            }
+            if (size == 0) {
+                returnJsonObject.addProperty("success", false);
+                returnJsonObject.addProperty("errorMessage", "找不到聊天室");
+                return gson.toJson(returnJsonObject, JsonObject.class);
+            } else if (size == 1 && chatUUID != null) {
+                returnJsonObject.addProperty("success", true);
+                returnJsonObject.addProperty("charUUID", chatUUID.toString());
+                return gson.toJson(returnJsonObject, JsonObject.class);
+            } else {
+                returnJsonObject.addProperty("success", false);
+                returnJsonObject.addProperty("errorMessage", "此使用者群組有多個聊天室");
+                return gson.toJson(returnJsonObject, JsonObject.class);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+    @RequestMapping("/api/v1/createUserChatRoom")
+    public String createUserChatRoom(@RequestBody String json) {
+        JsonObject returnJsonObject = new JsonObject();
+        if (conn == null) {
+            returnJsonObject.addProperty("success", false);
+            returnJsonObject.addProperty("errorMessage", "未連接資料庫");
+            return gson.toJson(returnJsonObject, JsonObject.class);
+        }
+
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        JsonArray users = jsonObject.getAsJsonArray("users");
+//        List<User> usersList = new ArrayList<>();
+        List<String> usersIdList = new ArrayList<>();
+
+        for (JsonElement jsonElement : users.asList()) {
+            try {
+                User user = sqlGetUser(jsonElement.getAsString());
+                if (user == null) continue;
+
+//                usersList.add(user);
+                usersIdList.add(user.id);
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
+        }
+
+        if (usersIdList.isEmpty()) {
+            returnJsonObject.addProperty("success", false);
+            returnJsonObject.addProperty("errorMessage", "人數不能為0");
+            return gson.toJson(returnJsonObject, JsonObject.class);
+        }
+        // 排序，讓之後的聊天室更好判斷
+//        usersList.sort(Comparator.comparing((User user) -> user.id));
+        usersIdList.sort(Comparator.naturalOrder());
 
         try (Statement stmt = conn.createStatement()) {
+
+//            String usersListJsonStr = gson.toJson(gson.toJsonTree(usersList, new TypeToken<List<User>>() {}.getType()).getAsJsonArray(), JsonArray.class);
+            String usersIdListJsonStr = gson.toJson(gson.toJsonTree(usersIdList, new TypeToken<List<String>>() {}.getType()).getAsJsonArray(), JsonArray.class);
+            // 檢查是否有重複的聊天室
+            if (checkRepeat("userchatrooms", "users", usersIdListJsonStr)) {
+                returnJsonObject.addProperty("success", false);
+                returnJsonObject.addProperty("errorMessage", "已有聊天室");
+                return gson.toJson(returnJsonObject, JsonObject.class);
+            }
+
             UUID uuid;
             do {
                 uuid = UUID.randomUUID();
             } while(checkRepeat("userchatrooms", "uuid", uuid.toString()));
             String roomName = String.format("room_%s", uuid.toString().replaceAll("-", "_"));
+
+
             int updateRoom = stmt.executeUpdate( String.format(
                     "insert into userChatRooms values('%s', '%s')",
                     uuid.toString(),
-                    gson.toJson(gson.toJsonTree(usersList, new TypeToken<List<User>>() {}.getType()).getAsJsonArray(), JsonArray.class)
+                    usersIdListJsonStr
             ));
             stmt.executeUpdate( String.format(
                     "create table %s(" +
@@ -282,27 +390,42 @@ public class MyController {
     }
 
     @RequestMapping("/api/v1/userSendMessage")
-    public String userSendMessage() {
-        JsonObject jsonObject = new JsonObject();
-        try {
-            jsonObject.addProperty("success", true);
-        } catch (Exception e) {
-            jsonObject.addProperty("success", false);
-            jsonObject.addProperty("exception", e.getMessage());
+    public String userSendMessage(@RequestBody String json) {
+
+        JsonObject returnJsonObject = new JsonObject();
+        if (conn == null) {
+            returnJsonObject.addProperty("success", false);
+            returnJsonObject.addProperty("errorMessage", "未連接資料庫");
+            return gson.toJson(returnJsonObject, JsonObject.class);
         }
-        return gson.toJson(jsonObject, JsonObject.class);
+
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        try {
+            returnJsonObject.addProperty("success", true);
+        } catch (Exception e) {
+            returnJsonObject.addProperty("success", false);
+            returnJsonObject.addProperty("exception", e.getMessage());
+        }
+        return gson.toJson(returnJsonObject, JsonObject.class);
     }
 
     @RequestMapping("/api/v1/getUserReceiveMessage")
-    public String getUserReceiveMessage() {
-        JsonObject jsonObject = new JsonObject();
-        try {
-            jsonObject.addProperty("success", true);
-        } catch (Exception e) {
-            jsonObject.addProperty("success", false);
-            jsonObject.addProperty("exception", e.getMessage());
+    public String getUserReceiveMessage(@RequestBody String json) {
+        JsonObject returnJsonObject = new JsonObject();
+        if (conn == null) {
+            returnJsonObject.addProperty("success", false);
+            returnJsonObject.addProperty("errorMessage", "未連接資料庫");
+            return gson.toJson(returnJsonObject, JsonObject.class);
         }
-        return gson.toJson(jsonObject, JsonObject.class);
+
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        try {
+            returnJsonObject.addProperty("success", true);
+        } catch (Exception e) {
+            returnJsonObject.addProperty("success", false);
+            returnJsonObject.addProperty("exception", e.getMessage());
+        }
+        return gson.toJson(returnJsonObject, JsonObject.class);
     }
     private boolean findTableName(String tableName) {
         if (conn == null || tableName == null) return false;
