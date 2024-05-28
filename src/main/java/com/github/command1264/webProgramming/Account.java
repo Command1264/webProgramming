@@ -29,6 +29,7 @@ public class Account extends User {
             default -> null;
             case "id" -> this.id;
             case "name" -> this.name;
+            case "photoStickerBase64" -> this.photoStickerBase64;
             case "loginaccount" -> this.loginAccount;
             case "loginpassword" -> this.loginPassword;
         };
