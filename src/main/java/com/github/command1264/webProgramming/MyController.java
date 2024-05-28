@@ -3,11 +3,13 @@ package com.github.command1264.webProgramming;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import jakarta.annotation.Nullable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.*;
+import java.util.UUID;
 
 @RestController
 public class MyController {
@@ -55,7 +57,7 @@ public class MyController {
         }
         try (Statement stmt = conn.createStatement()) {
             for (String key : new String[]{"id", "loginAccount"}) {
-                if (!checkRepeat("accountInfo", key, account.get(key))) {
+                if (checkRepeat("accountInfo", key, account.get(key))) {
                     jsonObject.addProperty("success", false);
                     jsonObject.addProperty("errorMessage", key + "已經有人使用");
                     return gson.toJson(jsonObject, JsonObject.class);
@@ -82,19 +84,19 @@ public class MyController {
     }
 
     private boolean checkRepeat(String table, String key, String value) {
-        if (conn == null) return false;
+        if (conn == null) return true;
         try (Statement stmt = conn.createStatement()) {
             ResultSet set = stmt.executeQuery(String.format("select * from %s where %s=\"%s\"", table, key, value));
             if (set != null) {
                 int size = 0;
                 while(set.next()) ++size;
-                if (size != 0) return false;
+                if (size != 0) return true;
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
 
@@ -134,18 +136,74 @@ public class MyController {
         return gson.toJson(returnJsonObject, JsonObject.class);
     }
 
+    public String getUser(@RequestBody String json) {
+        JsonObject jsonObject = new JsonObject();
+        try {
+            jsonObject.addProperty("success", true);
+        } catch (Exception e) {
+            jsonObject.addProperty("success", false);
+            jsonObject.addProperty("exception", e.getMessage());
+        }
+        return gson.toJson(jsonObject, JsonObject.class);
+    }
+
+    private @Nullable User sqlGetUser(String id) {
+        return sqlGetAccount(id);
+    }
+    private @Nullable User sqlGetAccount(String id) {
+        if (conn == null) return null;
+
+        try (Statement stmt = conn.createStatement()) {
+            ResultSet set = stmt.executeQuery(String.format("select * from accountInfo where id=\"%s\"", id));
+            int size = 0;
+            Account account = null;
+            while(set.next()) {
+                account = new Account(
+                        id,
+                        set.getString("name"),
+                        set.getString("loginAccount"),
+                        set.getString("loginPassword")
+                );
+                ++size;
+            }
+            if (size == 1) return account;
+            else return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @RequestMapping("/api/v1/getUserChatRoom")
     public String getUserChatRoom(@RequestBody String json) {
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
 
-        User sender = gson.fromJson(jsonObject.getAsJsonObject("sender"), User.class);
-        User receiver = gson.fromJson(jsonObject.getAsJsonObject("receiver"), User.class);
+//        String senderId = jsonObject.get("sender").getAsString();
+//        String receiverId = jsonObject.get("receiver").getAsString();
+//        User sender = new User()
+//        User receiver = gson.fromJson(, User.class);
 
         return "";
     }
     @RequestMapping("/api/v1/createUserChatRoom")
     public String createUserChatRoom(@RequestBody String json) {
         JsonObject jsonObject = new JsonObject();
+        try (Statement stmt = conn.createStatement()) {
+            UUID uuid = null;
+            do {
+                uuid = UUID.randomUUID();
+            } while(checkRepeat("userchatrooms", "uuid", uuid.toString()));
+            int updateRoom = stmt.executeUpdate( String.format("insert into userChatRooms values(%s, %s)", uuid.toString()));
+            int createRoom = stmt.executeUpdate( String.format(
+                    "create table %s values(" +
+                            "sender varchar(64) not null," +
+                            "message text not null" +
+                            ")",
+                    uuid.toString()));
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         try {
             jsonObject.addProperty("success", true);
         } catch (Exception e) {
