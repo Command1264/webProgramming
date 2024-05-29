@@ -49,7 +49,7 @@ public class SQLController {
     public @Nullable User getUser(String id) {
         return getAccount(id);
     }
-    public @Nullable User getAccount(String id) {
+    public @Nullable Account getAccount(String id) {
         if (!checkConnect()) return null;
 
         try (Statement stmt = conn.createStatement()) {
