@@ -1,7 +1,10 @@
 {
-    "user": "Command1",
-    "receiver": "Taiwan_PingLord",
-    "message" : "test1",
-    "type" : "text",
-    "time" : "Wed, 07 Jun 2023 11:43:57 GMT"
+    "chatRoomName": "room_b12db133_6bf6_4f79_8a1e_cbf4a49e9c58",
+    "users" : ["Command1", "Taiwan_PingLord"],
+    "message" : {
+        "sender" : "Command1",
+        "message" : "test1",
+        "type" : "text",
+        "time" : "Wed, 07 Jun 2023 11:43:57 GMT"
+    }
 }

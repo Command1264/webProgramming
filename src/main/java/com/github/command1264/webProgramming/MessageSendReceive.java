@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class MessageSendReceive {
-    String sender = "";
-    String message = "";
-    String type = "";
-    String time = "";
+    private String sender = "";
+    private String message = "";
+    private String type = "";
+    private String time = "";
     public MessageSendReceive(String sender, String message, String type, LocalDateTime time) {
         this.sender = sender;
         this.message = message;
@@ -20,4 +20,18 @@ public class MessageSendReceive {
         this.type = type;
         this.time = time;
     }
+
+    public String getSender() {
+        return sender;
+    }
+    public String getMessage() {
+        return message;
+    }
+    public String getType() {
+        return type;
+    }
+    public String getTime() {
+        return time;
+    }
+
 }

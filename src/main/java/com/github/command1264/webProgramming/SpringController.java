@@ -40,7 +40,10 @@ public class SpringController {
     @RequestMapping("/ping")
     public String ping() {
         System.out.println("Ping!");
-        return "{\"alive\":true}";
+        ReturnJsonObject returnJsonObject = new ReturnJsonObject();
+        returnJsonObject.setSuccess(true);
+        returnJsonObject.setData("alive");
+        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
     }
 
     @RequestMapping("/test")
@@ -98,7 +101,7 @@ public class SpringController {
         if (conn == null) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage("未連接資料庫");
-             return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
         }
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
 
@@ -125,7 +128,7 @@ public class SpringController {
             returnJsonObject.setErrorMessage("例外");
             returnJsonObject.setException(e.getMessage());
         }
-         return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
     }
 
     public String getUser(@RequestBody String json) {
@@ -133,7 +136,7 @@ public class SpringController {
         if (conn == null) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage("未連接資料庫");
-             return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
         }
         try {
             returnJsonObject.setSuccess(true);
@@ -142,7 +145,7 @@ public class SpringController {
             returnJsonObject.setErrorMessage("例外");
             returnJsonObject.setException(e.getMessage());
         }
-         return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
     }
 
     @RequestMapping("/api/v1/getUserChatRoom")
@@ -151,7 +154,7 @@ public class SpringController {
         if (conn == null) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage("未連接資料庫");
-             return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
         }
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
@@ -174,7 +177,7 @@ public class SpringController {
         if (usersIdList.isEmpty()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage("人數不能為0");
-             return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
         }
         // 排序，讓之後的聊天室更好判斷
 //        usersList.sort(Comparator.comparing((User user) -> user.id));
@@ -193,20 +196,22 @@ public class SpringController {
             if (size == 0 || chatUUID == null) {
                 returnJsonObject.setSuccess(false);
                 returnJsonObject.setErrorMessage("找不到聊天室");
-                 return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
             } else if (size == 1) {
                 returnJsonObject.setSuccess(true);
                 returnJsonObject.setData(chatUUID.toString());
-                 return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
             } else {
                 returnJsonObject.setSuccess(false);
                 returnJsonObject.setErrorMessage("此使用者群組有多個聊天室");
-                 return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage("例外");
+            returnJsonObject.setException(e.getMessage());
         }
-        return "";
+        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
     }
 
     @RequestMapping("/api/v1/createUserChatRoom")
@@ -215,45 +220,33 @@ public class SpringController {
         if (conn == null) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage("未連接資料庫");
-             return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
         }
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        JsonArray users = jsonObject.getAsJsonArray("users");
-//        List<User> usersList = new ArrayList<>();
-        List<String> usersIdList = new ArrayList<>();
-
-        for (JsonElement jsonElement : users.asList()) {
-            try {
-                User user = sqlController.getUser(jsonElement.getAsString());
-                if (user == null) continue;
-
-//                usersList.add(user);
-                usersIdList.add(user.id);
-            } catch (Exception e) {
-                e.printStackTrace();
-                continue;
-            }
-        }
-
-        if (usersIdList.isEmpty()) {
+        if (!jsonObject.has("users")) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage("人數不能為0");
-             return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
         }
-        // 排序，讓之後的聊天室更好判斷
-//        usersList.sort(Comparator.comparing((User user) -> user.id));
-        usersIdList.sort(Comparator.naturalOrder());
+
+        JsonArray users = jsonObject.getAsJsonArray("users");
+
+        String usersIdListJsonStr = sortUsersIdList(users);
+
+        if (usersIdListJsonStr == null) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage("人數不能為0");
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+        }
 
         try (Statement stmt = conn.createStatement()) {
 
-//            String usersListJsonStr = gson.toJson(gson.toJsonTree(usersList, new TypeToken<List<User>>() {}.getType()).getAsJsonArray(), JsonArray.class);
-            String usersIdListJsonStr = gson.toJson(gson.toJsonTree(usersIdList, new TypeToken<List<String>>() {}.getType()).getAsJsonArray(), JsonArray.class);
             // 檢查是否有重複的聊天室
             if (sqlController.checkRepeat("userchatrooms", "users", usersIdListJsonStr)) {
                 returnJsonObject.setSuccess(false);
                 returnJsonObject.setErrorMessage("已有聊天室");
-                 return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
             }
 
             UUID uuid;
@@ -281,7 +274,7 @@ public class SpringController {
                 conn.rollback();
                 returnJsonObject.setSuccess(false);
                 returnJsonObject.setErrorMessage("資料庫添加失敗，請稍後再試");
-                 return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
             } else {
                 returnJsonObject.setSuccess(true);
                 conn.commit();
@@ -351,11 +344,11 @@ public class SpringController {
             if (size == 0 || chatUUID == null) {
                 returnJsonObject.setSuccess(false);
                 returnJsonObject.setErrorMessage("找不到聊天室");
-                 return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
             } else if (size != 1) {
                 returnJsonObject.setSuccess(false);
                 returnJsonObject.setErrorMessage("此使用者群組有多個聊天室");
-                 return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
             }
 
             set = stmt.executeQuery(String.format("select * from %s", "room_" + chatUUID.toString().replaceAll("-", "_")));
@@ -389,17 +382,56 @@ public class SpringController {
         if (conn == null) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage("未連接資料庫");
-             return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
         }
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        try {
+        String chatRoomName = null;
+        String usersIdListJsonStr = null;
+        if (jsonObject.has("chatRoomName")) {
+            chatRoomName = jsonObject.get("chatRoomName").getAsString();
+        }
+
+        if (jsonObject.has("users") && chatRoomName == null) {
+            usersIdListJsonStr = sortUsersIdList(jsonObject.getAsJsonArray("users"));
+
+            if (usersIdListJsonStr == null) {
+                returnJsonObject.setSuccess(false);
+                returnJsonObject.setErrorMessage("找不到chatRoomName或是users");
+                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+            }
+            chatRoomName = convertChatRoomName(sqlController.getChatRoomUUID(usersIdListJsonStr));
+        }
+        if (chatRoomName == null) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage("找不到chatRoom");
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+        }
+
+        try (Statement stmt = conn.createStatement()){
+            MessageSendReceive messageSendReceive = gson.fromJson(jsonObject.getAsJsonObject("message"), MessageSendReceive.class);
+            int num = stmt.executeUpdate(
+                    String.format("insert into %s values('%s', '%s', '%s', '%s')",
+                            chatRoomName,
+                            messageSendReceive.getSender(),
+                            messageSendReceive.getMessage(),
+                            messageSendReceive.getType(),
+                            messageSendReceive.getTime()
+            ));
+            if (num != 1) {
+                returnJsonObject.setSuccess(false);
+                returnJsonObject.setErrorMessage("訊息新增失敗");
+                conn.rollback();
+            } else {
+                returnJsonObject.setSuccess(true);
+                conn.commit();
+            }
             returnJsonObject.setSuccess(true);
         } catch (Exception e) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setException(e.getMessage());
         }
-         return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
     }
 
     @RequestMapping("/api/v1/getUserReceiveMessage")
@@ -408,7 +440,7 @@ public class SpringController {
         if (conn == null) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage("未連接資料庫");
-             return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
         }
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
@@ -416,8 +448,41 @@ public class SpringController {
             returnJsonObject.setSuccess(true);
         } catch (Exception e) {
             returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage("例外");
             returnJsonObject.setException(e.getMessage());
         }
-         return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+    }
+
+    private @Nullable String sortUsersIdList(JsonArray users) {
+        List<String> usersIdList = new ArrayList<>();
+
+        for (JsonElement jsonElement : users.asList()) {
+            try {
+                User user = sqlController.getUser(jsonElement.getAsString());
+                if (user == null) continue;
+                usersIdList.add(user.id);
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
+        }
+
+        if (usersIdList.isEmpty()) {
+            return null;
+        }
+        // 排序，讓之後的聊天室更好判斷
+//        usersList.sort(Comparator.comparing((User user) -> user.id));
+        usersIdList.sort(Comparator.naturalOrder());
+        return gson.toJson(gson.toJsonTree(usersIdList, new TypeToken<List<String>>() {}.getType()).getAsJsonArray(), JsonArray.class);
+    }
+
+    private String convertChatRoomName(UUID uuid) {
+        if (uuid == null) return null;
+        return "room_" + uuid.toString().replaceAll("-", "_");
+    }
+    private UUID convertChatRoomName(String roomName) {
+        if (roomName == null) return null;
+        return UUID.fromString(roomName.replaceAll("_", "-").replaceAll("room_", ""));
     }
 }

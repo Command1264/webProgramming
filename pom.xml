@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.github.command1264</groupId>
 	<artifactId>webProgramming</artifactId>
-	<version>0.2.0</version>
+	<version>0.2.1</version>
 	<name>webProgramming</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>

@@ -1,6 +1,5 @@
 {
-    "user": "Command1",
-    "receiver": "Taiwan_PingLord",
+    "user": ["Command1", "Taiwan_PingLord"],
     "messages": [
         {
             "sender": "Command1",

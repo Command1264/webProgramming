@@ -3,6 +3,7 @@ package com.github.command1264.webProgramming;
 import jakarta.annotation.Nullable;
 
 import java.sql.*;
+import java.util.UUID;
 
 public class SQLController {
     private Connection conn = null;
@@ -88,5 +89,23 @@ public class SQLController {
             return true;
         }
         return false;
+    }
+
+    public UUID getChatRoomUUID(String users) {
+        if (!checkConnect()) return null;
+
+        try (Statement stmt = conn.createStatement()){
+            UUID chatUUID = null;
+            ResultSet set = stmt.executeQuery(String.format("select * from userchatrooms where users='%s';", users));
+            int size = 0;
+            while (set.next()) {
+                chatUUID = UUID.fromString(set.getString("uuid"));
+                ++size;
+            }
+            if (size != 1) return null;
+            return chatUUID;
+        } catch (SQLException e) {
+            return null;
+        }
     }
 }
