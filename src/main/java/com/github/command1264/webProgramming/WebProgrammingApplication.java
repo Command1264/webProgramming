@@ -3,7 +3,6 @@ package com.github.command1264.webProgramming;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import javax.swing.*;
 import java.util.Collections;
 
 @SpringBootApplication
@@ -12,7 +11,7 @@ public class WebProgrammingApplication {
 //	private static ConfigurableApplicationContext context;
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(WebProgrammingApplication.class);
-		app.setDefaultProperties(Collections.singletonMap("server.port", "60922"));
+//		app.setDefaultProperties(Collections.singletonMap("server.port", "60922"));
 		app.run(args);
 	}
 

@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.github.command1264</groupId>
 	<artifactId>webProgramming</artifactId>
-	<version>0.2.1</version>
+	<version>0.2.2</version>
 	<name>webProgramming</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
@@ -27,6 +27,10 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.10.1</version>
@@ -34,7 +38,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.28</version>
+			<version>8.0.33</version>
 		</dependency>
 
 <!--		<dependency>-->
