@@ -4,14 +4,21 @@ public class Account extends User {
     protected String loginAccount = "";
     protected String loginPassword = "";
     public Account(String id, String name, String loginAccount, String loginPassword) {
-        super(id, name);
+        this(id, name, loginAccount, loginPassword, "");
     }
+    public Account(String id, String name, String loginAccount, String loginPassword, String photoStickerBase64) {
+        super(id, name, photoStickerBase64);
+        this.loginAccount = loginAccount;
+        this.loginPassword = loginPassword;
+    }
+
     public String getLoginAccount() {
         return this.loginAccount;
     }
     public String getLoginPassword() {
         return this.loginPassword;
     }
+
     public boolean setLoginAccount(String loginAccount) {
         if (loginAccount == null) return false;
         this.loginAccount = loginAccount;
@@ -22,6 +29,7 @@ public class Account extends User {
         this.loginPassword = loginPassword;
         return true;
     }
+
     @Override
     public String get(String key) {
         if (key == null) return null;

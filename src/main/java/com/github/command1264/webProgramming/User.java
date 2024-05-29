@@ -5,8 +5,7 @@ public class User {
     protected String name = "";
     protected String photoStickerBase64 = "";
     public User(String id, String name) {
-        this.id = id;
-        this.name = name;
+        this(id, name, "");
     }
     public User(String id, String name, String photoStickerBase64) {
         this.id = id;
@@ -34,7 +33,6 @@ public class User {
         this.id = id;
         return true;
     }
-
     public boolean setPhotoStickerBase64(String photoStickerBase64) {
         if (photoStickerBase64 == null) return false;
         this.photoStickerBase64 = photoStickerBase64;
