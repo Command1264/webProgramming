@@ -1,6 +1,10 @@
-package com.github.command1264.webProgramming;
+package com.github.command1264.controller;
 
 
+import com.github.command1264.messages.ReturnJsonObject;
+import com.github.command1264.accouunt.Account;
+import com.github.command1264.accouunt.User;
+import com.github.command1264.messages.MessageSendReceive;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import jakarta.annotation.Nullable;
@@ -75,11 +79,12 @@ public class SpringController {
                 }
             }
             int count = stmt.executeUpdate(
-                    String.format("insert into accountInfo values('%s', '%s', '%s', '%s')",
+                    String.format("insert into accountInfo (id, name, loginAccount, loginPassword, photoStickerBase64) values('%s', '%s', '%s', '%s', '%s')",
                             account.getId(),
                             account.getName(),
                             account.getLoginAccount(),
-                            account.getLoginPassword()
+                            account.getLoginPassword(),
+                            account.getPhotoStickerBase64()
             ));
             if (count == 1) {
                 returnJsonObject.setSuccess(true);
@@ -167,7 +172,7 @@ public class SpringController {
                 if (user == null) continue;
 
 //                usersList.add(user);
-                usersIdList.add(user.id);
+                usersIdList.add(user.getId());
             } catch (Exception e) {
                 e.printStackTrace();
                 continue;
@@ -257,7 +262,7 @@ public class SpringController {
 
 
             int updateRoom = stmt.executeUpdate( String.format(
-                    "insert into userChatRooms values('%s', '%s')",
+                    "insert into userChatRooms (uuid, users)  values('%s', '%s')",
                     uuid.toString(),
                     usersIdListJsonStr
             ));
@@ -391,7 +396,7 @@ public class SpringController {
             MessageSendReceive messageSendReceive = gson.fromJson(jsonObject.getAsJsonObject("message"), MessageSendReceive.class);
             // 這裡不需要新增 MessageSendReceive#getId() ，因為 id 會自己生成
             int num = stmt.executeUpdate(
-                    String.format("insert into %s values('%s', '%s', '%s', '%s')",
+                    String.format("insert into %s (sender, message, type, time) values('%s', '%s', '%s', '%s')",
                             chatRoomName,
                             messageSendReceive.getSender(),
                             messageSendReceive.getMessage(),
@@ -408,7 +413,9 @@ public class SpringController {
             }
             returnJsonObject.setSuccess(true);
         } catch (Exception e) {
+            e.printStackTrace();
             returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage("例外");
             returnJsonObject.setException(e.getMessage());
         }
         return gson.toJson(returnJsonObject, ReturnJsonObject.class);
@@ -441,7 +448,7 @@ public class SpringController {
             try {
                 User user = sqlController.getUser(jsonElement.getAsString());
                 if (user == null) continue;
-                usersIdList.add(user.id);
+                usersIdList.add(user.getId());
             } catch (Exception e) {
                 e.printStackTrace();
                 continue;

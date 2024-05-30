@@ -1,4 +1,4 @@
-package com.github.command1264.webProgramming;
+package com.github.command1264.messages;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

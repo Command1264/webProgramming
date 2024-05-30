@@ -3,8 +3,6 @@ package com.github.command1264.webProgramming;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.Collections;
-
 @SpringBootApplication
 public class WebProgrammingApplication {
 

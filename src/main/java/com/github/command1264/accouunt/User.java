@@ -1,4 +1,4 @@
-package com.github.command1264.webProgramming;
+package com.github.command1264.accouunt;
 
 public class User {
     protected String id = "";
