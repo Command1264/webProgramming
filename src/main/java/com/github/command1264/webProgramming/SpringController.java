@@ -1,6 +1,7 @@
-package com.github.command1264.controller;
+package com.github.command1264.webProgramming;
 
 
+import com.github.command1264.controller.SQLController;
 import com.github.command1264.messages.ReturnJsonObject;
 import com.github.command1264.accouunt.Account;
 import com.github.command1264.accouunt.User;
