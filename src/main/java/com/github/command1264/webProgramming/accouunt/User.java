@@ -1,9 +1,12 @@
-package com.github.command1264.accouunt;
+package com.github.command1264.webProgramming.accouunt;
 
 public class User {
     protected String id = "";
     protected String name = "";
     protected String photoStickerBase64 = "";
+    public User() {
+        this("", "");
+    }
     public User(String id, String name) {
         this(id, name, "");
     }

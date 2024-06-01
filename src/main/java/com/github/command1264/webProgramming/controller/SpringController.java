@@ -1,22 +1,24 @@
-package com.github.command1264.webProgramming;
+package com.github.command1264.webProgramming.controller;
 
 
-import com.github.command1264.dao.SqlDao;
-import com.github.command1264.messages.ReturnJsonObject;
-import com.github.command1264.service.AccountService;
-import com.github.command1264.service.UsersCahtRoomService;
+import com.github.command1264.webProgramming.messages.ReturnJsonObject;
+import com.github.command1264.webProgramming.service.AccountService;
+import com.github.command1264.webProgramming.service.UsersCahtRoomService;
+import com.github.command1264.webProgramming.dao.SqlDao;
 import com.google.gson.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class SpringController {
     private final Gson gson = new Gson();
-    private SqlDao sqlDao = null;
+    @Autowired
+    private SqlDao sqlDao;
     private AccountService accountService = null;
     private UsersCahtRoomService usersCahtRoomService = null;
 
     public SpringController() {
-        sqlDao = new SqlDao("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=Asia/Taipei&characterEncoding=utf-8", "root", "Margaret20070922");
+//        sqlDao = new SqlDao("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=Asia/Taipei&characterEncoding=utf-8", "root", "Margaret20070922");
         accountService = new AccountService(gson, sqlDao);
         usersCahtRoomService = new UsersCahtRoomService(gson, sqlDao);
     }
@@ -31,8 +33,9 @@ public class SpringController {
     }
 
     @PostMapping("/test")
-    public void test(@RequestBody String json) {
-
+    public String test(@RequestBody String json) {
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        return sqlDao.test(jsonObject.get("id").getAsString());
     }
 
     @PostMapping("/api/v1/createAccount")

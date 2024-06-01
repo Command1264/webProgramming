@@ -1,9 +1,9 @@
-package com.github.command1264.service;
+package com.github.command1264.webProgramming.service;
 
-import com.github.command1264.dao.SqlDao;
-import com.github.command1264.accouunt.Account;
-import com.github.command1264.accouunt.User;
-import com.github.command1264.messages.ReturnJsonObject;
+import com.github.command1264.webProgramming.accouunt.Account;
+import com.github.command1264.webProgramming.accouunt.User;
+import com.github.command1264.webProgramming.dao.SqlDao;
+import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.springframework.web.bind.annotation.RequestBody;

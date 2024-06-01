@@ -1,29 +1,29 @@
-package com.github.command1264.dao;
+package com.github.command1264.webProgramming.dao;
 
-import com.github.command1264.accouunt.Account;
-import com.github.command1264.accouunt.User;
-import com.github.command1264.messages.MessageSendReceive;
-import com.github.command1264.messages.ReturnJsonObject;
+import com.github.command1264.webProgramming.accouunt.Account;
+import com.github.command1264.webProgramming.accouunt.AccountRowMapper;
+import com.github.command1264.webProgramming.accouunt.User;
+import com.github.command1264.webProgramming.messages.MessageSendReceive;
+import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class SqlDao {
     private Connection conn = null;
     private Gson gson = new Gson();
     @Autowired
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private NamedParameterJdbcTemplate jdbcTemplate;
 
     public SqlDao(String url, String user, String password) {
         try {
@@ -43,6 +43,17 @@ public class SqlDao {
 
     public SqlDao() {
         this("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=UTC", "root", "Margaret20070922");
+    }
+
+    public String test(String id) {
+        String sql = "select * from accountInfo where id=:id";
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+        AccountRowMapper accountRowMapper = new AccountRowMapper();
+//        Account account = jdbcTemplate.queryForObject(sql, new Object[] {id}, new int[] {1}, accountRowMapper);
+        Account account = jdbcTemplate.queryForObject(sql, map, new BeanPropertyRowMapper<Account>(Account.class));
+        return gson.toJson(account, Account.class);
+
     }
 
 
@@ -132,12 +143,14 @@ public class SqlDao {
                     loginAccount='%s',
                     loginPassword='%s',
                     photoStickerBase64='%s'
+                    where id='%s'
                 """,
                 account.getId(),
                 account.getName(),
                 account.getLoginAccount(),
                 account.getLoginPassword(),
-                account.getPhotoStickerBase64()
+                account.getPhotoStickerBase64(),
+                oldId
             ));
             if (executeCount == 1) return true;
         } catch (SQLException e) {

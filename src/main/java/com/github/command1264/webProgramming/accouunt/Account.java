@@ -1,8 +1,11 @@
-package com.github.command1264.accouunt;
+package com.github.command1264.webProgramming.accouunt;
 
 public class Account extends User {
     protected String loginAccount = "";
     protected String loginPassword = "";
+    public Account() {
+        this("", "", "", "");
+    }
     public Account(String id, String name, String loginAccount, String loginPassword) {
         this(id, name, loginAccount, loginPassword, "");
     }

@@ -1,4 +1,4 @@
-package com.github.command1264.messages;
+package com.github.command1264.webProgramming.messages;
 
 public class ReturnJsonObject {
     private boolean success = false;
