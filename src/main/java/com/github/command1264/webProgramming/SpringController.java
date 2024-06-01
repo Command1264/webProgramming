@@ -1,52 +1,27 @@
 package com.github.command1264.webProgramming;
 
 
-import com.github.command1264.controller.SQLController;
+import com.github.command1264.dao.SqlDao;
 import com.github.command1264.messages.ReturnJsonObject;
-import com.github.command1264.accouunt.Account;
-import com.github.command1264.accouunt.User;
-import com.github.command1264.messages.MessageSendReceive;
+import com.github.command1264.service.AccountService;
+import com.github.command1264.service.UsersCahtRoomService;
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
-import jakarta.annotation.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class SpringController {
     private final Gson gson = new Gson();
-    private Connection conn = null;
-    private SQLController sqlController = null;
-    @Autowired
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private SqlDao sqlDao = null;
+    private AccountService accountService = null;
+    private UsersCahtRoomService usersCahtRoomService = null;
 
     public SpringController() {
-        sqlController = new SQLController("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=Asia/Taipei&characterEncoding=utf-8", "root", "Margaret20070922");
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            System.err.println("找不到JDBC！");
-            e.printStackTrace();
-        }
-        try {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=UTC", "root", "Margaret20070922");
-            conn.setAutoCommit(false);
-        } catch (SQLException e) {
-            System.err.println("無法連接資料庫！");
-            e.printStackTrace();
-        }
+        sqlDao = new SqlDao("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=Asia/Taipei&characterEncoding=utf-8", "root", "Margaret20070922");
+        accountService = new AccountService(gson, sqlDao);
+        usersCahtRoomService = new UsersCahtRoomService(gson, sqlDao);
     }
 
-    @RequestMapping("/ping")
+    @GetMapping("/ping")
     public String ping() {
         System.out.println("Ping!");
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
@@ -55,422 +30,49 @@ public class SpringController {
         return gson.toJson(returnJsonObject, ReturnJsonObject.class);
     }
 
-    @RequestMapping("/test")
+    @PostMapping("/test")
     public void test(@RequestBody String json) {
 
     }
 
-    @RequestMapping("/api/v1/createUser")
-    public String createUser(@RequestBody String json) {
-        Account account = gson.fromJson(json, Account.class);
-        System.out.println(gson.toJson(account, Account.class));
-
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if (conn == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("未連接資料庫");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-        try (Statement stmt = conn.createStatement()) {
-            for (String key : new String[]{"id", "loginAccount"}) {
-                if (sqlController.checkRepeat("accountInfo", key, account.get(key))) {
-                    returnJsonObject.setSuccess(false);
-                    returnJsonObject.setErrorMessage(key + "已經有人使用");
-                    return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-                }
-            }
-            int count = stmt.executeUpdate(
-                    String.format("insert into accountInfo (id, name, loginAccount, loginPassword, photoStickerBase64) values('%s', '%s', '%s', '%s', '%s')",
-                            account.getId(),
-                            account.getName(),
-                            account.getLoginAccount(),
-                            account.getLoginPassword(),
-                            account.getPhotoStickerBase64()
-            ));
-            if (count == 1) {
-                returnJsonObject.setSuccess(true);
-                conn.commit();
-            } else {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage("無法新增帳戶");
-                conn.rollback();
-            }
-        } catch (Exception e) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("例外");;
-            returnJsonObject.setException(e.getMessage());
-        }
-        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+    @PostMapping("/api/v1/createAccount")
+    public ReturnJsonObject createUser(@RequestBody String json) {
+        return accountService.createAccount(json);
     }
 
-    @RequestMapping("/api/v1/getUser")
-    public String getUser(@RequestBody String json) {
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();;
-        if (conn == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("未連接資料庫");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        if (!jsonObject.has("id")) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("找不到id");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        User user = sqlController.getUser(jsonObject.get("id").getAsString());
-        if (user != null) {
-            returnJsonObject.setSuccess(true);
-            returnJsonObject.setData(gson.toJson(user, User.class));
-        } else {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("找不到帳戶");
-        }
-        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-    }
-    @RequestMapping("/api/v1/getAccount")
-    public String getAccount(@RequestBody String json) {
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();;
-        if (conn == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("未連接資料庫");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        if (!jsonObject.has("id")) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("找不到id");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        Account account = sqlController.getAccount(jsonObject.get("id").getAsString());
-        if (account != null) {
-            returnJsonObject.setSuccess(true);
-            returnJsonObject.setData(gson.toJson(account, Account.class));
-        } else {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("找不到帳戶");
-        }
-        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+    @GetMapping("/api/v1/getUser")
+    public ReturnJsonObject getUser(@RequestBody String json) {
+        return accountService.getUser(json);
     }
 
-    @RequestMapping("/api/v1/getUserChatRoom")
-    public String getUserChatRoom(@RequestBody String json) {
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();;
-        if (conn == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("未連接資料庫");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        JsonArray users = jsonObject.getAsJsonArray("users");
-        List<String> usersIdList = new ArrayList<>();
-
-        for (JsonElement jsonElement : users.asList()) {
-            try {
-                User user = sqlController.getUser(jsonElement.getAsString());
-                if (user == null) continue;
-
-//                usersList.add(user);
-                usersIdList.add(user.getId());
-            } catch (Exception e) {
-                e.printStackTrace();
-                continue;
-            }
-        }
-
-        if (usersIdList.isEmpty()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("人數不能為0");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-        // 排序，讓之後的聊天室更好判斷
-//        usersList.sort(Comparator.comparing((User user) -> user.id));
-        usersIdList.sort(Comparator.naturalOrder());
-        try (Statement stmt = conn.createStatement()){
-            String usersIdListJsonStr = gson.toJson(gson.toJsonTree(usersIdList, new TypeToken<List<String>>() {}.getType()).getAsJsonArray(), JsonArray.class);
-            ResultSet set = stmt.executeQuery(String.format("select * from userchatrooms where users='%s'", usersIdListJsonStr));
-            int size = 0;
-            UUID chatUUID = null;
-            while (set.next()) {
-                try {
-                    chatUUID = UUID.fromString(set.getString("uuid"));
-                } catch (IllegalArgumentException ignored) {}
-                ++size;
-            }
-            if (size == 0 || chatUUID == null) {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage("找不到聊天室");
-                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-            } else if (size == 1) {
-                returnJsonObject.setSuccess(true);
-                returnJsonObject.setData(chatUUID.toString());
-                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-            } else {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage("此使用者群組有多個聊天室");
-                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-            }
-        } catch (SQLException e) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("例外");
-            returnJsonObject.setException(e.getMessage());
-        }
-        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+    @GetMapping("/api/v1/getAccount")
+    public ReturnJsonObject getAccount(@RequestBody String json) {
+        return accountService.getAccount(json);
     }
 
-    @RequestMapping("/api/v1/createUserChatRoom")
-    public String createUserChatRoom(@RequestBody String json) {
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();;
-        if (conn == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("未連接資料庫");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        if (!jsonObject.has("users")) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("人數不能為0");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        JsonArray users = jsonObject.getAsJsonArray("users");
-
-        String usersIdListJsonStr = sortUsersIdList(users);
-
-        if (usersIdListJsonStr == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("人數不能為0");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        try (Statement stmt = conn.createStatement()) {
-
-            // 檢查是否有重複的聊天室
-            if (sqlController.checkRepeat("userchatrooms", "users", usersIdListJsonStr)) {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage("已有聊天室");
-                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-            }
-
-            UUID uuid;
-            do {
-                uuid = UUID.randomUUID();
-            } while(sqlController.checkRepeat("userchatrooms", "uuid", uuid.toString()));
-            String roomName = String.format("room_%s", uuid.toString().replaceAll("-", "_"));
-
-
-            int updateRoom = stmt.executeUpdate( String.format(
-                    "insert into userChatRooms (uuid, users)  values('%s', '%s')",
-                    uuid.toString(),
-                    usersIdListJsonStr
-            ));
-            stmt.executeUpdate( String.format(
-                    "create table %s(" +
-                            "id int not null primary key auto_increment," +
-                            "sender varchar(64) not null," +
-                            "message text not null," +
-                            "type varchar(20) not null default 'text'," +
-                            "time text not null" +
-                            ");",
-                    roomName
-            ));
-            if (updateRoom != 1 || !sqlController.findTableName(roomName)) {
-                conn.rollback();
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage("資料庫添加失敗，請稍後再試");
-                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-            } else {
-                returnJsonObject.setSuccess(true);
-                conn.commit();
-            }
-
-        } catch (SQLException e) {
-            try {
-                if (conn != null) conn.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            e.printStackTrace();
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("例外");
-            returnJsonObject.setException(e.getMessage());
-        }
-
-        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+    @GetMapping("/api/v1/getUserChatRoom")
+    public ReturnJsonObject getUserChatRoom(@RequestBody String json) {
+        return usersCahtRoomService.getUsersChatRoom(json);
     }
 
-    @RequestMapping("/api/v1/getUsersChatRoomChat")
-    public String getUsersChatRoomChat(@RequestBody String json) {
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();;
-        if (conn == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("未連接資料庫");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        String chatRoomName = null;
-        String usersIdListJsonStr = null;
-        if (jsonObject.has("chatRoomName")) {
-            chatRoomName = jsonObject.get("chatRoomName").getAsString();
-        }
-
-        if (jsonObject.has("users") && chatRoomName == null) {
-            usersIdListJsonStr = sortUsersIdList(jsonObject.getAsJsonArray("users"));
-
-            if (usersIdListJsonStr == null) {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage("找不到chatRoomName或是users");
-                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-            }
-            chatRoomName = convertChatRoomName(sqlController.getChatRoomUUID(usersIdListJsonStr));
-        }
-        if (chatRoomName == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("找不到chatRoom");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        try (Statement stmt = conn.createStatement()) {
-            ResultSet set = stmt.executeQuery(String.format("select * from %s", chatRoomName));
-            List<MessageSendReceive> messageList = new ArrayList<>();
-            while (set.next()) {
-                messageList.add(new MessageSendReceive(
-                        set.getInt("id"),
-                        set.getString("sender"),
-                        set.getString("message"),
-                        set.getString("type"),
-                        set.getString("time")
-                ));
-            }
-            String messageListStr = gson.toJson(gson.toJsonTree(messageList,
-                        new TypeToken<List<MessageSendReceive>>() {}.getType())
-                    .getAsJsonArray(), JsonArray.class);
-            returnJsonObject.setSuccess(true);
-            returnJsonObject.setData(messageListStr);
-        } catch (SQLException e) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("例外");
-            returnJsonObject.setException(e.getMessage());
-        }
-
-        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+    @PostMapping("/api/v1/createUserChatRoom")
+    public ReturnJsonObject createUserChatRoom(@RequestBody String json) {
+        return usersCahtRoomService.createUsersChatRoom(json);
     }
 
-    @RequestMapping("/api/v1/userSendMessage")
-    public String userSendMessage(@RequestBody String json) {
-
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();;
-        if (conn == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("未連接資料庫");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        String chatRoomName = null;
-        String usersIdListJsonStr = null;
-        if (jsonObject.has("chatRoomName")) {
-            chatRoomName = jsonObject.get("chatRoomName").getAsString();
-        }
-
-        if (jsonObject.has("users") && chatRoomName == null) {
-            usersIdListJsonStr = sortUsersIdList(jsonObject.getAsJsonArray("users"));
-
-            if (usersIdListJsonStr == null) {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage("找不到chatRoomName或是users");
-                return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-            }
-            chatRoomName = convertChatRoomName(sqlController.getChatRoomUUID(usersIdListJsonStr));
-        }
-        if (chatRoomName == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("找不到chatRoom");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        try (Statement stmt = conn.createStatement()){
-            MessageSendReceive messageSendReceive = gson.fromJson(jsonObject.getAsJsonObject("message"), MessageSendReceive.class);
-            // 這裡不需要新增 MessageSendReceive#getId() ，因為 id 會自己生成
-            int num = stmt.executeUpdate(
-                    String.format("insert into %s (sender, message, type, time) values('%s', '%s', '%s', '%s')",
-                            chatRoomName,
-                            messageSendReceive.getSender(),
-                            messageSendReceive.getMessage(),
-                            messageSendReceive.getType(),
-                            messageSendReceive.getTime()
-            ));
-            if (num != 1) {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage("訊息新增失敗");
-                conn.rollback();
-            } else {
-                returnJsonObject.setSuccess(true);
-                conn.commit();
-            }
-            returnJsonObject.setSuccess(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("例外");
-            returnJsonObject.setException(e.getMessage());
-        }
-        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+    @GetMapping("/api/v1/getUsersChatRoomChat")
+    public ReturnJsonObject getUsersChatRoomChat(@RequestBody String json) {
+        return usersCahtRoomService.getUsersChatRoomChat(json);
     }
 
-    @RequestMapping("/api/v1/getUserReceiveMessage")
-    public String getUserReceiveMessage(@RequestBody String json) {
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();;
-        if (conn == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("未連接資料庫");
-            return gson.toJson(returnJsonObject, ReturnJsonObject.class);
-        }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        try {
-            returnJsonObject.setSuccess(true);
-        } catch (Exception e) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage("例外");
-            returnJsonObject.setException(e.getMessage());
-        }
-        return gson.toJson(returnJsonObject, ReturnJsonObject.class);
+    @PutMapping("/api/v1/userSendMessage")
+    public ReturnJsonObject userSendMessage(@RequestBody String json) {
+        return usersCahtRoomService.userSendMessage(json);
     }
 
-    private @Nullable String sortUsersIdList(JsonArray users) {
-        List<String> usersIdList = new ArrayList<>();
-
-        for (JsonElement jsonElement : users.asList()) {
-            try {
-                User user = sqlController.getUser(jsonElement.getAsString());
-                if (user == null) continue;
-                usersIdList.add(user.getId());
-            } catch (Exception e) {
-                e.printStackTrace();
-                continue;
-            }
-        }
-
-        if (usersIdList.isEmpty()) {
-            return null;
-        }
-        // 排序，讓之後的聊天室更好判斷
-//        usersList.sort(Comparator.comparing((User user) -> user.id));
-        usersIdList.sort(Comparator.naturalOrder());
-        return gson.toJson(gson.toJsonTree(usersIdList, new TypeToken<List<String>>() {}.getType()).getAsJsonArray(), JsonArray.class);
+    @GetMapping("/api/v1/getUserReceiveMessage")
+    public ReturnJsonObject getUserReceiveMessage(@RequestBody String json) {
+        return usersCahtRoomService.getUserReceiveMessage(json);
     }
 
-    private String convertChatRoomName(UUID uuid) {
-        if (uuid == null) return null;
-        return "room_" + uuid.toString().replaceAll("-", "_");
-    }
-    private UUID convertChatRoomName(String roomName) {
-        if (roomName == null) return null;
-        return UUID.fromString(roomName.replaceAll("_", "-").replaceAll("room_", ""));
-    }
 }
