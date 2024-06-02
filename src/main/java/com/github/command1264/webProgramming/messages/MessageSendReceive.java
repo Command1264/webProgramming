@@ -9,6 +9,7 @@ public class MessageSendReceive {
     private String message = "";
     private String type = "";
     private String time = "";
+    public MessageSendReceive() {}
     public MessageSendReceive(int id, String sender, String message, String type, LocalDateTime time) {
         this.id = id;
         this.sender = sender;
@@ -21,6 +22,21 @@ public class MessageSendReceive {
         this.sender = sender;
         this.message = message;
         this.type = type;
+        this.time = time;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
+    public void setTime(String time) {
         this.time = time;
     }
 

@@ -1,27 +1,32 @@
 package com.github.command1264.webProgramming.controller;
 
 
+import com.github.command1264.webProgramming.service.MessagesService;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.service.AccountService;
-import com.github.command1264.webProgramming.service.UsersCahtRoomService;
+import com.github.command1264.webProgramming.service.UsersChatRoomService;
 import com.github.command1264.webProgramming.dao.SqlDao;
 import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class SpringController {
+public class HttpController {
     private final Gson gson = new Gson();
     @Autowired
     private SqlDao sqlDao;
-    private AccountService accountService = null;
-    private UsersCahtRoomService usersCahtRoomService = null;
+    @Autowired
+    private AccountService accountService;
+    @Autowired
+    private UsersChatRoomService usersChatRoomService;
+    @Autowired
+    private MessagesService messagesService;
 
-    public SpringController() {
-//        sqlDao = new SqlDao("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=Asia/Taipei&characterEncoding=utf-8", "root", "Margaret20070922");
-        accountService = new AccountService(gson, sqlDao);
-        usersCahtRoomService = new UsersCahtRoomService(gson, sqlDao);
-    }
+//    public SpringController() {
+////        sqlDao = new SqlDao("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=Asia/Taipei&characterEncoding=utf-8", "root", "Margaret20070922");
+//        accountService = new AccountService(gson, sqlDao);
+//        usersChatRoomService = new UsersChatRoomService(gson, sqlDao);
+//    }
 
     @GetMapping("/ping")
     public String ping() {
@@ -55,27 +60,27 @@ public class SpringController {
 
     @GetMapping("/api/v1/getUserChatRoom")
     public ReturnJsonObject getUserChatRoom(@RequestBody String json) {
-        return usersCahtRoomService.getUsersChatRoom(json);
+        return usersChatRoomService.getUsersChatRoom(json);
     }
 
     @PostMapping("/api/v1/createUserChatRoom")
     public ReturnJsonObject createUserChatRoom(@RequestBody String json) {
-        return usersCahtRoomService.createUsersChatRoom(json);
+        return usersChatRoomService.createUsersChatRoom(json);
     }
 
     @GetMapping("/api/v1/getUsersChatRoomChat")
     public ReturnJsonObject getUsersChatRoomChat(@RequestBody String json) {
-        return usersCahtRoomService.getUsersChatRoomChat(json);
+        return usersChatRoomService.getUsersChatRoomChat(json);
     }
 
     @PutMapping("/api/v1/userSendMessage")
     public ReturnJsonObject userSendMessage(@RequestBody String json) {
-        return usersCahtRoomService.userSendMessage(json);
+        return messagesService.userSendMessage(json);
     }
 
     @GetMapping("/api/v1/getUserReceiveMessage")
     public ReturnJsonObject getUserReceiveMessage(@RequestBody String json) {
-        return usersCahtRoomService.getUserReceiveMessage(json);
+        return messagesService.getUserReceiveMessage(json);
     }
 
 }

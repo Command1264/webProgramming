@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.github.command1264</groupId>
 	<artifactId>webProgramming</artifactId>
-	<version>0.4.0</version>
+	<version>0.5.0</version>
 	<name>webProgramming</name>
 	<description>Web Programming Server</description>
 	<properties>
@@ -53,6 +53,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
