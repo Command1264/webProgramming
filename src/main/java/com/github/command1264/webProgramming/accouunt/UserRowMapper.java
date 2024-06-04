@@ -11,7 +11,9 @@ public class UserRowMapper implements RowMapper<User> {
         User user = new Account();
         user.setId(rs.getString("id"));
         user.setName(rs.getString("name"));
+        user.setCreateTime(rs.getString("createTime"));
         user.setPhotoStickerBase64(rs.getString("photoStickerBase64"));
+        user.setChatRooms(rs.getString("chatRooms"));
         return user;
     }
 }

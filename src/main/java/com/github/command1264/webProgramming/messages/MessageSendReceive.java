@@ -9,20 +9,18 @@ public class MessageSendReceive {
     private String message = "";
     private String type = "";
     private String time = "";
+    private boolean modify = false;
     public MessageSendReceive() {}
-    public MessageSendReceive(int id, String sender, String message, String type, LocalDateTime time) {
-        this.id = id;
-        this.sender = sender;
-        this.message = message;
-        this.type = type;
-        this.time = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    public MessageSendReceive(int id, String sender, String message, String type, LocalDateTime time, boolean modify) {
+        this(id, sender, message, type, time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS")), modify);
     }
-    public MessageSendReceive(int id, String sender, String message, String type, String time) {
+    public MessageSendReceive(int id, String sender, String message, String type, String time, boolean modify) {
         this.id = id;
         this.sender = sender;
         this.message = message;
         this.type = type;
         this.time = time;
+        this.modify = modify;
     }
     public void setId(int id) {
         this.id = id;
@@ -39,6 +37,9 @@ public class MessageSendReceive {
     public void setTime(String time) {
         this.time = time;
     }
+    public void setModify(boolean modify) {
+        this.modify = modify;
+    }
 
     public int getId() {
         return this.id;
@@ -54,6 +55,9 @@ public class MessageSendReceive {
     }
     public String getTime() {
         return this.time;
+    }
+    public boolean getModify() {
+        return this.modify;
     }
 
 }

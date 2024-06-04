@@ -9,6 +9,10 @@ public class RoomNameConverter {
     }
     public static UUID convertChatRoomName(String roomName) {
         if (roomName == null) return null;
-        return UUID.fromString(roomName.replaceAll("_", "-").replaceAll("room_", ""));
+        try {
+            return UUID.fromString(roomName.replaceAll("room_", "").replaceAll("_", "-"));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

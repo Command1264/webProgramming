@@ -27,6 +27,16 @@ public class HttpController {
 //        accountService = new AccountService(gson, sqlDao);
 //        usersChatRoomService = new UsersChatRoomService(gson, sqlDao);
 //    }
+//    @MessageMapping("/hello")
+//    @SendTo("/topic/hello")
+//    public ReturnJsonObject webSocketTest(String str) {
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return new ReturnJsonObject(true, null, null, str);
+//    }
 
     @GetMapping("/ping")
     public String ping() {
@@ -42,6 +52,11 @@ public class HttpController {
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         return sqlDao.test(jsonObject.get("id").getAsString());
     }
+    @PostMapping("/api/v1/loginAccount")
+    public ReturnJsonObject loginAccount(@RequestBody String json, @RequestHeader String Cookie) {
+        return accountService.loginAccount(json, Cookie);
+    }
+
 
     @PostMapping("/api/v1/createAccount")
     public ReturnJsonObject createUser(@RequestBody String json) {

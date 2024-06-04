@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.github.command1264</groupId>
 	<artifactId>webProgramming</artifactId>
-	<version>0.5.0</version>
+	<version>0.6.0</version>
 	<name>webProgramming</name>
 	<description>Web Programming Server</description>
 	<properties>
@@ -64,6 +64,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.jetbrains</groupId>
+			<artifactId>annotations</artifactId>
+			<version>24.1.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 		</dependency>
@@ -77,5 +83,12 @@
 			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>maven_central</id>
+			<name>Maven Central</name>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</repository>
+	</repositories>
 
 </project>

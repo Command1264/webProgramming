@@ -10,9 +10,9 @@ public class ReturnJsonObject {
 
     public ReturnJsonObject(boolean success, String errorMessage, String exception, String data) {
         this.success = success;
-        this.errorMessage = errorMessage;
-        this.exception = exception;
-        this.data = data;
+        if (errorMessage != null) this.errorMessage = errorMessage;
+        if (exception != null) this.exception = exception;
+        if (data != null) this.data = data;
     }
 
     public boolean isSuccess() {

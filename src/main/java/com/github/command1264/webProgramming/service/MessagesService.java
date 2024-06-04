@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 public class MessagesService {
     private final Gson gson = new Gson();
     @Autowired
+    private UsersSorter usersSorter;
+    @Autowired
     private SqlDao sqlDao;
     @Autowired
     private AccountDao accountDao;
@@ -41,7 +43,7 @@ public class MessagesService {
         }
 
         if (jsonObject.has("users") && chatRoomName == null) {
-            usersIdListJsonStr = UsersSorter.sortUsersIdList(jsonObject.getAsJsonArray("users"));
+            usersIdListJsonStr = usersSorter.sortUsersIdList(jsonObject.getAsJsonArray("users"));
 
             if (usersIdListJsonStr == null) {
                 returnJsonObject.setSuccess(false);

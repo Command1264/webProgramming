@@ -6,7 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import jakarta.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +17,9 @@ import java.util.List;
 @Component
 public class UsersSorter {
     @Autowired
-    private static AccountDao accountDao;
-    private static final Gson gson = new Gson();
-    public static @Nullable String sortUsersIdList(JsonArray users) {
+    private AccountDao accountDao;
+    private final Gson gson = new Gson();
+    public @Nullable String sortUsersIdList(JsonArray users) {
         List<String> usersIdList = new ArrayList<>();
 
         for (JsonElement jsonElement : users.asList()) {
