@@ -145,7 +145,7 @@ public class MessagesDao {
 
 
 
-    public ReturnJsonObject userSendMessage(String chatRoomName, JsonObject jsonObject) {
+    public ReturnJsonObject userSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -154,15 +154,15 @@ public class MessagesDao {
         }
         String sql = "insert into :tableName (sender, message, type, time) values(:sender, :message, :type, :time);"
                 .replaceAll(":tableName", chatRoomName);
-        MessageSendReceive messageSendReceive = gson.fromJson(jsonObject.getAsJsonObject("message"), MessageSendReceive.class);
+
         Map<String, Object> map = new HashMap<>() {{
             put("sender", messageSendReceive.getSender());
             put("message", messageSendReceive.getMessage());
             put("type", messageSendReceive.getType());
             put("time", messageSendReceive.getTime());
         }};
-        int runCount = jdbcTemplate.update(sql, map);
-        if (runCount != 1) {
+        int count = jdbcTemplate.update(sql, map);
+        if (count != 1) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
             return returnJsonObject;
@@ -170,33 +170,6 @@ public class MessagesDao {
         returnJsonObject.setSuccess(true);
         return returnJsonObject;
 
-//        try (Statement stmt = conn.createStatement()) {
-//            MessageSendReceive messageSendReceive = gson.fromJson(jsonObject.getAsJsonObject("message"), MessageSendReceive.class);
-//            // 這裡不需要新增 MessageSendReceive#getId() ，因為 id 會自己生成
-//            int num = stmt.executeUpdate(
-//                    String.format("insert into %s (sender, message, type, time) values('%s', '%s', '%s', '%s')",
-//                            chatRoomName,
-//                            messageSendReceive.getSender(),
-//                            messageSendReceive.getMessage(),
-//                            messageSendReceive.getType(),
-//                            messageSendReceive.getTime()
-//                    ));
-//            if (num != 1) {
-//                returnJsonObject.setSuccess(false);
-//                returnJsonObject.setErrorMessage("訊息新增失敗");
-//                conn.rollback();
-//            } else {
-//                returnJsonObject.setSuccess(true);
-//                conn.commit();
-//            }
-//            returnJsonObject.setSuccess(true);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage("例外");
-//            returnJsonObject.setException(e.getMessage());
-//        }
-//        return returnJsonObject;
     }
 
 }

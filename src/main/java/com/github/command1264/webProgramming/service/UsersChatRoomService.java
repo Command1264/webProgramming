@@ -1,16 +1,14 @@
 package com.github.command1264.webProgramming.service;
 
-import com.github.command1264.webProgramming.accouunt.User;
 import com.github.command1264.webProgramming.dao.AccountDao;
 import com.github.command1264.webProgramming.dao.MessagesDao;
 import com.github.command1264.webProgramming.dao.SqlDao;
 import com.github.command1264.webProgramming.dao.UsersChatRoomDao;
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
-import com.github.command1264.webProgramming.util.RoomNameConverter;
+import com.github.command1264.webProgramming.util.JsonKeyEnum;
 import com.github.command1264.webProgramming.util.UsersSorter;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +31,7 @@ public class UsersChatRoomService {
     private MessagesDao messagesDao;
     private Gson gson = new Gson();
 
+    @Deprecated
     public ReturnJsonObject getUsersChatRoom(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if(sqlDao.checkNotConnect()) {
@@ -42,8 +41,22 @@ public class UsersChatRoomService {
         }
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        JsonArray users = jsonObject.getAsJsonArray("users");
-        return usersChatRoomDao.getUsersChatRoom(usersSorter.sortUsersIdList(users));
+        if ((!jsonObject.has(JsonKeyEnum.userIds.name()) || jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) &&
+                (!jsonObject.has(JsonKeyEnum.ids.name()) || jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull()) ) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.usersIsZero.getErrorMessage());
+            return returnJsonObject;
+        }
+
+
+        String usersListStr = null;
+        if (jsonObject.has(JsonKeyEnum.userIds.name()) && !jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) {
+            usersListStr = usersSorter.sortUserIdsReturnIds(jsonObject.getAsJsonArray(JsonKeyEnum.userIds.name()));
+        } else if (jsonObject.has(JsonKeyEnum.ids.name()) && !jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull()) {
+            usersListStr = usersSorter.sortIds(jsonObject.getAsJsonArray(JsonKeyEnum.ids.name()));
+        }
+
+        return usersChatRoomDao.getUsersChatRoom(usersListStr);
     }
 
     public ReturnJsonObject createUsersChatRoom(String json) {
@@ -56,15 +69,20 @@ public class UsersChatRoomService {
 
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        if (!jsonObject.has("users")) {
+        if ((!jsonObject.has(JsonKeyEnum.userIds.name()) || jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) &&
+                (!jsonObject.has(JsonKeyEnum.ids.name()) || jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull()) ) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.usersIsZero.getErrorMessage());
             return returnJsonObject;
         }
 
-        JsonArray users = jsonObject.getAsJsonArray("users");
 
-        String usersListStr = usersSorter.sortUsersIdList(users);
+        String usersListStr = null;
+        if (jsonObject.has(JsonKeyEnum.userIds.name()) && !jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) {
+            usersListStr = usersSorter.sortUserIdsReturnIds(jsonObject.getAsJsonArray(JsonKeyEnum.userIds.name()));
+        } else if (jsonObject.has(JsonKeyEnum.ids.name()) && !jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull()) {
+            usersListStr = usersSorter.sortIds(jsonObject.getAsJsonArray(JsonKeyEnum.ids.name()));
+        }
 
         if (usersListStr == null) {
             returnJsonObject.setSuccess(false);
@@ -72,10 +90,29 @@ public class UsersChatRoomService {
             return returnJsonObject;
         }
         List<String> userIds = gson.fromJson(usersListStr, new TypeToken<List<String>>(){}.getType());
-//        for(String id : userIds) {
-//            accountDao.addChatRooms(id, )
-//        }
-        return usersChatRoomDao.createUsersChatRoom(usersListStr);
+
+        ReturnJsonObject createRoomJson = usersChatRoomDao.createUsersChatRoom(usersListStr);
+        if (!createRoomJson.isSuccess()) return createRoomJson;
+        boolean flag = false;
+        for(String id : userIds) {
+//            if (Objects.equals(type, JsonKeyEnum.ids.name())) {
+            if (!accountDao.addChatRoomsWithId(id, createRoomJson.getData())) {
+                flag = true;
+            }
+//            } else {
+//                if (!accountDao.addChatRoomsWithUserId(id, createRoomJson.getData())) {
+//                    flag = true;
+//                }
+//            }
+        }
+
+        if (flag) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantSuccessAddAccount.getErrorMessage());
+            return returnJsonObject;
+        }
+        return createRoomJson;
+
     }
 
     public ReturnJsonObject getUsersChatRoomChat(String json) {
@@ -89,24 +126,20 @@ public class UsersChatRoomService {
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         String chatRoomName = null;
-        String usersIdListJsonStr = null;
         if (jsonObject.has("chatRoomName")) {
             chatRoomName = jsonObject.get("chatRoomName").getAsString();
         }
 
-        if (jsonObject.has("users") && chatRoomName == null) {
-            usersIdListJsonStr = usersSorter.sortUsersIdList(jsonObject.getAsJsonArray("users"));
-
-            if (usersIdListJsonStr == null) {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomNameAndUsersRaw.getErrorMessage());
-                return returnJsonObject;
-            }
-            chatRoomName = RoomNameConverter.convertChatRoomName(usersChatRoomDao.getChatRoomUUID(usersIdListJsonStr));
-        }
         if (chatRoomName == null) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomNameRaw.getErrorMessage());
+            return returnJsonObject;
+        }
+        chatRoomName = chatRoomName.toLowerCase();
+        if (!usersChatRoomDao.checkHasUsersChatRoom(chatRoomName) ||
+                !sqlDao.findTableName(chatRoomName)) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
             return returnJsonObject;
         }
         return messagesDao.getUsersChatRoomChat(chatRoomName);

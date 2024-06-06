@@ -10,6 +10,7 @@ public class UserRowMapper implements RowMapper<User> {
     public User mapRow(ResultSet rs, int rowNum) throws SQLException {
         User user = new Account();
         user.setId(rs.getString("id"));
+        user.setUserId(rs.getString("userId"));
         user.setName(rs.getString("name"));
         user.setCreateTime(rs.getString("createTime"));
         user.setPhotoStickerBase64(rs.getString("photoStickerBase64"));

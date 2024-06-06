@@ -19,13 +19,63 @@ public class UsersSorter {
     @Autowired
     private AccountDao accountDao;
     private final Gson gson = new Gson();
-    public @Nullable String sortUsersIdList(JsonArray users) {
+    public @Nullable String sortUserIds(JsonArray users) {
         List<String> usersIdList = new ArrayList<>();
 
         for (JsonElement jsonElement : users.asList()) {
             try {
-                User user = accountDao.getUser(jsonElement.getAsString());
+                User user = accountDao.getUserWithUserId(jsonElement.getAsString());
                 if (user == null) continue;
+                if (usersIdList.contains(user.getUserId())) continue;
+                usersIdList.add(user.getUserId());
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
+        }
+
+        if (usersIdList.isEmpty()) {
+            return null;
+        }
+        // 排序，讓之後的聊天室更好判斷
+//        usersList.sort(Comparator.comparing((User user) -> user.id));
+        usersIdList.sort(Comparator.naturalOrder());
+        return gson.toJson(gson.toJsonTree(usersIdList, new TypeToken<List<String>>() {
+        }.getType()).getAsJsonArray(), JsonArray.class);
+    }
+    public @Nullable String sortUserIdsReturnIds(JsonArray users) {
+        List<String> usersIdList = new ArrayList<>();
+
+        for (JsonElement jsonElement : users.asList()) {
+            try {
+                User user = accountDao.getUserWithUserId(jsonElement.getAsString());
+                if (user == null) continue;
+                if (usersIdList.contains(user.getId())) continue;
+                usersIdList.add(user.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
+        }
+
+        if (usersIdList.isEmpty()) {
+            return null;
+        }
+        // 排序，讓之後的聊天室更好判斷
+//        usersList.sort(Comparator.comparing((User user) -> user.id));
+        usersIdList.sort(Comparator.naturalOrder());
+        return gson.toJson(gson.toJsonTree(usersIdList, new TypeToken<List<String>>() {
+        }.getType()).getAsJsonArray(), JsonArray.class);
+    }
+
+    public @Nullable String sortIds(JsonArray users) {
+        List<String> usersIdList = new ArrayList<>();
+
+        for (JsonElement jsonElement : users.asList()) {
+            try {
+                User user = accountDao.getUserWithId(jsonElement.getAsString());
+                if (user == null) continue;
+                if (usersIdList.contains(user.getId())) continue;
                 usersIdList.add(user.getId());
             } catch (Exception e) {
                 e.printStackTrace();

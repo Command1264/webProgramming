@@ -15,6 +15,12 @@ public class MessageSendReceiveRowMapper implements RowMapper<MessageSendReceive
         messageSendReceive.setMessage(rs.getString("message"));
         messageSendReceive.setType(rs.getString("type"));
         messageSendReceive.setType(rs.getString("time"));
+        messageSendReceive.setModify(rs.getBoolean("modify"));
+        messageSendReceive.setDeleted(rs.getBoolean("deleted"));
+        if (messageSendReceive.getDeleted()) {
+            messageSendReceive.setType("space");
+            messageSendReceive.setMessage("");
+        }
         return messageSendReceive;
     }
 }

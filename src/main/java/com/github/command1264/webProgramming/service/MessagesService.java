@@ -5,8 +5,8 @@ import com.github.command1264.webProgramming.dao.MessagesDao;
 import com.github.command1264.webProgramming.dao.SqlDao;
 import com.github.command1264.webProgramming.dao.UsersChatRoomDao;
 import com.github.command1264.webProgramming.messages.ErrorType;
+import com.github.command1264.webProgramming.messages.MessageSendReceive;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
-import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.github.command1264.webProgramming.util.UsersSorter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -37,29 +37,28 @@ public class MessagesService {
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         String chatRoomName = null;
-        String usersIdListJsonStr = null;
-        if (jsonObject.has("chatRoomName")) {
+        MessageSendReceive messageSendReceive = null;
+        if (jsonObject.has("chatRoomName") && !jsonObject.get("chatRoomName").isJsonNull()) {
             chatRoomName = jsonObject.get("chatRoomName").getAsString();
         }
-
-        if (jsonObject.has("users") && chatRoomName == null) {
-            usersIdListJsonStr = usersSorter.sortUsersIdList(jsonObject.getAsJsonArray("users"));
-
-            if (usersIdListJsonStr == null) {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomNameAndUsersRaw.getErrorMessage());
-                return returnJsonObject;
-            }
-            chatRoomName = RoomNameConverter.convertChatRoomName(usersChatRoomDao.getChatRoomUUID(usersIdListJsonStr));
+        if (jsonObject.has("message") && !jsonObject.get("message").isJsonNull()) {
+            messageSendReceive = MessageSendReceive.deserialize(jsonObject.getAsJsonObject("message").getAsString());
         }
+
         if (chatRoomName == null) {
             returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomNameRaw.getErrorMessage());
+            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
             return returnJsonObject;
         }
-        return messagesDao.userSendMessage(chatRoomName, jsonObject);
+        if (messageSendReceive == null) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            return returnJsonObject;
+        }
+        return messagesDao.userSendMessage(chatRoomName, messageSendReceive);
     }
 
+    @Deprecated
     public ReturnJsonObject getUserReceiveMessage(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if(sqlDao.checkNotConnect()) {

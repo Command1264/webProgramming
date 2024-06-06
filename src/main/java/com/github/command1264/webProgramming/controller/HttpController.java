@@ -1,6 +1,9 @@
 package com.github.command1264.webProgramming.controller;
 
 
+import com.github.command1264.webProgramming.dao.AccountDao;
+import com.github.command1264.webProgramming.dao.MessagesDao;
+import com.github.command1264.webProgramming.dao.UsersChatRoomDao;
 import com.github.command1264.webProgramming.service.MessagesService;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.service.AccountService;
@@ -15,6 +18,13 @@ public class HttpController {
     private final Gson gson = new Gson();
     @Autowired
     private SqlDao sqlDao;
+    @Autowired
+    private AccountDao accountDao;
+    @Autowired
+    private UsersChatRoomDao usersChatRoomDao;
+    @Autowired
+    private MessagesDao messagesDao;
+
     @Autowired
     private AccountService accountService;
     @Autowired
@@ -50,16 +60,17 @@ public class HttpController {
     @PostMapping("/test")
     public String test(@RequestBody String json) {
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        return sqlDao.test(jsonObject.get("id").getAsString());
+        return accountDao.getAccountWithUserId(jsonObject.get("id").getAsString()).serialize();
+//        return sqlDao.test(jsonObject.get("id").getAsString());
     }
     @PostMapping("/api/v1/loginAccount")
-    public ReturnJsonObject loginAccount(@RequestBody String json, @RequestHeader String Cookie) {
-        return accountService.loginAccount(json, Cookie);
+    public ReturnJsonObject loginAccount(@RequestBody String json) {
+        return accountService.loginAccount(json);
     }
 
 
     @PostMapping("/api/v1/createAccount")
-    public ReturnJsonObject createUser(@RequestBody String json) {
+    public ReturnJsonObject createAccount(@RequestBody String json) {
         return accountService.createAccount(json);
     }
 
@@ -73,6 +84,7 @@ public class HttpController {
         return accountService.getAccount(json);
     }
 
+    @Deprecated
     @GetMapping("/api/v1/getUserChatRoom")
     public ReturnJsonObject getUserChatRoom(@RequestBody String json) {
         return usersChatRoomService.getUsersChatRoom(json);
@@ -93,6 +105,7 @@ public class HttpController {
         return messagesService.userSendMessage(json);
     }
 
+    @Deprecated
     @GetMapping("/api/v1/getUserReceiveMessage")
     public ReturnJsonObject getUserReceiveMessage(@RequestBody String json) {
         return messagesService.getUserReceiveMessage(json);

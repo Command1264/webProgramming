@@ -12,10 +12,12 @@ public enum ErrorType {
     cantFindUsers("找不到使用者"),
     usersHasMulti("找到多組使用者"),
     usersSaveFailed("使用者儲存失敗"),
+    cantSuccessAddAccount("無法成功新增帳戶"),
 
     cantFindChatRoomNameAndUsersRaw("找不到chatRoomName或是users"),
 
     findKey(":key已經有人使用"),
+    keyNoData(":key沒有資料"),
 
     cantFindMessage("找不到訊息"),
     messageHasMulti("找到多組訊息"),
@@ -23,9 +25,9 @@ public enum ErrorType {
     messageDeleteFailed("儲存刪除失敗"),
 
     cantCreateAccount("無法新增帳戶"),
-    cantFindLoginDataOrSession("找不到帳戶資訊或是Session"),
+    cantFindLoginDataOrToken("找不到帳戶資訊或是Token"),
     cantFindLoginAccount("找不到登入帳號"),
-    cantFindId("找不到id"),
+    cantFindIdOrUserId("找不到id"),
     wrongPassword("密碼錯誤"),
     cantFindAccount("找不到帳戶"),
     usersIsZero("人數不能為0"),

@@ -1,6 +1,6 @@
 server:
   port: 60922
-  address: 127.0.0.1
+  address: 26.208.147.218
   shutdown: "graceful"
 
 # 暴露 shutdown 接口

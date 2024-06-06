@@ -1,5 +1,6 @@
 package com.github.command1264.webProgramming.dao;
 
+import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -39,7 +40,7 @@ public class SqlDao {
                 chatRooms text not null,
                 unique key `loginAccount` (`loginAccount`)
             );
-        """.replaceAll(":tableName", SqlTableEnum.accountInfo.getName());
+        """.replaceAll(":tableName", SqlTableEnum.accountInfo.name());
         String initAccountInfoSql = """
             INSERT INTO `accountinfo`(id, name, createTime, loginAccount, loginPassword, photoStickerBase64, chatRooms)
             VALUES('Command1','指令 Command1', '2004-01-06 20:07:09.2200','command1264@gmail.com','25d55ad283aa400af464c76d713c07ad', NULL, '[]'),
@@ -55,16 +56,16 @@ public class SqlDao {
                 users text not null,
                 lastModify datetime(4) not null
             );
-        """.replaceAll(":tableName", SqlTableEnum.usersChatRooms.getName());
+        """.replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
         jdbcTemplate.update(createUsersChatRoomSql, map);
 
         String createCookieSessionSql = """
             create table if not exists :tableName(
                 id varchar(64) primary key not null,
-                session text not null,
+                token text not null,
                 expiredTime datetime(4) not null
             );
-        """.replaceAll(":tableName", SqlTableEnum.cookieSessions.getName());
+        """.replaceAll(":tableName", SqlTableEnum.loginTokens.name());
         jdbcTemplate.update(createCookieSessionSql, map);
         System.out.println("Sql init successful");
 

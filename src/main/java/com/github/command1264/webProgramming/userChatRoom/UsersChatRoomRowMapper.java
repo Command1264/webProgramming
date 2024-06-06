@@ -11,6 +11,7 @@ public class UsersChatRoomRowMapper implements RowMapper<UsersChatRoom> {
         UsersChatRoom usersChatRoom = new UsersChatRoom();
         usersChatRoom.setUUID(rs.getString("uuid"));
         usersChatRoom.setUsers(rs.getString("users"));
+        usersChatRoom.setLastModify(rs.getString("lastModify"));
         return usersChatRoom;
     }
 }

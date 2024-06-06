@@ -1,5 +1,7 @@
 package com.github.command1264.webProgramming.accouunt;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
@@ -15,19 +17,19 @@ public class Account extends User {
     public Account() {
         this(null, null, null, null);
     }
-    public Account(String id, String name, String loginAccount, String loginPassword) {
-        this(id, name, loginAccount, loginPassword, "");
+    public Account(String userId, String name, String loginAccount, String loginPassword) {
+        this(userId, name, loginAccount, loginPassword, "");
     }
-    public Account(String id, String name, String loginAccount, String loginPassword, String photoStickerBase64) {
-        this(id, name, loginAccount, loginPassword, photoStickerBase64, new ArrayList<>());
+    public Account(String userId, String name, String loginAccount, String loginPassword, String photoStickerBase64) {
+        this(userId, name, loginAccount, loginPassword, photoStickerBase64, new ArrayList<>());
     }
-    public Account(String id,
+    public Account(String userId,
                    String name,
                    String loginAccount,
                    String loginPassword,
                    String photoStickerBase64,
                    List<Map<String, Long>> chatRooms) {
-        super(id, name, LocalDateTime.now(), photoStickerBase64, chatRooms);
+        super(userId, name, LocalDateTime.now(), photoStickerBase64, chatRooms);
         this.loginAccount = loginAccount;
         this.loginPassword = loginPassword;
     }
@@ -43,6 +45,7 @@ public class Account extends User {
         if (key == null || value == null) return;
         switch (key.toLowerCase()) {
             case "id" -> this.id = value;
+            case "userId" -> this.userId = value;
             case "name" -> this.name = value;
             case "createTime" -> this.createTime = value;
             case "photoStickerBase64" -> this.photoStickerBase64 = value;
@@ -69,11 +72,30 @@ public class Account extends User {
         return switch (key.toLowerCase()) {
             default -> null;
             case "id" -> this.id;
+            case "userId" -> this.userId;
             case "name" -> this.name;
             case "createTime" -> this.createTime;
             case "photoStickerBase64" -> this.photoStickerBase64;
             case "loginaccount" -> this.loginAccount;
             case "loginpassword" -> this.loginPassword;
         };
+    }
+
+    @Override
+    public String serialize() {
+        try {
+            return new Gson().toJson(this, Account.class);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
+    }
+
+
+    public static Account deserialize(String json) {
+        try {
+            return new Gson().fromJson(json, Account.class);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
     }
 }
