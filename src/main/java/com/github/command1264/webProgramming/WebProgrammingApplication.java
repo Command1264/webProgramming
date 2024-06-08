@@ -1,7 +1,11 @@
 package com.github.command1264.webProgramming;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 public class WebProgrammingApplication {
@@ -12,6 +16,29 @@ public class WebProgrammingApplication {
 //		app.setDefaultProperties(Collections.singletonMap("server.port", "60922"));
 		app.run(args);
 	}
+
+//	@Bean
+//	public WebMvcConfigurer corsConfigurer() {
+//		return new WebMvcConfigurer() {
+//			@Override
+//			public void addCorsMappings(@NotNull CorsRegistry registry) {
+////				final String ip = "http://26.208.147.218:60922";
+//				final String ip = "*";
+//				registry.addMapping("/ping").allowedOrigins(ip);
+//				registry.addMapping("/test").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/loginAccount").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/createAccount").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/getUser").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/getAccount").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/getUserChatRoom").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/createUserChatRoom").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/getUsersChatRoomChat").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/userSendMessage").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/getUserReceiveMessage").allowedOrigins(ip);
+//			}
+//		};
+//	}
+
 
 //	public static void restart() {
 //		ApplicationArguments args = context.getBean(ApplicationArguments.class);

@@ -9,11 +9,13 @@ import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.service.AccountService;
 import com.github.command1264.webProgramming.service.UsersChatRoomService;
 import com.github.command1264.webProgramming.dao.SqlDao;
+import com.github.command1264.webProgramming.util.Printer;
 import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class HttpController {
     private final Gson gson = new Gson();
     @Autowired
@@ -48,9 +50,10 @@ public class HttpController {
 //        return new ReturnJsonObject(true, null, null, str);
 //    }
 
+//    @CrossOrigin(origins = "*")
     @GetMapping("/ping")
     public String ping() {
-        System.out.println("Ping!");
+        Printer.println("Pong!");
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         returnJsonObject.setSuccess(true);
         returnJsonObject.setData("alive");
@@ -59,9 +62,11 @@ public class HttpController {
 
     @PostMapping("/test")
     public String test(@RequestBody String json) {
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        return accountDao.getAccountWithUserId(jsonObject.get("id").getAsString()).serialize();
-//        return sqlDao.test(jsonObject.get("id").getAsString());
+//        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+//        return accountDao.getAccountWithUserId(jsonObject.get(JsonKeyEnum.id.name()).getAsString()).serialize();
+//        return sqlDao.test(jsonObject.get(JsonKeyEnum.id.name()).getAsString());
+        JsonElement jsonElement = new JsonPrimitive("String");
+        return gson.toJson(jsonElement);
     }
     @PostMapping("/api/v1/loginAccount")
     public ReturnJsonObject loginAccount(@RequestBody String json) {
@@ -75,8 +80,10 @@ public class HttpController {
     }
 
     @GetMapping("/api/v1/getUser")
+    @Deprecated
     public ReturnJsonObject getUser(@RequestBody String json) {
-        return accountService.getUser(json);
+        return new ReturnJsonObject(false, "", "", "");
+//        return accountService.getUser(json);
     }
 
     @GetMapping("/api/v1/getAccount")
@@ -91,13 +98,13 @@ public class HttpController {
     }
 
     @PostMapping("/api/v1/createUserChatRoom")
-    public ReturnJsonObject createUserChatRoom(@RequestBody String json) {
+    public ReturnJsonObject createUserChatRoom( @RequestBody String json) {
         return usersChatRoomService.createUsersChatRoom(json);
     }
 
-    @GetMapping("/api/v1/getUsersChatRoomChat")
-    public ReturnJsonObject getUsersChatRoomChat(@RequestBody String json) {
-        return usersChatRoomService.getUsersChatRoomChat(json);
+    @GetMapping("/api/v1/getUsersChatRoomChats")
+    public ReturnJsonObject getUsersChatRoomChats(@RequestBody String json) {
+        return usersChatRoomService.getUsersChatRoomChats(json);
     }
 
     @PutMapping("/api/v1/userSendMessage")
@@ -105,7 +112,6 @@ public class HttpController {
         return messagesService.userSendMessage(json);
     }
 
-    @Deprecated
     @GetMapping("/api/v1/getUserReceiveMessage")
     public ReturnJsonObject getUserReceiveMessage(@RequestBody String json) {
         return messagesService.getUserReceiveMessage(json);

@@ -7,16 +7,12 @@ import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class MessagesDao {
@@ -130,7 +126,7 @@ public class MessagesDao {
             returnJsonObject.setErrorMessage(ErrorType.messageHasMulti.getErrorMessage());
             return returnJsonObject;
         }
-        String deleteSql = "delete from :chatRoomName where id=:id;"
+        String deleteSql = "update :chatRoomName set deleted=1 where id=:id;"
                 .replaceAll(":chatRoomName", chatRoomName);
 
         int count = jdbcTemplate.update(deleteSql, map);
@@ -172,4 +168,16 @@ public class MessagesDao {
 
     }
 
+    public List<MessageSendReceive> userReceiveMessageWithId(String chatRoomName, String id) {
+        if (jdbcTemplate == null || chatRoomName == null || id == null) {
+            return  new ArrayList<>();
+        }
+        String selectMessageSql = "select * from :tableName where id>:id;"
+                .replaceAll(":tableName", chatRoomName);
+
+        Map<String, Object> map = new HashMap<>() {{
+            put("id", id);
+        }};
+        return jdbcTemplate.query(selectMessageSql, map, new MessageSendReceiveRowMapper());
+    }
 }

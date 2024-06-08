@@ -31,16 +31,26 @@ public class SqlDao {
         System.out.println("initing Sql...");
         String createAccountInfoSql = """
             create table if not exists :tableName(
-                id varchar(64) primary key not null,
+                id bigint unsigned NOT NULL AUTO_INCREMENT,
+                userId varchar(64) NOT NULL,
                 name varchar(256) not null,
                 createTime datetime(4) not null,
                 loginAccount varchar(256) not null,
                 loginPassword varchar(64) not null,
                 photoStickerBase64 text,
-                chatRooms text not null,
-                unique key `loginAccount` (`loginAccount`)
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `loginAccount` (`loginAccount`),
+                UNIQUE KEY `userId` (`userId`)
             );
         """.replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+        String createAccountChatRoomsSql = """
+            create table if not exists :tableName(
+                id bigint unsigned NOT NULL,
+                chatRooms text not null,
+                PRIMARY KEY (`id`)
+            );
+        """.replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
+
         String initAccountInfoSql = """
             INSERT INTO `accountinfo`(id, name, createTime, loginAccount, loginPassword, photoStickerBase64, chatRooms)
             VALUES('Command1','指令 Command1', '2004-01-06 20:07:09.2200','command1264@gmail.com','25d55ad283aa400af464c76d713c07ad', NULL, '[]'),

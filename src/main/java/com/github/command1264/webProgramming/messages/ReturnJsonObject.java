@@ -1,16 +1,17 @@
 package com.github.command1264.webProgramming.messages;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 
 public class ReturnJsonObject {
     private boolean success = false;
     private String errorMessage = "";
     private String exception = "";
     private String data = "";
+//    private Object data = new JsonObject();
 
     public ReturnJsonObject(){}
 
+//    public ReturnJsonObject(boolean success, String errorMessage, String exception, JsonObject data) {
     public ReturnJsonObject(boolean success, String errorMessage, String exception, String data) {
         this.success = success;
         if (errorMessage != null) this.errorMessage = errorMessage;
@@ -30,6 +31,9 @@ public class ReturnJsonObject {
     public String getData() {
         return data;
     }
+//    public Object getData() {
+//        return data;
+//    }
 
     public void setSuccess(boolean success) {
         this.success = success;
@@ -46,6 +50,10 @@ public class ReturnJsonObject {
         if (data == null) return;
         this.data = data;
     }
+//    public void setData(Object data) {
+//        if (data == null) return;
+//        this.data = data;
+//    }
 
 
     public String serialize() {

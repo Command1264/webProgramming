@@ -3,9 +3,11 @@ package com.github.command1264.webProgramming.dao;
 import com.github.command1264.webProgramming.accouunt.*;
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
+import com.github.command1264.webProgramming.userChatRoom.UsersChatRoomRowMapper;
 import com.github.command1264.webProgramming.util.BaseRandomGenerator;
 import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -32,8 +34,19 @@ public class AccountDao {
     public int checkAccount(@Nullable String loginAccount,
                             @Nullable String loginPassword) {
         if (loginAccount == null || loginPassword == null) return 0;
-        String sql = "select * from :tableName where loginAccount=:loginAccount or userId=:loginAccount;"
-                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+        String sql = StringUtils.replaceEach("""
+                select info.id, info.userId,
+                        info.name, info.createTime,
+                        info.loginAccount, info.loginPassword,
+                        info.photoStickerBase64, room.chatRooms
+                        from :tableNameInfo info inner join :tableNameChatRooms room
+                    on info.id=room.id
+                where info.loginAccount=:loginAccount or info.userId=:loginAccount;
+        """,
+        new String[] {":tableNameInfo", ":tableNameChatRooms"},
+        new String[] {SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+//        String sql = "select * from :tableName where loginAccount=:loginAccount or userId=:loginAccount;"
+//                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
         Map<String, Object> map = new HashMap<>() {{
             put("loginAccount", loginAccount);
             put("loginPassword", loginPassword);
@@ -48,8 +61,19 @@ public class AccountDao {
     public String getUserIdWithLogin(@Nullable String loginAccount,
                                      @Nullable String loginPassword) {
         if (loginAccount == null || loginPassword == null) return null;
-        String sql = "select * from :tableName where loginAccount=:loginAccount or userId=:loginAccount;"
-                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+        String sql = StringUtils.replaceEach("""
+                select info.id, info.userId,
+                        info.name, info.createTime,
+                        info.loginAccount, info.loginPassword,
+                        info.photoStickerBase64, room.chatRooms
+                        from :tableNameInfo info inner join :tableNameChatRooms room
+                    on info.id=room.id
+                where info.loginAccount=:loginAccount or info.userId=:loginAccount;
+        """,
+        new String[] {":tableNameInfo", ":tableNameChatRooms"},
+        new String[] {SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+//        String sql = "select * from :tableName where loginAccount=:loginAccount or userId=:loginAccount;"
+//                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
         Map<String, Object> map = new HashMap<>() {{
             put("loginAccount", loginAccount);
             put("loginPassword", loginPassword);
@@ -91,7 +115,7 @@ public class AccountDao {
         return tableToken.getId();
     }
 
-    public Token createSession(String id) {
+    public Token createToken(String id) {
         if (jdbcTemplate == null || id == null) return null;
 
         Token token = checkHasToken(id);
@@ -141,7 +165,7 @@ public class AccountDao {
     }
 
 
-    public ReturnJsonObject createAccount(Account account) {
+    public ReturnJsonObject createAccount(AccountAndRooms accountAndRooms) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -150,7 +174,7 @@ public class AccountDao {
         }
 
         for (String key : new String[]{"userId", "loginAccount"}) {
-            if (sqlDao.checkRepeat(SqlTableEnum.accountInfo.name(), key, account.get(key))) {
+            if (sqlDao.checkRepeat(SqlTableEnum.accountInfo.name(), key, accountAndRooms.get(key))) {
                 returnJsonObject.setSuccess(false);
                 returnJsonObject.setErrorMessage(ErrorType.findKey.getErrorMessage().replaceAll(":key", key));
                 return returnJsonObject;
@@ -177,34 +201,61 @@ public class AccountDao {
         } while (!accountList.isEmpty());
         // random generate init userId end
 
-        String insertSql = """
+        String insertInfoSql = """
             insert into :tableName (userId, name, createTime, loginAccount, loginPassword, photoStickerBase64, chatRooms)
             values(:userId, :name, :createTime, :loginAccount, :loginPassword, :photoStickerBase64, :chatRooms);
         """.replaceAll(":tableName", SqlTableEnum.accountInfo.name());
 
-        map.put("name", account.getName());
-        map.put("createTime", account.getCreateTime());
-        map.put("loginAccount", account.getLoginAccount());
-        map.put("loginPassword", account.getLoginPassword());
-        map.put("photoStickerBase64", account.getPhotoStickerBase64());
-        map.put("chatRooms", new Gson().toJson(account.getChatRooms()));
+        String selectInfoSql = """
+                select * from :tableName where userId=:userId and loginAccount=:loginAccount;
+                """.replaceAll(":tableName", SqlTableEnum.accountInfo.name());
 
-        int executeCount = jdbcTemplate.update(insertSql, map);
+        String insertChatRoomsSql = """
+            insert into :tableName (id, chatRooms)
+            values(:id, :chatRooms);
+        """.replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
 
-        if (executeCount != 1) {
+        map.put("name", accountAndRooms.getName());
+        map.put("createTime", accountAndRooms.getCreateTime());
+        map.put("loginAccount", accountAndRooms.getLoginAccount());
+        map.put("loginPassword", accountAndRooms.getLoginPassword());
+        map.put("photoStickerBase64", accountAndRooms.getPhotoStickerBase64());
+        map.put("chatRooms", accountAndRooms.getChatRoomsSerialize());
+
+        int executeInfoCount = jdbcTemplate.update(insertInfoSql, map);
+        if (executeInfoCount != 1) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
-        } else {
-            returnJsonObject.setSuccess(true);
+            return returnJsonObject;
         }
+
+        accountList = jdbcTemplate.query(selectInfoSql, map, new AccountRowMapper());
+        if (accountList.size() != 1) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+            return returnJsonObject;
+        }
+        map.put("id", accountList.get(0).getId());
+
+        int executeChatRoomsCount = jdbcTemplate.update(insertChatRoomsSql, map);
+        if (executeChatRoomsCount != 1) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+            return returnJsonObject;
+        }
+
+        returnJsonObject.setSuccess(true);
+        returnJsonObject.setErrorMessage("");
         return returnJsonObject;
     }
 
 
+    @Deprecated
     public @Nullable User getUserWithUserId(String userId) {
         return (User) getAccountWithUserId(userId);
     }
 
+    @Deprecated
     public @Nullable Account getAccountWithUserId(String userId) {
         if (jdbcTemplate == null) return null;
 
@@ -219,10 +270,12 @@ public class AccountDao {
         return accountList.get(0);
     }
 
+    @Deprecated
     public @Nullable User getUserWithId(String id) {
         return (User) getAccountWithId(id);
     }
 
+    @Deprecated
     public @Nullable Account getAccountWithId(String id) {
         if (jdbcTemplate == null) return null;
 
@@ -237,21 +290,147 @@ public class AccountDao {
         return queryList.get(0);
     }
 
-    public @Nullable Account getAccountWithLogin(String loginAccount, String loginPassword) {
+    public @Nullable UserAndRooms getUserAndRoomsWithLogin(String loginAccount, String loginPassword) {
         if (jdbcTemplate == null) return null;
         if (loginAccount == null || loginPassword == null) return null;
 
-        String sql = "select * from :tableName where loginAccount=:loginAccount and loginPassword=:loginPassword;"
-                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+        String sql = StringUtils.replaceEach("""
+                select info.id, info.userId,
+                        info.name, info.createTime,
+                        info.photoStickerBase64, room.chatRooms
+                    from :tableInfo info inner join :tableChatRooms room
+                    on info.id=room.id
+                where info.loginAccount=:loginAccount and info.loginPassword=:loginPassword;
+            """,
+                new String[]{":tableInfo", ":tableChatRooms"},
+                new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
         Map<String, Object> map = new HashMap<>() {{
             put("loginAccount", loginAccount);
             put("loginPassword", loginPassword);
         }};
 
-        List<Account> accountList = jdbcTemplate.query(sql, map, new AccountRowMapper());
-        if (accountList.size() != 1) return null;
-        return accountList.get(0);
+        List<UserAndRooms> userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+        if (userAndRoomsList.size() != 1) return null;
+        return userAndRoomsList.get(0);
     }
+
+    public @Nullable AccountAndRooms getAccountAndRoomsWithLogin(String loginAccount, String loginPassword) {
+        if (jdbcTemplate == null) return null;
+        if (loginAccount == null || loginPassword == null) return null;
+
+        String sql = StringUtils.replaceEach("""
+                select info.id, info.userId,
+                        info.name, info.createTime,
+                        info.loginAccount, info.loginPassword,
+                        info.photoStickerBase64, room.chatRooms
+                    from :tableInfo info inner join :tableChatRooms room
+                    on info.id=room.id
+                where info.loginAccount=:loginAccount and info.loginPassword=:loginPassword;
+            """,
+                new String[]{":tableInfo", ":tableChatRooms"},
+                new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+        Map<String, Object> map = new HashMap<>() {{
+            put("loginAccount", loginAccount);
+            put("loginPassword", loginPassword);
+        }};
+
+        List<AccountAndRooms> accountAndRoomsList = jdbcTemplate.query(sql, map, new AccountAndRoomsRowMapper());
+        if (accountAndRoomsList.size() != 1) return null;
+        return accountAndRoomsList.get(0);
+    }
+
+    public @Nullable UserAndRooms getUserAndRoomsWithUserId(String userId) {
+        if (jdbcTemplate == null || userId == null) return null;
+
+        String sql = StringUtils.replaceEach("""
+                select info.id, info.userId,
+                        info.name, info.createTime,
+                        info.photoStickerBase64, room.chatRooms
+                    from :tableInfo info inner join :tableChatRooms room
+                    on info.id=room.id
+                where info.userId=:userId;
+            """,
+                new String[]{":tableInfo", ":tableChatRooms"},
+                new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+        Map<String, Object> map = new HashMap<>() {{
+            put("userId", userId);
+        }};
+
+        List<UserAndRooms> userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+        if (userAndRoomsList.size() != 1) return null;
+        return userAndRoomsList.get(0);
+    }
+
+    public @Nullable AccountAndRooms getAccountAndRoomsWithUserId(String userId) {
+        if (jdbcTemplate == null || userId == null) return null;
+
+        String sql = StringUtils.replaceEach("""
+                select info.id, info.userId,
+                        info.name, info.createTime,
+                        info.loginAccount, info.loginPassword,
+                        info.photoStickerBase64, room.chatRooms
+                    from :tableInfo info inner join :tableChatRooms room
+                    on info.id=room.id
+                where info.userId=:userId;
+            """,
+                new String[]{":tableInfo", ":tableChatRooms"},
+                new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+        Map<String, Object> map = new HashMap<>() {{
+            put("userId", userId);
+        }};
+
+        List<AccountAndRooms> accountAndRoomsList = jdbcTemplate.query(sql, map, new AccountAndRoomsRowMapper());
+        if (accountAndRoomsList.size() != 1) return null;
+        return accountAndRoomsList.get(0);
+    }
+
+    public @Nullable UserAndRooms getUserAndRoomsWithId(String id) {
+        if (jdbcTemplate == null) return null;
+
+        String sql = StringUtils.replaceEach("""
+                select info.id, info.userId,
+                        info.name, info.createTime,
+                        info.photoStickerBase64, room.chatRooms
+                    from :tableInfo info inner join :tableChatRooms room
+                    on info.id=room.id
+                where info.id=:id;
+            """,
+                new String[]{":tableInfo", ":tableChatRooms"},
+                new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+
+        Map<String, Object> map = new HashMap<>() {{
+            put("id", id);
+        }};
+
+        List<UserAndRooms> userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+        if (userAndRoomsList.size() != 1) return null;
+        return userAndRoomsList.get(0);
+    }
+
+    public @Nullable AccountAndRooms getAccountAndRoomsWithId(String id) {
+        if (jdbcTemplate == null) return null;
+
+        String sql = StringUtils.replaceEach("""
+                select info.id, info.userId,
+                        info.name, info.createTime,
+                        info.loginAccount, info.loginPassword,
+                        info.photoStickerBase64, room.chatRooms
+                    from :tableInfo info inner join :tableChatRooms room
+                    on info.id=room.id
+                where info.id=:id;
+            """,
+            new String[]{":tableInfo", ":tableChatRooms"},
+            new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+
+        Map<String, Object> map = new HashMap<>() {{
+            put("id", id);
+        }};
+
+        List<AccountAndRooms> accountAndRoomsList = jdbcTemplate.query(sql, map, new AccountAndRoomsRowMapper());
+        if (accountAndRoomsList.size() != 1) return null;
+        return accountAndRoomsList.get(0);
+    }
+
 
     // todo need test
     public boolean modifyAccount(String oldUserId, Account newAccount) {
@@ -307,23 +486,22 @@ public class AccountDao {
         if (id == null || chatRoomName == null || jdbcTemplate == null) return false;
 
         String selectSql = "select * from :tableName where id=:id;"
-                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+                .replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
         Map<String, Object> map = new HashMap<>() {{
             put("id", id);
         }};
 
-        List<Account> accountList = jdbcTemplate.query(selectSql, map, new AccountRowMapper());
-        if (accountList.size() != 1) return false;
+        List<AccountRoom> accountRoomList = jdbcTemplate.query(selectSql, map, new AccountRoomRowMapper());
+        if (accountRoomList.size() != 1) return false;
 
-        Account account = accountList.get(0);
+        AccountRoom accountRoom = accountRoomList.get(0);
         String updateSql = "update :tableName set chatRooms=:chatRooms where id=:id;"
-                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+                .replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
 
-        List<Map<String, Long>> chatRooms = account.getChatRooms();
-        chatRooms.add(new HashMap<>(){{
+        accountRoom.getChatRooms().add(new HashMap<>(){{
             put(chatRoomName, 0L);
         }});
-        map.put("chatRooms", gson.toJson(chatRooms, Account.CHAT_ROOMS_TYPE));
+        map.put("chatRooms", accountRoom.getChatRoomsSerialize());
 
         int count = jdbcTemplate.update(updateSql, map);
         return count > 0;
@@ -332,24 +510,34 @@ public class AccountDao {
     public boolean addChatRoomsWithUserId(String userId, String chatRoomName) {
         if (userId == null || chatRoomName == null || jdbcTemplate == null) return false;
 
-        String selectSql = "select * from :tableName where userId=:userId;"
-                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+        String selectSql = StringUtils.replaceEach("""
+                select info.id, info.userId,
+                            info.name, info.createTime,
+                            info.loginAccount, info.loginPassword,
+                            info.photoStickerBase64, room.chatRooms
+                        from :tableInfo info inner join :tableChatRooms room
+                    on info.id=room.id
+                where info.userId=:userId;
+                """,
+        new String[]{":tableInfo", ":tableChatRooms"},
+        new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+//        String selectSql = "select * from :tableName where userId=:userId;"
+//                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
         Map<String, Object> map = new HashMap<>() {{
             put("userId", userId);
         }};
 
-        List<Account> accountList = jdbcTemplate.query(selectSql, map, new AccountRowMapper());
-        if (accountList.size() != 1) return false;
+        List<AccountAndRooms> accountAndRoomsList = jdbcTemplate.query(selectSql, map, new AccountAndRoomsRowMapper());
+        if (accountAndRoomsList.size() != 1) return false;
 
-        Account account = accountList.get(0);
-        String updateSql = "update :tableName set chatRooms=:chatRooms where userId=:userId;"
-                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+        AccountAndRooms accountAndRooms = accountAndRoomsList.get(0);
+        String updateSql = "update :tableName set chatRooms=:chatRooms where id=:id;"
+                .replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
 
-        List<Map<String, Long>> chatRooms = account.getChatRooms();
-        chatRooms.add(new HashMap<>(){{
+        accountAndRooms.getChatRooms().add(new HashMap<>(){{
             put(chatRoomName, 0L);
-        }});
-        map.put("chatRooms", gson.toJson(chatRooms, Account.CHAT_ROOMS_TYPE));
+        }});;
+        map.put("chatRooms", accountAndRooms.getChatRoomsSerialize());
 
         int count = jdbcTemplate.update(updateSql, map);
         return count > 0;

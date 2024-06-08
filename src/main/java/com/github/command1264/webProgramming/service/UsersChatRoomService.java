@@ -115,7 +115,7 @@ public class UsersChatRoomService {
 
     }
 
-    public ReturnJsonObject getUsersChatRoomChat(String json) {
+    public ReturnJsonObject getUsersChatRoomChats(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if(sqlDao.checkNotConnect()) {
             returnJsonObject.setSuccess(false);
@@ -126,13 +126,13 @@ public class UsersChatRoomService {
 
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         String chatRoomName = null;
-        if (jsonObject.has("chatRoomName")) {
-            chatRoomName = jsonObject.get("chatRoomName").getAsString();
+        if (jsonObject.has(JsonKeyEnum.chatRoomName.name())) {
+            chatRoomName = jsonObject.get(JsonKeyEnum.chatRoomName.name()).getAsString();
         }
 
         if (chatRoomName == null) {
             returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomNameRaw.getErrorMessage());
+            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
             return returnJsonObject;
         }
         chatRoomName = chatRoomName.toLowerCase();

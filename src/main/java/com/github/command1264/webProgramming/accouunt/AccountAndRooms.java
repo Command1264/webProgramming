@@ -4,29 +4,24 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-public class Account extends User {
+public class AccountAndRooms extends UserAndRooms {
     protected String loginAccount;
     protected String loginPassword;
 
 
-    public Account() {
+    public AccountAndRooms() {
         this(null, null, null, null);
     }
-    public Account(String userId, String name, String loginAccount, String loginPassword) {
+    public AccountAndRooms(String userId, String name, String loginAccount, String loginPassword) {
         this(userId, name, loginAccount, loginPassword, "");
     }
 
-    public Account(String userId,
+    public AccountAndRooms(String userId,
                    String name,
                    String loginAccount,
                    String loginPassword,
                    String photoStickerBase64) {
-        super(userId, name, LocalDateTime.now(), photoStickerBase64);
+        super(userId, name, photoStickerBase64);
         this.loginAccount = loginAccount;
         this.loginPassword = loginPassword;
     }
@@ -48,6 +43,7 @@ public class Account extends User {
             case "photoStickerBase64" -> this.photoStickerBase64 = value;
             case "loginaccount" -> this.loginAccount = value;
             case "loginpassword" -> this.loginPassword = value;
+            case "chatRooms" -> this.setChatRooms(value);
             default -> {}
         };
     }
@@ -75,24 +71,26 @@ public class Account extends User {
             case "photoStickerBase64" -> this.photoStickerBase64;
             case "loginaccount" -> this.loginAccount;
             case "loginpassword" -> this.loginPassword;
+            case "chatRooms" -> this.getChatRoomsSerialize();
         };
     }
 
     @Override
     public String serialize() {
         try {
-            return new Gson().toJson(this, Account.class);
+            return new Gson().toJson(this, AccountAndRooms.class);
         } catch (JsonSyntaxException e) {
             return null;
         }
     }
 
 
-    public static Account deserialize(String json) {
+    public static AccountAndRooms deserialize(String json) {
         try {
-            return new Gson().fromJson(json, Account.class);
+            return new Gson().fromJson(json, AccountAndRooms.class);
         } catch (JsonSyntaxException e) {
             return null;
         }
     }
+
 }

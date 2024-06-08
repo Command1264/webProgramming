@@ -5,8 +5,9 @@ public enum ErrorType {
     sqlUpdateFailed("資料庫添加失敗"),
 
     cantFindChatRoomName("找不到聊天室名稱"),
+    cantFindChatRoomMessageId("找不到聊天室訊息ID"),
     cantFindChatRoom("找不到聊天室"),
-    cantFindChatRoomNameRaw("找不到chatRoomName"),
+//    cantFindChatRoomNameRaw("找不到chatRoomName"),
     chatRoomExist("聊天室已存在"),
 
     cantFindUsers("找不到使用者"),
@@ -26,6 +27,8 @@ public enum ErrorType {
 
     cantCreateAccount("無法新增帳戶"),
     cantFindLoginDataOrToken("找不到帳戶資訊或是Token"),
+    cantFindToken("找不到Token"),
+    tokenNoPermission("沒有權限"),
     cantFindLoginAccount("找不到登入帳號"),
     cantFindIdOrUserId("找不到id"),
     wrongPassword("密碼錯誤"),

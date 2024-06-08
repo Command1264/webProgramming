@@ -18,7 +18,7 @@ import java.util.*;
 
 @Component
 public class UsersChatRoomDao {
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
     @Autowired
