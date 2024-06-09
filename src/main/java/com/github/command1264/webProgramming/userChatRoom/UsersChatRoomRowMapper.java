@@ -10,6 +10,7 @@ public class UsersChatRoomRowMapper implements RowMapper<UsersChatRoom> {
     public UsersChatRoom mapRow(ResultSet rs, int rowNum) throws SQLException {
         UsersChatRoom usersChatRoom = new UsersChatRoom();
         usersChatRoom.setUUID(rs.getString("uuid"));
+        usersChatRoom.setName(rs.getString("name"));
         usersChatRoom.setUsers(rs.getString("users"));
         usersChatRoom.setLastModify(rs.getString("lastModify"));
         return usersChatRoom;

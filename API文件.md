@@ -9,8 +9,8 @@ HOST: https://polls.apiblueprint.org/ -->
 
 # 指令Command1 
 ## 網路程式設計 API文件
-##### version: 1.1.2
-##### edit time: 2024/06/10 02:07:30 AM
+##### version: 1.2.0
+##### last edit time: 2024/06/10 05:32:45 AM
 
 
 <!-- Polls is a simple API allowing consumers to view polls and vote in them. -->
@@ -260,7 +260,70 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
             }
 
 ---
-### 取得聊天室資料 [GET]
+### 取得聊天室資訊 [POST]
+http://26.208.147.218:60922/api/v1/createUserChatRoom
+
+#### chatRoomName (String/JsonArray)
++ Request (application/json)
+    + Body
+
+            {
+                "token": "EF8kw6n3/9BeBGZWGDqzEsgU+UaYjCwQ",
+                "chatRoomName": [
+                    "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0",
+                    "room_a84013c4_06a9_46f6_bdfa_272d408c9581",
+                    "room_431c1373_2b76_4176_8962_b8419ffa6112",
+                    "room_25f77d46_bbc8_4ba0_bcdd_035226a5296f"
+                ]
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "success": true,
+                "errorMessage": "",
+                "exception": "",
+                "data": {
+                    "room_431c1373_2b76_4176_8962_b8419ffa6112": {
+                        "uuid": "431c1373-2b76-4176-8962-b8419ffa6112",
+                        "name": "431c1373-2b76-4176-8962-b8419ffa6112",
+                        "users": "[\"1\"]",
+                        "lastModify": "2024-06-04 16:41:17.4245",
+                        "userList": [
+                            "1"
+                        ],
+                        "lastModifyWithTime": "2024-06-04T16:41:17.4245"
+                    },
+                    "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": {
+                        "uuid": "e9ac0054-fd27-44a8-b2ca-eb704aebf8c0",
+                        "name": "e9ac0054-fd27-44a8-b2ca-eb704aebf8c0",
+                        "users": "[\"1\",\"2\",\"3\"]",
+                        "lastModify": "2024-06-04 16:28:30.8981",
+                        "userList": [
+                            "1",
+                            "2",
+                            "3"
+                        ],
+                        "lastModifyWithTime": "2024-06-04T16:28:30.8981"
+                    },
+                    "room_a84013c4_06a9_46f6_bdfa_272d408c9581": {
+                        "uuid": "a84013c4-06a9-46f6-bdfa-272d408c9581",
+                        "name": "",
+                        "users": "[\"1\",\"2\"]",
+                        "lastModify": "2024-06-04 16:29:22.3116",
+                        "userList": [
+                            "1",
+                            "2"
+                        ],
+                        "lastModifyWithTime": "2024-06-04T16:29:22.3116"
+                    }
+                }
+            }
+
+---
+### 取得聊天室訊息 [GET]
 http://26.208.147.218:60922/api/v1/getUsersChatRoomChats
 
 #### chatRoomName (String/JsonArray)

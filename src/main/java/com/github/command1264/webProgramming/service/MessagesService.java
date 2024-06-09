@@ -15,10 +15,7 @@ import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Component
 public class MessagesService {
@@ -66,11 +63,17 @@ public class MessagesService {
         }
         String tokenId = accountDao.getIdWithToken(token);
 
-        if (chatRoomName == null) {
+        if (chatRoomName == null || !usersChatRoomDao.checkHasUsersChatRoom(chatRoomName)) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
             return returnJsonObject;
         }
+//        if (!usersChatRoomDao.checkHasUsersChatRoom(chatRoomName)) {
+//            returnJsonObject.setSuccess(false);
+//            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
+//            return returnJsonObject;
+//        }
+
         if (messageSendReceive == null) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
@@ -164,6 +167,86 @@ public class MessagesService {
         returnJsonObject.setSuccess(true);
 //        returnJsonObject.setData(gson.toJson(dataJsonObject, JsonObject.class));
         returnJsonObject.setData(dataMap);
+        return returnJsonObject;
+    }
+    // todo 設定一次傳輸訊息的數量上限，為未讀訊息由最新開始向上 n 則(n=100)
+    public ReturnJsonObject getUsersChatRoomChats(String json) {
+        ReturnJsonObject returnJsonObject = new ReturnJsonObject();
+        if(sqlDao.checkNotConnect()) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+            return returnJsonObject;
+        }
+
+
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        if ((!jsonObject.has(JsonKeyEnum.chatRoomName.name()) || jsonObject.get(JsonKeyEnum.chatRoomName.name()).isJsonNull())) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
+            return returnJsonObject;
+        }
+        if ((!jsonObject.has(JsonKeyEnum.token.name()) || jsonObject.get(JsonKeyEnum.token.name()).isJsonNull())) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject;
+        }
+        String token = null;
+        try {
+            token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
+        } catch (Exception e) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject;
+        }
+        String tokenId = accountDao.getIdWithToken(token);
+
+        List<String> chatRoomNames = new ArrayList<>();
+        try {
+            chatRoomNames.add(jsonObject.get(JsonKeyEnum.chatRoomName.name()).getAsString());
+        } catch (Exception e) {
+            try {
+                jsonObject.get(JsonKeyEnum.chatRoomName.name()).getAsJsonArray().asList().forEach((jsonElement -> {
+                    String str = jsonElement.getAsString();
+                    if (str != null) chatRoomNames.add(str.toLowerCase());
+                }));
+            } catch (Exception e2) {
+                if (chatRoomNames.isEmpty()) {
+                    returnJsonObject.setSuccess(false);
+                    returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
+                    return returnJsonObject;
+                }
+            }
+        }
+
+        if (chatRoomNames.isEmpty()) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
+            return returnJsonObject;
+        }
+
+        Map<String, List<MessageSendReceive>> chatRoomsChats = new HashMap<>();
+//        chatRoomNames = chatRoomName.toLowerCase();
+        for(String chatRoomName : chatRoomNames) {
+            if (!usersChatRoomDao.checkHasUsersChatRoom(chatRoomName) ||
+                    !sqlDao.findTableName(chatRoomName)) {
+                continue;
+//                returnJsonObject.setSuccess(false);
+//                returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
+//                return returnJsonObject;
+            }
+            if (!usersChatRoomDao.getUsersChatRoomUsers(chatRoomName).contains(tokenId)) continue;
+
+            chatRoomsChats.put(chatRoomName, messagesDao.getUsersChatRoomChat(token, chatRoomName));
+        }
+        if (chatRoomsChats.isEmpty()) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
+            return returnJsonObject;
+        }
+        returnJsonObject.setSuccess(true);
+        returnJsonObject.setErrorMessage("");
+        returnJsonObject.setException("");
+        returnJsonObject.setData(chatRoomsChats);
         return returnJsonObject;
     }
 }

@@ -12,14 +12,11 @@ import java.util.UUID;
 
 public class UsersChatRoom {
     private UUID uuid = null;
+    private String name = "";
     private String users = "";
     private String lastModify = "";
     public UsersChatRoom() {}
 
-    public void setUsers(String users) {
-        if (users == null) return;
-        this.users = users;
-    }
     public void setUUID(String uuid) {
         if (uuid == null) return;
         try {
@@ -29,6 +26,14 @@ public class UsersChatRoom {
     public void setUUID(UUID uuid) {
         if (uuid == null) return;
         this.uuid = uuid;
+    }
+    public void setName(String name) {
+        if (name == null) return;
+        this.name = name;
+    }
+    public void setUsers(String users) {
+        if (users == null) return;
+        this.users = users;
     }
     public void setLastModify(LocalDateTime lastModify) {
         if (lastModify == null) return;
@@ -41,6 +46,9 @@ public class UsersChatRoom {
 
     public UUID getUUID() {
         return this.uuid;
+    }
+    public String getName() {
+        return this.name;
     }
     public String getUsers() {
         return this.users;

@@ -15,4 +15,12 @@ public class RoomNameConverter {
             return null;
         }
     }
+    public static boolean isUUID(String uuid) {
+        try {
+            UUID.fromString(uuid);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

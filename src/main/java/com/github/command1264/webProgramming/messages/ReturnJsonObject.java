@@ -54,6 +54,12 @@ public class ReturnJsonObject {
         if (data == null) return;
         this.data = data;
     }
+    public void setSuccessAndData(Object data) {
+        this.success = true;
+        this.data = data;
+        this.errorMessage = "";
+        this.exception = "";
+    }
 
 
     public String serialize() {

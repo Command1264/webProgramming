@@ -136,7 +136,7 @@ public class AccountDao {
         token = new Token(id, tokenStr, LocalDateTime.now().plusDays(1));
 
         String sql = """
-            insert into :tableName(id, token, expiredTime)
+            replace into :tableName(id, token, expiredTime)
             values(:id, :token, :expiredTime);
         """.replaceAll(":tableName", SqlTableEnum.loginTokens.name());;
 

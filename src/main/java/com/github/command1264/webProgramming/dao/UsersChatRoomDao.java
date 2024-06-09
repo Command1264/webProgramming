@@ -9,6 +9,7 @@ import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -75,7 +76,23 @@ public class UsersChatRoomDao {
         return returnJsonObject;
     }
 
-    public ReturnJsonObject createUsersChatRoom(String usersListStr) {
+    public @Nullable UsersChatRoom getUsersChatRoom(UUID chatRoomUUID) {
+        if (jdbcTemplate == null || chatRoomUUID == null) return null;
+        String sql = "select * from :tableName where uuid=:uuid;"
+                .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
+        List<UsersChatRoom> usersChatRoomList = new ArrayList<>();
+        try {
+            usersChatRoomList =jdbcTemplate.query(sql, new HashMap<>() {{
+                put("uuid", chatRoomUUID.toString());
+            }}, new UsersChatRoomRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
+        if (usersChatRoomList.size() != 1) return null;
+        return usersChatRoomList.get(0);
+    }
+
+    public ReturnJsonObject createUsersChatRoom(String usersListStr, String name) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -94,11 +111,13 @@ public class UsersChatRoomDao {
         } while (sqlDao.checkRepeat(SqlTableEnum.usersChatRooms.name(), "uuid", uuid.toString()));
         String roomName = RoomNameConverter.convertChatRoomName(uuid);
 
-        String insertSql = "insert into :tableName (uuid, users, lastModify)  values(:uuid, :users, :lastModify);"
+        String insertSql = "insert into :tableName (uuid, name, users, lastModify)  values(:uuid, :name, :users, :lastModify);"
                 .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
         UUID finalUuid = uuid;
         Map<String, Object> insertMap = new HashMap<>() {{
             put("uuid", finalUuid.toString());
+            if (name == null) put("name", finalUuid.toString());
+            else put("name", name);
             put("users", usersListStr);
             put("lastModify", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DateTimeFormat.format)));
         }};

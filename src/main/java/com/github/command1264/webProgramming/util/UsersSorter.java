@@ -24,7 +24,7 @@ public class UsersSorter {
 
         for (JsonElement jsonElement : users.asList()) {
             try {
-                User user = accountDao.getUserWithUserId(jsonElement.getAsString());
+                User user = accountDao.getUserAndRoomsWithUserId(jsonElement.getAsString());
                 if (user == null) continue;
                 if (usersIdList.contains(user.getUserId())) continue;
                 usersIdList.add(user.getUserId());
@@ -48,7 +48,7 @@ public class UsersSorter {
 
         for (JsonElement jsonElement : users.asList()) {
             try {
-                User user = accountDao.getUserWithUserId(jsonElement.getAsString());
+                User user = accountDao.getUserAndRoomsWithUserId(jsonElement.getAsString());
                 if (user == null) continue;
                 if (usersIdList.contains(user.getId())) continue;
                 usersIdList.add(user.getId());
@@ -73,7 +73,7 @@ public class UsersSorter {
 
         for (JsonElement jsonElement : users.asList()) {
             try {
-                User user = accountDao.getUserWithId(jsonElement.getAsString());
+                User user = accountDao.getUserAndRoomsWithUserId(jsonElement.getAsString());
                 if (user == null) continue;
                 if (usersIdList.contains(user.getId())) continue;
                 usersIdList.add(user.getId());
