@@ -9,8 +9,8 @@ HOST: https://polls.apiblueprint.org/ -->
 
 # 指令Command1 
 ## 網路程式設計 API文件
-##### version: 1.2.0
-##### last edit time: 2024/06/10 05:32:45 AM
+##### version: 1.2.1
+##### last edit time: 2024/06/10 06:07:20 AM
 
 
 <!-- Polls is a simple API allowing consumers to view polls and vote in them. -->
@@ -323,7 +323,7 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
             }
 
 ---
-### 取得聊天室訊息 [GET]
+### 取得聊天室訊息 [POST]
 http://26.208.147.218:60922/api/v1/getUsersChatRoomChats
 
 #### chatRoomName (String/JsonArray)
@@ -411,7 +411,7 @@ http://26.208.147.218:60922/api/v1/userSendMessage
                 "data": ""
             }
 
-### 取得聊天室更新訊息 [GET]
+### 取得聊天室更新訊息 [POST]
 http://26.208.147.218:60922/api/v1/getUserReceiveMessage
 
 #### chatRoomName (String/JsonArray)

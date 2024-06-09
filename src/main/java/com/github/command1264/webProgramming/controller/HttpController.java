@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-//@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*")
 public class HttpController {
     private final Gson gson = new Gson();
     @Autowired
@@ -51,10 +51,10 @@ public class HttpController {
 //    }
 
 //    @CrossOrigin(origins = "*")
-    @CrossOrigin(origins = "*")
+//    @CrossOrigin(origins = "*")
     @GetMapping("/ping")
     public String ping() {
-//        Printer.println("Pong!");
+        Printer.println("Pong!");
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         returnJsonObject.setSuccess(true);
         returnJsonObject.setData("alive");
@@ -62,7 +62,7 @@ public class HttpController {
     }
 
     @PostMapping("/test")
-    @CrossOrigin(origins = "*")
+//    @CrossOrigin(origins = "*")
     public String test(@RequestBody String json) {
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         return gson.toJson(jsonObject.get("test").getAsString());
@@ -75,68 +75,78 @@ public class HttpController {
 
 
     @PostMapping("/api/v1/createAccount")
-    @CrossOrigin(origins = "*")
+//    @CrossOrigin(origins = "*")
     public ReturnJsonObject createAccount(@RequestBody String json) {
+        Printer.println("createAccount!");
         return accountService.createAccount(json);
     }
 
     @PostMapping("/api/v1/loginAccount")
-    @CrossOrigin(origins = "*")
+//    @CrossOrigin(origins = "*")
     public ReturnJsonObject loginAccount(@RequestBody String json) {
+        Printer.println("loginAccount!");
         return accountService.loginAccount(json);
     }
 
     @PostMapping("/api/v1/changeToken")
-    @CrossOrigin(origins = "*")
+//    @CrossOrigin(origins = "*")
     public ReturnJsonObject changeToken(@RequestBody String json) {
+        Printer.println("changeToken!");
         return accountService.changeToken(json);
     }
 
-    @GetMapping("/api/v1/getUser")
-    @CrossOrigin(origins = "*")
+    @PostMapping("/api/v1/getUser")
+//    @CrossOrigin(origins = "*")
     @Deprecated
     public ReturnJsonObject getUser(@RequestBody String json) {
+        Printer.println("getUser!");
         return new ReturnJsonObject(false, "", "", "");
 //        return accountService.getUser(json);
     }
 
-    @GetMapping("/api/v1/getAccount")
-    @CrossOrigin(origins = "*")
+    @PostMapping("/api/v1/getAccount")
+//    @CrossOrigin(origins = "*")
     public ReturnJsonObject getAccount(@RequestBody String json) {
+        Printer.println("getAccount!");
         return accountService.getAccount(json);
     }
 
 
 
-    @GetMapping("/api/v1/getUserChatRoom")
-    @CrossOrigin(origins = "*")
+    @PostMapping("/api/v1/getUserChatRoom")
+//    @CrossOrigin(origins = "*")
     public ReturnJsonObject getUserChatRoom(@RequestBody String json) {
+        Printer.println("getUserChatRoom!");
         return usersChatRoomService.getUsersChatRoom(json);
     }
 
     @PostMapping("/api/v1/createUserChatRoom")
-    @CrossOrigin(origins = "*")
+//    @CrossOrigin(origins = "*")
     public ReturnJsonObject createUserChatRoom( @RequestBody String json) {
+        Printer.println("createUserChatRoom!");
         return usersChatRoomService.createUsersChatRoom(json);
     }
 
 
 
-    @GetMapping("/api/v1/getUsersChatRoomChats")
-    @CrossOrigin(origins = "*")
+    @PostMapping("/api/v1/getUsersChatRoomChats")
+//    @CrossOrigin(origins = "*")
     public ReturnJsonObject getUsersChatRoomChats(@RequestBody String json) {
+        Printer.println("getUsersChatRoomChats!");
         return messagesService.getUsersChatRoomChats(json);
     }
 
     @PutMapping("/api/v1/userSendMessage")
-    @CrossOrigin(origins = "*")
+//    @CrossOrigin(origins = "*")
     public ReturnJsonObject userSendMessage(@RequestBody String json) {
+        Printer.println("userSendMessage!");
         return messagesService.userSendMessage(json);
     }
 
-    @GetMapping("/api/v1/getUserReceiveMessage")
-    @CrossOrigin(origins = "*")
+    @PostMapping("/api/v1/getUserReceiveMessage")
+//    @CrossOrigin(origins = "*")
     public ReturnJsonObject getUserReceiveMessage(@RequestBody String json) {
+        Printer.println("getUserReceiveMessage!");
         return messagesService.getUserReceiveMessage(json);
     }
 
