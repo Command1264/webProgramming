@@ -1,10 +1,13 @@
 package com.github.command1264.webProgramming.userChatRoom;
 
 import com.github.command1264.webProgramming.util.DateTimeFormat;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.UUID;
 
 public class UsersChatRoom {
@@ -19,7 +22,9 @@ public class UsersChatRoom {
     }
     public void setUUID(String uuid) {
         if (uuid == null) return;
-        this.setUUID(UUID.fromString(uuid));
+        try {
+            this.setUUID(UUID.fromString(uuid));
+        } catch (Exception ignored) {}
     }
     public void setUUID(UUID uuid) {
         if (uuid == null) return;
@@ -39,6 +44,9 @@ public class UsersChatRoom {
     }
     public String getUsers() {
         return this.users;
+    }
+    public List<String> getUserList() {
+        return new Gson().fromJson(this.users, new TypeToken<List<String>>(){}.getType());
     }
 
     public String getLastModify() {

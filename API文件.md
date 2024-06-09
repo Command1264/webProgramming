@@ -3,8 +3,8 @@ HOST: https://polls.apiblueprint.org/ -->
 
 # 指令Command1 
 ## 網路程式設計 API文件
-##### version: 1.0.0
-##### edit time: 2024/06/07 02:04:30 AM
+##### version: 1.1.0
+##### edit time: 2024/06/09 06:31:50 PM
 
 
 <!-- Polls is a simple API allowing consumers to view polls and vote in them. -->
@@ -49,8 +49,9 @@ http://26.208.147.218:60922/api/v1/createAccount
             }
         
         
+> noName
 + Response 200 (application/json)
-noName
+
     + Body
 
             {
@@ -60,8 +61,8 @@ noName
                 "data": ""
             }
         
+> noLoginAccount
 + Response 200 (application/json)
-noLoginAccount
     + Body
 
             {
@@ -71,8 +72,8 @@ noLoginAccount
                 "data": ""
             }
         
+> noLoginPassword
 + Response 200 (application/json)
-noLoginPassword
     + Body
 
             {
@@ -82,8 +83,8 @@ noLoginPassword
                 "data": ""
             }
 
+> loginAccountHasFound
 + Response 200 (application/json)
-loginAccountHasFound
     + Body
 
             {
@@ -97,16 +98,26 @@ loginAccountHasFound
 ### 登入帳戶 [POST]
 http://26.208.147.218:60922/api/v1/loginAccount
 
+#### onlyToken
 + Request (application/json)
-onlyToken
     + Body
 
             {
                 "token": "mjO/xaqZxZEmZXYYCrib2FEhris6M71o"
             }
 
++ Response 200 (application/json)
+    + Body
+
+            {
+                "success": true,
+                "errorMessage": "",
+                "exception": "",
+                "data": "{\"chatRooms\":[],\"id\":\"11\",\"userId\":\"EKrqgg9BHQ\",\"name\":\"我是誰我是誰我是誰\",\"createTime\":\"2024-06-08 16:11:52.2539\",\"photoStickerBase64\":\"\"}"
+            }
+
+#### onlyLogin
 + Request (application/json)
-onlyLogin
     + Body
 
             {
@@ -114,8 +125,18 @@ onlyLogin
                 "loginPassword": "25d55ad283aa400af464c76d713c07ad"
             }
 
++ Response 200 (application/json)
+    + Body
+
+            {
+            "success": true,
+            "errorMessage": "",
+            "exception": "",
+            "data": "{\"userAndRooms\":\"{\\\"chatRooms\\\":[],\\\"id\\\":\\\"11\\\",\\\"userId\\\":\\\"EKrqgg9BHQ\\\",\\\"name\\\":\\\"我是誰我是誰我是誰\\\",\\\"createTime\\\":\\\"2024-06-08 16:11:52.2539\\\",\\\"photoStickerBase64\\\":\\\"\\\"}\",\"token\":\"{\\\"id\\\":\\\"11\\\",\\\"token\\\":\\\"nCKO50yfvdvJ+jol8DNFHhfolf2qsx+5\\\",\\\"expiredTime\\\":\\\"2024-06-09 16:19:29.9721\\\"}\"}"
+            }
+
+#### Both
 + Request (application/json)
-Both
     + Body
 
             {
@@ -125,43 +146,40 @@ Both
             }
 
 + Response 200 (application/json)
-onlyToken
     + Body
 
             {
                 "success": true,
                 "errorMessage": "",
                 "exception": "",
-                "data": "{\"loginAccount\":\"command1264@gmail.com\",\"loginPassword\":\"25d55ad283aa400af464c76d713c07ad\",\"id\":\"1\",\"name\":\"指令 Command1\",\"createTime\":\"2004-01-06 20:07:09.2200\",\"chatRooms\":[{\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":0},{\"room_a84013c4_06a9_46f6_bdfa_272d408c9581\":0},{\"room_431c1373_2b76_4176_8962_b8419ffa6112\":0}],\"photoStickerBase64\":\"\"}"
+                "data": "{\"chatRooms\":[],\"id\":\"11\",\"userId\":\"EKrqgg9BHQ\",\"name\":\"我是誰我是誰我是誰\",\"createTime\":\"2024-06-08 16:11:52.2539\",\"photoStickerBase64\":\"\"}"
             }
+---
+### 更換Token [POST]
+http://26.208.147.218:60922/api/v1/changeToken
++ Request (application/json)
+    + Body
 
+            {
+                "token": "XZNhgf7WR1x5RPYvz6+o8M9xidcGW10r"
+            }
 + Response 200 (application/json)
-onlyLogin
+
     + Body
 
             {
                 "success": true,
                 "errorMessage": "",
                 "exception": "",
-                "data": "{\"account\":\"{\\\"loginAccount\\\":\\\"command1264@gmail.com\\\",\\\"loginPassword\\\":\\\"25d55ad283aa400af464c76d713c07ad\\\",\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"指令 Command1\\\",\\\"createTime\\\":\\\"2004-01-06 20:07:09.2200\\\",\\\"chatRooms\\\":[{\\\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\\\":0},{\\\"room_a84013c4_06a9_46f6_bdfa_272d408c9581\\\":0},{\\\"room_431c1373_2b76_4176_8962_b8419ffa6112\\\":0}],\\\"photoStickerBase64\\\":\\\"\\\"}\",\"token\":\"{\\\"id\\\":\\\"1\\\",\\\"token\\\":\\\"mjO/xaqZxZEmZXYYCrib2FEhris6M71o\\\",\\\"expiredTime\\\":\\\"2024-06-07 02:39:11.7806\\\"}\"}"
+                "data": "{\"id\":\"1\",\"token\":\"EGW7ZcsAFSdFBH2qTSG3QyIyiKH0LL+5\",\"expiredTime\":\"2024-06-10 17:39:33.0571\"}"
             }
 
-+ Response 200 (application/json)
-Both
-    + Body
-
-            {
-                "success": true,
-                "errorMessage": "",
-                "exception": "",
-                "data": "{\"loginAccount\":\"command1264@gmail.com\",\"loginPassword\":\"25d55ad283aa400af464c76d713c07ad\",\"id\":\"1\",\"name\":\"指令 Command1\",\"createTime\":\"2004-01-06 20:07:09.2200\",\"chatRooms\":[{\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":0},{\"room_a84013c4_06a9_46f6_bdfa_272d408c9581\":0},{\"room_431c1373_2b76_4176_8962_b8419ffa6112\":0}],\"photoStickerBase64\":\"\"}"
-            }
 ---
 ### 創建聊天室 [POST]
 http://26.208.147.218:60922/api/v1/createUserChatRoom
 
+#### userIds
 + Request (application/json)
-userIds
     + Body
 
             {
@@ -171,9 +189,8 @@ userIds
                     "5qXJ5yMjQW"
                 ]
             }
-
+#### ids (Number/String)
 + Request (application/json)
-ids (Number/String)
     + Body
 
             {
@@ -196,31 +213,21 @@ ids (Number/String)
 
 ---
 ### 取得聊天室資料 [GET]
-http://26.208.147.218:60922/api/v1/getUsersChatRoomChat
+http://26.208.147.218:60922/api/v1/getUsersChatRoomChats
 
+#### chatRoomName (String/JsonArray)
 + Request (application/json)
-userIds
+
     + Body
 
             {
-                "userIds" : [
-                    "Command1",
-                    "T9NSiwItgj",
-                    "5qXJ5yMjQW"
+                "token": "EGW7ZcsAFSdFBH2qTSG3QyIyiKH0LL+5",
+                "chatRoomName": [
+                    "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0",
+                    "room_6747db05_4d30_430c_bec6_1c49f942a7c3"
                 ]
             }
 
-+ Request (application/json)
-ids (Number/String)
-    + Body
-
-            {
-                "ids" : [
-                    1,
-                    2, 
-                    4
-                ]
-            }
 + Response 200 (application/json)
 
     + Body
@@ -229,5 +236,62 @@ ids (Number/String)
                 "success": true,
                 "errorMessage": "",
                 "exception": "",
-                "data": "[{\"id\":1,\"sender\":\"1\",\"message\":\"測試訊息1\",\"type\":\"2024-05-30 01:10:15\",\"time\":\"\",\"modify\":false},{\"id\":2,\"sender\":\"1\",\"message\":\"測試訊息1\",\"type\":\"2024-05-30 01:10:15\",\"time\":\"\",\"modify\":false},{\"id\":3,\"sender\":\"1\",\"message\":\"測試訊息1\",\"type\":\"2024-05-30 01:10:15\",\"time\":\"\",\"modify\":false}]"
+                "data": "{\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":[{\"id\":1,\"sender\":\"指令 Command1\",\"message\":\"\",\"type\":\"space\",\"time\":\"\",\"modify\":false,\"deleted\":true},{\"id\":2,\"sender\":\"指令 Command1\",\"message\":\"測試訊息1\",\"type\":\"2024-05-30 01:10:15\",\"time\":\"\",\"modify\":false,\"deleted\":false},{\"id\":3,\"sender\":\"指令 Command1\",\"message\":\"測試訊息1\",\"type\":\"2024-05-30 01:10:15\",\"time\":\"\",\"modify\":false,\"deleted\":false},{\"id\":4,\"sender\":\"指令 Command1\",\"message\":\"測試訊息1\",\"type\":\"2024-05-30 01:10:15\",\"time\":\"\",\"modify\":false,\"deleted\":false},{\"id\":5,\"sender\":\"指令 Command1\",\"message\":\"測試訊息1\",\"type\":\"2024-05-30 01:10:17\",\"time\":\"\",\"modify\":false,\"deleted\":false}],\"room_6747db05_4d30_430c_bec6_1c49f942a7c3\":[]}"
+            }
+
+---
+### 使用者傳送訊息 [PUT]
+http://26.208.147.218:60922/api/v1/userSendMessage
+
+#### chatRoomName (String/JsonArray)
++ Request (application/json)
+
+    + Body
+
+            {
+                "chatRoomName": "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0",
+                "message" : {
+                    "sender" : "Command1",
+                    "message" : "測試訊息1",
+                    "type" : "text",
+                    "time" : "2024-05-30 01:10:17"
+                }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "success": true,
+                "errorMessage": "",
+                "exception": "",
+                "data": ""
+            }
+
+### 取得聊天室更新訊息 [PUT]
+http://26.208.147.218:60922/api/v1/getUserReceiveMessage
+
+#### chatRoomName (String/JsonArray)
++ Request (application/json)
+
+    + Body
+
+            {
+                "token": "EGW7ZcsAFSdFBH2qTSG3QyIyiKH0LL+5",
+                "chatRoomName": {
+                    "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": 0,
+                    "room_6747db05_4d30_430c_bec6_1c49f942a7c3": 1
+                }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "success": true,
+                "errorMessage": "",
+                "exception": "",
+                "data": "{\"token\":\"EGW7ZcsAFSdFBH2qTSG3QyIyiKH0LL+5\",\"chatRoomName\":{\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":0,\"room_6747db05_4d30_430c_bec6_1c49f942a7c3\":1},\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":\"[{\\\"id\\\":1,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"\\\",\\\"type\\\":\\\"space\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":true},{\\\"id\\\":2,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:15\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false},{\\\"id\\\":3,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:15\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false},{\\\"id\\\":4,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:15\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false},{\\\"id\\\":5,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:17\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false}]\",\"room_6747db05_4d30_430c_bec6_1c49f942a7c3\":\"[]\"}"
             }

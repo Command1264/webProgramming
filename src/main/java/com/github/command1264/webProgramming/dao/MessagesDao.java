@@ -18,30 +18,19 @@ import java.util.*;
 public class MessagesDao {
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
+    @Autowired
+    AccountDao accountDao;
     private final Gson gson = new Gson();
 
-    public ReturnJsonObject getUsersChatRoomChat(String chatRoomName) {
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if (jdbcTemplate == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-            return returnJsonObject;
-        }
-        if (chatRoomName == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
-            return returnJsonObject;
-        }
-        String sql = "select * from :tableName;".replaceAll(":tableName", chatRoomName);
-        List<MessageSendReceive> messagesList = jdbcTemplate.query(sql, new HashMap<>(), new MessageSendReceiveRowMapper());
+    public List<MessageSendReceive> getUsersChatRoomChat(String token, String chatRoomName) {
+        if (jdbcTemplate == null  || token == null || chatRoomName == null) return new ArrayList<>();
 
-        String messageListStr = gson.toJson(gson.toJsonTree(messagesList,
-                        new TypeToken<List<MessageSendReceive>>() {
-                        }.getType())
-                .getAsJsonArray(), JsonArray.class);
-        returnJsonObject.setSuccess(true);
-        returnJsonObject.setData(messageListStr);
-        return returnJsonObject;
+        String selectMessageSql = "select * from :tableName;".replaceAll(":tableName", chatRoomName);
+        try {
+            return jdbcTemplate.query(selectMessageSql, new HashMap<>(), new MessageSendReceiveRowMapper(accountDao));
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     public ReturnJsonObject modifyUsersChatRoomChat(
@@ -72,7 +61,7 @@ public class MessagesDao {
         Map<String, Object> map = new HashMap<>() {{
             put("id", oldMessage.getId());
         }};
-        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
+        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper(accountDao));
         if (messagesList.isEmpty()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
@@ -116,7 +105,7 @@ public class MessagesDao {
         Map<String, Object> map = new HashMap<>() {{
             put("id", message.getId());
         }};
-        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
+        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper(accountDao));
         if (messagesList.isEmpty()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
@@ -178,6 +167,6 @@ public class MessagesDao {
         Map<String, Object> map = new HashMap<>() {{
             put("id", id);
         }};
-        return jdbcTemplate.query(selectMessageSql, map, new MessageSendReceiveRowMapper());
+        return jdbcTemplate.query(selectMessageSql, map, new MessageSendReceiveRowMapper(accountDao));
     }
 }

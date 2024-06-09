@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Page Index</title>
+</head>
+<body>
+<h2>CORS測試</h2>
+<p id="info"></p>
+</body>
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script>
+    $.ajax({
+        url: 'http://26.208.147.218:60922/ping',
+        type: "GET",
+        success: function (data) {
+            $("#info").html("跨網域請求成功:"+data);
+        },
+        error: function (data) {
+            $("#info").html("跨網域請求失敗!!");
+        }
+    })
+</script>
+</html>

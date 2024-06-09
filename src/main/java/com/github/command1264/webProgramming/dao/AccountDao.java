@@ -88,7 +88,11 @@ public class AccountDao {
     }
 
     public @Nullable String getIdWithToken(@Nullable String token) {
-        if (token == null) return null;
+        if (jdbcTemplate == null || token == null) return null;
+        if (tokenIsExpired(token)) {
+            deleteToken(token);
+            return null;
+        }
         String sql = "select * from :tableName where token=:token;"
                 .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
         Map<String, Object> map = new HashMap<>() {{
@@ -101,25 +105,21 @@ public class AccountDao {
             jdbcTemplate.update(sql, map);
             return null;
         }
-        Token tableToken = tokenList.get(0);
-        // 如果前面時間比後面時間還晚，回傳 1
-        // 如果前面時間跟後面時間一樣，回傳 0
-        // 如果前面時間比後面時間還早，回傳 -1
-        int type = tableToken.getExpiredTimeWithTime().compareTo(LocalDateTime.now());
-        if (type < 0) {
-            sql = "delete from :tableName where token=:token;"
-                    .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
-            jdbcTemplate.update(sql, map);
-            return null;
-        }
-        return tableToken.getId();
+
+        return tokenList.get(0).getId();
     }
 
     public Token createToken(String id) {
         if (jdbcTemplate == null || id == null) return null;
 
         Token token = checkHasToken(id);
-        if (token != null) return token;
+        if (token != null) {
+            if (tokenIsExpired(token.getToken())) {
+                deleteToken(token.getToken());
+            } else {
+                return token;
+            }
+        }
 
         String checkTokenSql = "select * from :tableName where token=:token;"
                 .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
@@ -430,6 +430,49 @@ public class AccountDao {
         if (accountAndRoomsList.size() != 1) return null;
         return accountAndRoomsList.get(0);
     }
+
+    public boolean tokenIsExpired(Token token) {
+        return this.tokenIsExpired(token.getToken());
+    }
+    public boolean tokenIsExpired(String token) {
+        if (jdbcTemplate == null || token == null) return true;
+        String selectTokenSql = "select * from :tableName where token=:token;"
+                .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
+        Map<String, Object> map = new HashMap<>() {{
+            put("token", token);
+        }};
+        List<Token> tokenList = jdbcTemplate.query(selectTokenSql, map, new TokenRowMapper());
+        if (tokenList.size() != 1) return true;
+        Token tableToken = tokenList.get(0);
+        // 如果前面時間比後面時間還晚，回傳 1
+        // 如果前面時間跟後面時間一樣，回傳 0
+        // 如果前面時間比後面時間還早，回傳 -1
+        int type = tableToken.getExpiredTimeWithTime().compareTo(LocalDateTime.now());
+        return type < 0;
+//        sql = "delete from :tableName where token=:token;"
+//                .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
+//        jdbcTemplate.update(sql, map);
+    }
+
+    public boolean deleteToken(Token token) {
+        return this.deleteToken(token.getToken());
+    }
+    public boolean deleteToken(String token) {
+        if (jdbcTemplate == null || token == null) return true;
+        String deleteTokenSql = "delete from :tableName where token=:token;"
+                .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
+        Map<String, Object> map = new HashMap<>() {{
+            put("token", token);
+        }};
+        try {
+            int count = jdbcTemplate.update(deleteTokenSql, map);
+            return count > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
 
 
     // todo need test

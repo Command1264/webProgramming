@@ -15,7 +15,8 @@ public enum JsonKeyEnum {
     token,
 
     chatRoomName,
-    chatRoomMessageId,
+//    chatRoomNames,
+//    chatRoomMessageId,
 
     message,
 

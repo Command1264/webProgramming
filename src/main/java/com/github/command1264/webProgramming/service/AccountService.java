@@ -58,23 +58,27 @@ public class AccountService { // todo 更新 accountInfo 相關
                     returnJsonObject.setException("");
                     return returnJsonObject;
                 }
+            } else {
+                returnJsonObject.setSuccess(false);
+                returnJsonObject.setErrorMessage(ErrorType.tokenIsExpired.getErrorMessage());
+                return returnJsonObject;
             }
         }
         if (loginAccount != null && loginPassword != null) {
             switch (accountDao.checkAccount(loginAccount, loginPassword)) {
                 case 1:
-                    JsonObject userAndRoomsAndTokenJsonObject = new JsonObject();
+//                    JsonObject userAndRoomsAndTokenJsonObject = new JsonObject();
                     UserAndRooms userAndRooms = accountDao.getUserAndRoomsWithLogin(loginAccount, loginPassword);
                     if (userAndRooms == null) break;
-                    userAndRoomsAndTokenJsonObject.addProperty(JsonKeyEnum.userAndRooms.name(), userAndRooms.serialize());
+//                    userAndRoomsAndTokenJsonObject.addProperty(JsonKeyEnum.userAndRooms.name(), userAndRooms.serialize());
 
                     Token newToken = accountDao.createToken(userAndRooms.getId());
-                    if (newToken != null) {
-                        userAndRoomsAndTokenJsonObject.addProperty(JsonKeyEnum.token.name(), newToken.serialize());
-                    }
+                    if (newToken == null) break;
+//                        userAndRoomsAndTokenJsonObject.addProperty(JsonKeyEnum.token.name(), newToken.serialize());
+//                    }
 
                     returnJsonObject.setSuccess(true);
-                    returnJsonObject.setData(gson.toJson(userAndRoomsAndTokenJsonObject, JsonObject.class));
+                    returnJsonObject.setData(gson.toJson(newToken, Token.class));
                     returnJsonObject.setErrorMessage("");
                     returnJsonObject.setException("");
                     break;
@@ -92,6 +96,50 @@ public class AccountService { // todo 更新 accountInfo 相關
             }
         }
         return returnJsonObject;
+    }
+
+    public ReturnJsonObject changeToken(String json) {
+        ReturnJsonObject returnJsonObject = new ReturnJsonObject();
+        if (json == null) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject;
+        }
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        if (!(jsonObject.has(JsonKeyEnum.token.name()) || jsonObject.get(JsonKeyEnum.token.name()).isJsonNull())) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject;
+        }
+        String token;
+        try {
+            token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
+        } catch (Exception e) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject;
+        }
+        String id = accountDao.getIdWithToken(token);
+        if (id == null) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject;
+        }
+
+        int tryCount = 0;
+        while(!accountDao.deleteToken(token)) {
+            if (++tryCount >= 10) {
+                returnJsonObject.setSuccess(false);
+                returnJsonObject.setErrorMessage(ErrorType.changeTokenFailed.getErrorMessage());
+                return returnJsonObject;
+            }
+        }
+        Token newToken = accountDao.createToken(id);
+        returnJsonObject.setSuccess(true);
+        returnJsonObject.setData(gson.toJson(newToken, Token.class));
+        return returnJsonObject;
+
+
     }
 
     public ReturnJsonObject createAccount(String json) {

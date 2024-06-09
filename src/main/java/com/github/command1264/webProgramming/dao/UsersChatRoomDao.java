@@ -39,6 +39,22 @@ public class UsersChatRoomDao {
         return result.get(0).getUUID();
     }
 
+    public List<String> getUsersChatRoomUsers(String chatRoomName) {
+        if (jdbcTemplate == null || chatRoomName == null) return new ArrayList<>();
+        String sql = "select * from :tableName where uuid=:uuid;"
+                .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
+        Map<String, Object> map = new HashMap<>();
+        try {
+            UUID chatRoomUUID = UUID.fromString(chatRoomName);
+            map.put("uuid", chatRoomUUID.toString());
+        } catch (Exception e) {
+            map.put("uuid", RoomNameConverter.convertChatRoomName(chatRoomName).toString());
+        }
+        List<UsersChatRoom> usersChatRoomList = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+        if (usersChatRoomList.size() != 1) return new ArrayList<>();
+        return usersChatRoomList.get(0).getUserList();
+    }
+
     @Deprecated
     public ReturnJsonObject getUsersChatRoom(String usersListStr) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();

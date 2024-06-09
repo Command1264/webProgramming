@@ -53,7 +53,7 @@ public class HttpController {
 //    @CrossOrigin(origins = "*")
     @GetMapping("/ping")
     public String ping() {
-        Printer.println("Pong!");
+//        Printer.println("Pong!");
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         returnJsonObject.setSuccess(true);
         returnJsonObject.setData("alive");
@@ -62,15 +62,21 @@ public class HttpController {
 
     @PostMapping("/test")
     public String test(@RequestBody String json) {
-//        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        return gson.toJson(jsonObject.get("test").getAsString());
 //        return accountDao.getAccountWithUserId(jsonObject.get(JsonKeyEnum.id.name()).getAsString()).serialize();
 //        return sqlDao.test(jsonObject.get(JsonKeyEnum.id.name()).getAsString());
-        JsonElement jsonElement = new JsonPrimitive("String");
-        return gson.toJson(jsonElement);
+//        JsonElement jsonElement = new JsonPrimitive("String");
+//        return gson.toJson(jsonElement);
     }
     @PostMapping("/api/v1/loginAccount")
     public ReturnJsonObject loginAccount(@RequestBody String json) {
         return accountService.loginAccount(json);
+    }
+
+    @PostMapping("/api/v1/changeToken")
+    public ReturnJsonObject changeToken(@RequestBody String json) {
+        return accountService.changeToken(json);
     }
 
 
