@@ -133,6 +133,7 @@ public class UsersChatRoomService {
 
     }
 
+    // todo 設定一次傳輸訊息的數量上限，為未讀訊息由最新開始向上 n 則(n=100)
     public ReturnJsonObject getUsersChatRoomChats(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if(sqlDao.checkNotConnect()) {
@@ -198,6 +199,11 @@ public class UsersChatRoomService {
             if (!usersChatRoomDao.getUsersChatRoomUsers(chatRoomName).contains(tokenId)) continue;
 
             chatRoomsChats.put(chatRoomName, messagesDao.getUsersChatRoomChat(token, chatRoomName));
+        }
+        if (chatRoomsChats.isEmpty()) {
+            returnJsonObject.setSuccess(false);
+            returnJsonObject.setErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
+            return returnJsonObject;
         }
         returnJsonObject.setSuccess(true);
         returnJsonObject.setErrorMessage("");

@@ -3,8 +3,8 @@ HOST: https://polls.apiblueprint.org/ -->
 
 # 指令Command1 
 ## 網路程式設計 API文件
-##### version: 1.1.0
-##### edit time: 2024/06/09 06:31:50 PM
+##### version: 1.1.1
+##### edit time: 2024/06/09 10:04:30 PM
 
 
 <!-- Polls is a simple API allowing consumers to view polls and vote in them. -->
@@ -183,13 +183,14 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
     + Body
 
             {
-                "userIds" : [
+                "token": "EGW7ZcsAFSdFBH2qTSG3QyIyiKH0LL+5",
+                "userIds":[
                     "Command1",
-                    "T9NSiwItgj",
-                    "5qXJ5yMjQW"
+                    "Taiwan_PingLord",
+                    "5qXJ5yMjQW","Taiwan_PingLord2"
                 ]
             }
-#### ids (Number/String)
+<!-- #### ids (Number/String)
 + Request (application/json)
     + Body
 
@@ -199,7 +200,7 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
                     2, 
                     4
                 ]
-            }
+            } -->
 + Response 200 (application/json)
 
     + Body
@@ -208,7 +209,7 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
                 "success": true,
                 "errorMessage": "",
                 "exception": "",
-                "data": "room_6747db05_4d30_430c_bec6_1c49f942a7c3"
+                "data": "room_e3e810ce_9660_43d7_93c0_f68489e72815"
             }
 
 ---
@@ -249,9 +250,10 @@ http://26.208.147.218:60922/api/v1/userSendMessage
     + Body
 
             {
-                "chatRoomName": "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0",
+                "token": "wIzBwZ9P/6EOdhMAKczQNMVvxTxfQMMN",
+                "chatRoomName": "room_6747db05_4d30_430c_bec6_1c49f942a7c3",
                 "message" : {
-                    "sender" : "Command1",
+                    "sender" : "Taiwan_PingLord2",
                     "message" : "測試訊息1",
                     "type" : "text",
                     "time" : "2024-05-30 01:10:17"
@@ -269,7 +271,7 @@ http://26.208.147.218:60922/api/v1/userSendMessage
                 "data": ""
             }
 
-### 取得聊天室更新訊息 [PUT]
+### 取得聊天室更新訊息 [GET]
 http://26.208.147.218:60922/api/v1/getUserReceiveMessage
 
 #### chatRoomName (String/JsonArray)
@@ -293,5 +295,5 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
                 "success": true,
                 "errorMessage": "",
                 "exception": "",
-                "data": "{\"token\":\"EGW7ZcsAFSdFBH2qTSG3QyIyiKH0LL+5\",\"chatRoomName\":{\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":0,\"room_6747db05_4d30_430c_bec6_1c49f942a7c3\":1},\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":\"[{\\\"id\\\":1,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"\\\",\\\"type\\\":\\\"space\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":true},{\\\"id\\\":2,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:15\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false},{\\\"id\\\":3,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:15\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false},{\\\"id\\\":4,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:15\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false},{\\\"id\\\":5,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:17\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false}]\",\"room_6747db05_4d30_430c_bec6_1c49f942a7c3\":\"[]\"}"
+                "data": "{\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":\"[{\\\"id\\\":1,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"\\\",\\\"type\\\":\\\"space\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":true},{\\\"id\\\":2,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:15\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false},{\\\"id\\\":3,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:15\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false},{\\\"id\\\":4,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:15\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false},{\\\"id\\\":5,\\\"sender\\\":\\\"指令 Command1\\\",\\\"message\\\":\\\"測試訊息1\\\",\\\"type\\\":\\\"2024-05-30 01:10:17\\\",\\\"time\\\":\\\"\\\",\\\"modify\\\":false,\\\"deleted\\\":false}]\",\"room_6747db05_4d30_430c_bec6_1c49f942a7c3\":\"[]\"}"
             }

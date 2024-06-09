@@ -13,7 +13,7 @@ public class MessageSendReceiveRowMapper implements RowMapper<MessageSendReceive
         this.accountDao = accountDao;
     }
     @Override
-    public MessageSendReceive mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public MessageSendReceive mapRow(ResultSet rs, int rowNum) throws SQLException { // todo sql inner join
         MessageSendReceive messageSendReceive = new MessageSendReceive();
         UserAndRooms userAndRooms = accountDao.getUserAndRoomsWithId(String.valueOf(rs.getString("sender")));
 

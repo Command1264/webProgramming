@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.Objects;
 
 @Component
-public class AccountService { // todo 更新 accountInfo 相關
+public class AccountService {
     Gson gson = new Gson();
     @Autowired
     SqlDao sqlDao;
@@ -253,14 +253,6 @@ public class AccountService { // todo 更新 accountInfo 相關
             returnJsonObject.setErrorMessage(ErrorType.cantFindIdOrUserId.getErrorMessage());
             return returnJsonObject;
         }
-
-//        boolean flag = sqlDao.getUser(jsonObject.get(JsonKeyEnum.id.name()).getAsString());
-//        if (!flag) {
-//            returnJsonObject.setSuccess(true);
-//        } else {
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage("找不到帳戶");
-//        }
         return returnJsonObject;
     }
 }

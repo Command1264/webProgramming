@@ -69,6 +69,14 @@ public class HttpController {
 //        JsonElement jsonElement = new JsonPrimitive("String");
 //        return gson.toJson(jsonElement);
     }
+
+
+
+    @PostMapping("/api/v1/createAccount")
+    public ReturnJsonObject createAccount(@RequestBody String json) {
+        return accountService.createAccount(json);
+    }
+
     @PostMapping("/api/v1/loginAccount")
     public ReturnJsonObject loginAccount(@RequestBody String json) {
         return accountService.loginAccount(json);
@@ -77,12 +85,6 @@ public class HttpController {
     @PostMapping("/api/v1/changeToken")
     public ReturnJsonObject changeToken(@RequestBody String json) {
         return accountService.changeToken(json);
-    }
-
-
-    @PostMapping("/api/v1/createAccount")
-    public ReturnJsonObject createAccount(@RequestBody String json) {
-        return accountService.createAccount(json);
     }
 
     @GetMapping("/api/v1/getUser")
@@ -96,6 +98,8 @@ public class HttpController {
     public ReturnJsonObject getAccount(@RequestBody String json) {
         return accountService.getAccount(json);
     }
+
+
 
     @Deprecated
     @GetMapping("/api/v1/getUserChatRoom")
@@ -112,6 +116,8 @@ public class HttpController {
     public ReturnJsonObject getUsersChatRoomChats(@RequestBody String json) {
         return usersChatRoomService.getUsersChatRoomChats(json);
     }
+
+
 
     @PutMapping("/api/v1/userSendMessage")
     public ReturnJsonObject userSendMessage(@RequestBody String json) {

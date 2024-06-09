@@ -8,6 +8,7 @@ import com.github.command1264.webProgramming.util.DateTimeFormat;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -39,7 +40,7 @@ public class UsersChatRoomDao {
         return result.get(0).getUUID();
     }
 
-    public List<String> getUsersChatRoomUsers(String chatRoomName) {
+    public @NotNull List<String> getUsersChatRoomUsers(String chatRoomName) {
         if (jdbcTemplate == null || chatRoomName == null) return new ArrayList<>();
         String sql = "select * from :tableName where uuid=:uuid;"
                 .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
