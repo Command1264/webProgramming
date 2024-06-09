@@ -195,8 +195,15 @@ public class UsersChatRoomDao {
         if (jdbcTemplate == null || chatRoomName == null) return false;
         String sql = "select * from :tableName where uuid=:uuid;"
                 .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
+        UUID chatRoomUUID = null;
+        try {
+            chatRoomUUID = UUID.fromString(chatRoomName);
+        } catch (Exception e) {
+            chatRoomUUID = RoomNameConverter.convertChatRoomName(chatRoomName);
+        }
+        UUID finalChatRoomUUID = chatRoomUUID;
         Map<String, Object> map = new HashMap<>() {{
-            put("uuid", RoomNameConverter.convertChatRoomName(chatRoomName).toString());
+            if (finalChatRoomUUID != null) put("uuid", finalChatRoomUUID.toString());
         }};
         List<UsersChatRoom> usersChatRoomList = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
         return !usersChatRoomList.isEmpty();

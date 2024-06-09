@@ -11,18 +11,20 @@ import java.time.format.DateTimeFormatter;
 public class MessageSendReceive {
     private int id = 0;
     private String sender = "";
+    private String senderId = "";
     private String message = "";
     private String type = "";
     private String time = "";
     private boolean modify = false;
     private boolean deleted = false;
     public MessageSendReceive() {}
-    public MessageSendReceive(int id, String sender, String message, String type, LocalDateTime time, boolean modify, boolean deleted) {
-        this(id, sender, message, type, time.format(DateTimeFormatter.ofPattern(DateTimeFormat.format)), modify, deleted);
+    public MessageSendReceive(int id, String sender, String senderId, String message, String type, LocalDateTime time, boolean modify, boolean deleted) {
+        this(id, sender, senderId, message, type, time.format(DateTimeFormatter.ofPattern(DateTimeFormat.format)), modify, deleted);
     }
-    public MessageSendReceive(int id, String sender, String message, String type, String time, boolean modify, boolean deleted) {
+    public MessageSendReceive(int id, String sender, String senderId, String message, String type, String time, boolean modify, boolean deleted) {
         this.id = id;
         this.sender = sender;
+        this.senderId = senderId;
         this.message = message;
         this.type = type;
         this.time = time;
@@ -34,6 +36,9 @@ public class MessageSendReceive {
     }
     public void setSender(String sender) {
         this.sender = sender;
+    }
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
     public void setMessage(String message) {
         this.message = message;
@@ -56,6 +61,9 @@ public class MessageSendReceive {
     }
     public String getSender() {
         return this.sender;
+    }
+    public String getSenderId() {
+        return this.senderId;
     }
     public String getMessage() {
         return this.message;

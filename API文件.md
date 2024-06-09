@@ -9,8 +9,8 @@ HOST: https://polls.apiblueprint.org/ -->
 
 # 指令Command1 
 ## 網路程式設計 API文件
-##### version: 1.2.1
-##### last edit time: 2024/06/10 06:07:20 AM
+##### version: 1.2.2
+##### last edit time: 2024/06/10 06:43:10 AM
 
 
 <!-- Polls is a simple API allowing consumers to view polls and vote in them. -->
@@ -261,7 +261,7 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
 
 ---
 ### 取得聊天室資訊 [POST]
-http://26.208.147.218:60922/api/v1/createUserChatRoom
+http://26.208.147.218:60922/api/v1/getUserChatRoom
 
 #### chatRoomName (String/JsonArray)
 + Request (application/json)
@@ -350,17 +350,19 @@ http://26.208.147.218:60922/api/v1/getUsersChatRoomChats
                 "data": {
                     "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": [
                         {
-                            "id": 8,
-                            "sender": "台灣Ping霸主",
-                            "message": "測試訊息1",
-                            "type": "text",
-                            "time": "2024-05-30 01:10:17",
+                            "id": 1,
+                            "sender": "指令 Command1",
+                            "senderId": "Command1",
+                            "message": "",
+                            "type": "space",
+                            "time": "2024-05-30 01:10:15",
                             "modify": false,
-                            "deleted": false
+                            "deleted": true
                         },
                         {
                             "id": 9,
                             "sender": "台灣Ping霸主",
+                            "senderId": "Taiwan_PingLord2",
                             "message": "測試訊息1",
                             "type": "text",
                             "time": "2024-05-30 01:10:17",
@@ -370,6 +372,7 @@ http://26.208.147.218:60922/api/v1/getUsersChatRoomChats
                         {
                             "id": 10,
                             "sender": null,
+                            "senderId": null,
                             "message": "test1",
                             "type": "text",
                             "time": "2024-06-09 22:30:25.4586",
@@ -438,17 +441,19 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
                 "data": {
                     "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": [
                         {
-                            "id": 8,
-                            "sender": "台灣Ping霸主",
+                            "id": 2,
+                            "sender": "指令 Command1",
+                            "senderId": "Command1",
                             "message": "測試訊息1",
                             "type": "text",
-                            "time": "2024-05-30 01:10:17",
+                            "time": "2024-05-30 01:10:15",
                             "modify": false,
                             "deleted": false
                         },
                         {
                             "id": 9,
                             "sender": "台灣Ping霸主",
+                            "senderId": "Taiwan_PingLord2",
                             "message": "測試訊息1",
                             "type": "text",
                             "time": "2024-05-30 01:10:17",
@@ -458,6 +463,7 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
                         {
                             "id": 10,
                             "sender": null,
+                            "senderId": null,
                             "message": "test1",
                             "type": "text",
                             "time": "2024-06-09 22:30:25.4586",

@@ -26,7 +26,7 @@ public class MessagesDao {
         if (jdbcTemplate == null  || token == null || chatRoomName == null) return new ArrayList<>();
 
         String selectMessageSql = StringUtils.replaceEach("""
-                select room.id, room.sender,
+                select room.id, info.userId,
                     info.name, room.message,
                     room.type, room.time,
                     room.modify, room.deleted
@@ -68,24 +68,24 @@ public class MessagesDao {
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
             return returnJsonObject;
         }
-//        String selectSql = StringUtils.replaceEach("""
-//                select room.id, room.sender,
-//                    info.name, room.message,
-//                    room.type, room.time,
-//                    room.modify, room.deleted
-//                    from :tableRoomName room left join :tableInfo info
-//                on room.sender=info.id
-//                where room.id=:id;
-//                """,
-//                new String [] {":tableRoomName", ":tableInfo"},
-//                new String [] {chatRoomName, SqlTableEnum.accountInfo.name()}
-//        );
-        String selectSql = "select * from :chatRoom where id=:id;"
-                .replaceAll(":chatRoom", chatRoomName);
+        String selectSql = StringUtils.replaceEach("""
+                select room.id, info.userId,
+                    info.name, room.message,
+                    room.type, room.time,
+                    room.modify, room.deleted
+                    from :tableRoomName room left join :tableInfo info
+                on room.sender=info.id
+                where room.id=:id;
+                """,
+                new String [] {":tableRoomName", ":tableInfo"},
+                new String [] {chatRoomName, SqlTableEnum.accountInfo.name()}
+        );
+//        String selectSql = "select * from :chatRoom where id=:id;"
+//                .replaceAll(":chatRoom", chatRoomName);
         Map<String, Object> map = new HashMap<>() {{
             put("id", oldMessage.getId());
         }};
-        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper(true));
+        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
         if (messagesList.isEmpty()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
@@ -124,12 +124,24 @@ public class MessagesDao {
             return returnJsonObject;
         }
 
-        String selectSql = "select * from :chatRoomName where id=:id;"
-                .replaceAll(":chatRoomName", chatRoomName);
+        String selectSql = StringUtils.replaceEach("""
+                select room.id, info.userId,
+                    info.name, room.message,
+                    room.type, room.time,
+                    room.modify, room.deleted
+                    from :tableRoomName room left join :tableInfo info
+                on room.sender=info.id
+                where room.id=:id;
+                """,
+                new String [] {":tableRoomName", ":tableInfo"},
+                new String [] {chatRoomName, SqlTableEnum.accountInfo.name()}
+        );
+//        String selectSql = "select * from :chatRoomName where id=:id;"
+//                .replaceAll(":chatRoomName", chatRoomName);
         Map<String, Object> map = new HashMap<>() {{
             put("id", message.getId());
         }};
-        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper(true));
+        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
         if (messagesList.isEmpty()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
@@ -186,7 +198,7 @@ public class MessagesDao {
             return  new ArrayList<>();
         }
         String selectMessageSql = StringUtils.replaceEach("""
-                select room.id, room.sender,
+                select room.id, info.userId,
                     info.name, room.message,
                     room.type, room.time,
                     room.modify, room.deleted
