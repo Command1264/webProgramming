@@ -53,7 +53,7 @@ public class AccountService {
                 UserAndRooms userAndRooms = accountDao.getUserAndRoomsWithId(id);
                 if (userAndRooms != null) {
                     returnJsonObject.setSuccess(true);
-                    returnJsonObject.setData(userAndRooms.serialize());
+                    returnJsonObject.setData(userAndRooms);
                     returnJsonObject.setErrorMessage("");
                     returnJsonObject.setException("");
                     return returnJsonObject;
@@ -78,7 +78,7 @@ public class AccountService {
 //                    }
 
                     returnJsonObject.setSuccess(true);
-                    returnJsonObject.setData(gson.toJson(newToken, Token.class));
+                    returnJsonObject.setData(newToken);
                     returnJsonObject.setErrorMessage("");
                     returnJsonObject.setException("");
                     break;
@@ -136,7 +136,7 @@ public class AccountService {
         }
         Token newToken = accountDao.createToken(id);
         returnJsonObject.setSuccess(true);
-        returnJsonObject.setData(gson.toJson(newToken, Token.class));
+        returnJsonObject.setData(newToken);
         return returnJsonObject;
 
 
@@ -188,7 +188,7 @@ public class AccountService {
 
         if (userAndRooms != null) {
             returnJsonObject.setSuccess(true);
-            returnJsonObject.setData(gson.toJson(userAndRooms, User.class));
+            returnJsonObject.setData(userAndRooms);
         } else {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindAccount.getErrorMessage());
@@ -230,7 +230,7 @@ public class AccountService {
 
         if (userAndRooms != null) {
             returnJsonObject.setSuccess(true);
-            returnJsonObject.setData(gson.toJson(userAndRooms, UserAndRooms.class));
+            returnJsonObject.setData(userAndRooms);
         } else {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindAccount.getErrorMessage());

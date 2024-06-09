@@ -6,12 +6,12 @@ public class ReturnJsonObject {
     private boolean success = false;
     private String errorMessage = "";
     private String exception = "";
-    private String data = "";
-//    private Object data = new JsonObject();
+//    private String data = "";
+    private Object data = "";
 
     public ReturnJsonObject(){}
 
-//    public ReturnJsonObject(boolean success, String errorMessage, String exception, JsonObject data) {
+//    public ReturnJsonObject(boolean success, String errorMessage, String exception, Object data) {
     public ReturnJsonObject(boolean success, String errorMessage, String exception, String data) {
         this.success = success;
         if (errorMessage != null) this.errorMessage = errorMessage;
@@ -28,7 +28,7 @@ public class ReturnJsonObject {
     public String getException() {
         return exception;
     }
-    public String getData() {
+    public Object getData() {
         return data;
     }
 //    public Object getData() {
@@ -50,10 +50,10 @@ public class ReturnJsonObject {
         if (data == null) return;
         this.data = data;
     }
-//    public void setData(Object data) {
-//        if (data == null) return;
-//        this.data = data;
-//    }
+    public void setData(Object data) {
+        if (data == null) return;
+        this.data = data;
+    }
 
 
     public String serialize() {

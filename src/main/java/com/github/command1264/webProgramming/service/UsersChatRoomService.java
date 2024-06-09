@@ -119,7 +119,7 @@ public class UsersChatRoomService {
         if (!createRoomJson.isSuccess()) return createRoomJson;
         boolean flag = false;
         for(String id : userIds) {
-            if (!accountDao.addChatRoomsWithId(id, createRoomJson.getData())) {
+            if (!accountDao.addChatRoomsWithId(id, String.valueOf(createRoomJson.getData()))) {
                 flag = true;
             }
         }
@@ -208,8 +208,7 @@ public class UsersChatRoomService {
         returnJsonObject.setSuccess(true);
         returnJsonObject.setErrorMessage("");
         returnJsonObject.setException("");
-        returnJsonObject.setData(gson.toJson(chatRoomsChats,
-                new TypeToken<Map<String, List<MessageSendReceive>>>(){}.getType()));
+        returnJsonObject.setData(chatRoomsChats);
         return returnJsonObject;
     }
 }

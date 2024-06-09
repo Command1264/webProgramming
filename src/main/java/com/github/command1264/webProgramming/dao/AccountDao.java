@@ -202,8 +202,8 @@ public class AccountDao {
         // random generate init userId end
 
         String insertInfoSql = """
-            insert into :tableName (userId, name, createTime, loginAccount, loginPassword, photoStickerBase64, chatRooms)
-            values(:userId, :name, :createTime, :loginAccount, :loginPassword, :photoStickerBase64, :chatRooms);
+            insert into :tableName (userId, name, createTime, loginAccount, loginPassword, photoStickerBase64)
+            values(:userId, :name, :createTime, :loginAccount, :loginPassword, :photoStickerBase64);
         """.replaceAll(":tableName", SqlTableEnum.accountInfo.name());
 
         String selectInfoSql = """

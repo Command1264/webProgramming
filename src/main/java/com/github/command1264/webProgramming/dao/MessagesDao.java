@@ -5,9 +5,9 @@ import com.github.command1264.webProgramming.messages.MessageSendReceive;
 import com.github.command1264.webProgramming.messages.MessageSendReceiveRowMapper;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
+import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.reflect.TypeToken;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -25,9 +25,22 @@ public class MessagesDao {
     public List<MessageSendReceive> getUsersChatRoomChat(String token, String chatRoomName) {
         if (jdbcTemplate == null  || token == null || chatRoomName == null) return new ArrayList<>();
 
-        String selectMessageSql = "select * from :tableName;".replaceAll(":tableName", chatRoomName);
+        String selectMessageSql = StringUtils.replaceEach("""
+                select room.id, room.sender,
+                    info.name, room.message,
+                    room.type, room.time,
+                    room.modify, room.deleted
+                    from :tableRoomName room left join :tableInfo info
+                on room.sender=info.id;
+                """,
+            new String [] {":tableRoomName", ":tableInfo"},
+            new String [] {chatRoomName, SqlTableEnum.accountInfo.name()}
+        );
+
+//        String selectMessageSql = "select * from :tableName;"
+//                .replaceAll(":tableName", chatRoomName);
         try {
-            return jdbcTemplate.query(selectMessageSql, new HashMap<>(), new MessageSendReceiveRowMapper(accountDao));
+            return jdbcTemplate.query(selectMessageSql, new HashMap<>(), new MessageSendReceiveRowMapper());
         } catch (Exception e) {
             return new ArrayList<>();
         }
@@ -55,13 +68,24 @@ public class MessagesDao {
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
             return returnJsonObject;
         }
-
+//        String selectSql = StringUtils.replaceEach("""
+//                select room.id, room.sender,
+//                    info.name, room.message,
+//                    room.type, room.time,
+//                    room.modify, room.deleted
+//                    from :tableRoomName room left join :tableInfo info
+//                on room.sender=info.id
+//                where room.id=:id;
+//                """,
+//                new String [] {":tableRoomName", ":tableInfo"},
+//                new String [] {chatRoomName, SqlTableEnum.accountInfo.name()}
+//        );
         String selectSql = "select * from :chatRoom where id=:id;"
                 .replaceAll(":chatRoom", chatRoomName);
         Map<String, Object> map = new HashMap<>() {{
             put("id", oldMessage.getId());
         }};
-        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper(accountDao));
+        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper(true));
         if (messagesList.isEmpty()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
@@ -105,7 +129,7 @@ public class MessagesDao {
         Map<String, Object> map = new HashMap<>() {{
             put("id", message.getId());
         }};
-        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper(accountDao));
+        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper(true));
         if (messagesList.isEmpty()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
@@ -115,7 +139,7 @@ public class MessagesDao {
             returnJsonObject.setErrorMessage(ErrorType.messageHasMulti.getErrorMessage());
             return returnJsonObject;
         }
-        String deleteSql = "update :chatRoomName set deleted=1 where id=:id;"
+        String deleteSql = "update :chatRoomName set deleted=true where id=:id;"
                 .replaceAll(":chatRoomName", chatRoomName);
 
         int count = jdbcTemplate.update(deleteSql, map);
@@ -161,12 +185,24 @@ public class MessagesDao {
         if (jdbcTemplate == null || chatRoomName == null || id == null) {
             return  new ArrayList<>();
         }
-        String selectMessageSql = "select * from :tableName where id>:id;"
-                .replaceAll(":tableName", chatRoomName);
+        String selectMessageSql = StringUtils.replaceEach("""
+                select room.id, room.sender,
+                    info.name, room.message,
+                    room.type, room.time,
+                    room.modify, room.deleted
+                    from :tableRoomName room left join :tableInfo info
+                on room.sender=info.id
+                where room.id>:id;
+                """,
+                new String [] {":tableRoomName", ":tableInfo"},
+                new String [] {chatRoomName, SqlTableEnum.accountInfo.name()}
+        );
+//        String selectMessageSql = "select * from :tableName where id>:id;"
+//                .replaceAll(":tableName", chatRoomName);
 
         Map<String, Object> map = new HashMap<>() {{
             put("id", id);
         }};
-        return jdbcTemplate.query(selectMessageSql, map, new MessageSendReceiveRowMapper(accountDao));
+        return jdbcTemplate.query(selectMessageSql, map, new MessageSendReceiveRowMapper());
     }
 }

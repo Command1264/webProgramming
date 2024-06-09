@@ -12,11 +12,12 @@ import com.github.command1264.webProgramming.util.JsonKeyEnum;
 import com.github.command1264.webProgramming.util.UsersSorter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -138,7 +139,8 @@ public class MessagesService {
             return returnJsonObject;
         }
 
-        JsonObject dataJsonObject = new JsonObject();
+//        JsonObject dataJsonObject = new JsonObject();
+        Map<String, Object> dataMap = new HashMap<>();
         chatRooms.asMap().forEach((chatRoomName, id) -> {
             List<String> userList = usersChatRoomDao.getUsersChatRoomUsers(chatRoomName);
             if (userList.contains(tokenId)) {
@@ -148,18 +150,20 @@ public class MessagesService {
                 } catch (Exception ignored) {}
                 if (idStr != null) {
                     List<MessageSendReceive> messageSendReceiveList = messagesDao.userReceiveMessageWithId(chatRoomName, idStr);
-                    dataJsonObject.addProperty(chatRoomName, gson.toJson(messageSendReceiveList, new TypeToken<List<MessageSendReceive>>() {
-                    }.getType()));
+//                    dataJsonObject.addProperty(chatRoomName, gson.toJson(messageSendReceiveList, new TypeToken<List<MessageSendReceive>>() {
+//                    }.getType()));
+                    dataMap.put(chatRoomName, messageSendReceiveList);
                 }
             }
         });
-        if (dataJsonObject.isEmpty() && !chatRooms.isEmpty()) {
+        if (dataMap.isEmpty() && !chatRooms.isEmpty()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
             return returnJsonObject;
         }
         returnJsonObject.setSuccess(true);
-        returnJsonObject.setData(gson.toJson(dataJsonObject, JsonObject.class));
+//        returnJsonObject.setData(gson.toJson(dataJsonObject, JsonObject.class));
+        returnJsonObject.setData(dataMap);
         return returnJsonObject;
     }
 }
