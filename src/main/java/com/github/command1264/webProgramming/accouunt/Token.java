@@ -44,7 +44,11 @@ public class Token {
         return expiredTime;
     }
     public LocalDateTime getExpiredTimeWithTime() {
-        return LocalDateTime.parse(expiredTime, DateTimeFormatter.ofPattern(DateTimeFormat.format));
+        try {
+            return LocalDateTime.parse(expiredTime, DateTimeFormatter.ofPattern(DateTimeFormat.format));
+        } catch (Exception e) {
+            return LocalDateTime.MIN;
+        }
     }
 
 

@@ -33,13 +33,19 @@ public class MessagesService {
 
     public ReturnJsonObject userSendMessage(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if(sqlDao.checkNotConnect()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//        if(sqlDao.checkNotConnect()) {
+//            returnJsonObject.setSuccess(false);
+//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//            return returnJsonObject;
+//        }
+
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         String chatRoomName = null;
         MessageSendReceive messageSendReceive = null;
         if (jsonObject.has(JsonKeyEnum.chatRoomName.name()) && !jsonObject.get(JsonKeyEnum.chatRoomName.name()).isJsonNull()) {
@@ -100,13 +106,19 @@ public class MessagesService {
 
     public ReturnJsonObject getUserReceiveMessage(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if(sqlDao.checkNotConnect()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//        if(sqlDao.checkNotConnect()) {
+//            returnJsonObject.setSuccess(false);
+//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//            return returnJsonObject;
+//        }
+
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         if (!jsonObject.has(JsonKeyEnum.chatRoomName.name()) || jsonObject.get(JsonKeyEnum.chatRoomName.name()).isJsonNull()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
@@ -169,17 +181,24 @@ public class MessagesService {
         returnJsonObject.setData(dataMap);
         return returnJsonObject;
     }
+
     // todo 設定一次傳輸訊息的數量上限，為未讀訊息由最新開始向上 n 則(n=100)
     public ReturnJsonObject getUsersChatRoomChats(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if(sqlDao.checkNotConnect()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//        if(sqlDao.checkNotConnect()) {
+//            returnJsonObject.setSuccess(false);
+//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//            return returnJsonObject;
+//        }
+
+
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
-
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         if ((!jsonObject.has(JsonKeyEnum.chatRoomName.name()) || jsonObject.get(JsonKeyEnum.chatRoomName.name()).isJsonNull())) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());

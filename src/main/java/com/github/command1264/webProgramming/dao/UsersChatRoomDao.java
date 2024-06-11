@@ -29,14 +29,19 @@ public class UsersChatRoomDao {
     private SqlDao sqlDao;
 
 
-    public UUID getChatRoomUUID(String users) {
+    public @Nullable UUID getChatRoomUUID(String users) {
         if (jdbcTemplate == null) return null;
         String sql = "select * from :tableName where users=:users;"
                 .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
         Map<String, Object> map = new HashMap<>() {{
             put("users", users);
         }};
-        List<UsersChatRoom> result = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+        List<UsersChatRoom> result;
+        try {
+            result = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (result.size() != 1) return null;
         return result.get(0).getUUID();
     }
@@ -52,13 +57,18 @@ public class UsersChatRoomDao {
         } catch (Exception e) {
             map.put("uuid", RoomNameConverter.convertChatRoomName(chatRoomName).toString());
         }
-        List<UsersChatRoom> usersChatRoomList = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+        List<UsersChatRoom> usersChatRoomList;
+         try {
+             usersChatRoomList = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+         } catch (Exception e) {
+             return new ArrayList<>();
+         }
         if (usersChatRoomList.size() != 1) return new ArrayList<>();
         return usersChatRoomList.get(0).getUserList();
     }
 
     @Deprecated
-    public ReturnJsonObject getUsersChatRoom(String usersListStr) {
+    public @NotNull ReturnJsonObject getUsersChatRoom(String usersListStr) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -92,7 +102,7 @@ public class UsersChatRoomDao {
         return usersChatRoomList.get(0);
     }
 
-    public ReturnJsonObject createUsersChatRoom(String usersListStr, String name) {
+    public @NotNull ReturnJsonObject createUsersChatRoom(String usersListStr, String name) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -121,7 +131,13 @@ public class UsersChatRoomDao {
             put("users", usersListStr);
             put("lastModify", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DateTimeFormat.format)));
         }};
-        int insertRoomCount = jdbcTemplate.update(insertSql, insertMap);
+        int insertRoomCount;
+        try {
+            insertRoomCount = jdbcTemplate.update(insertSql, insertMap);
+        } catch (Exception e ){
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.sqlUpdateFailed.getErrorMessage());
+            return returnJsonObject;
+        }
 
         String createSql = """
             create table :tableName(
@@ -129,26 +145,29 @@ public class UsersChatRoomDao {
                 sender bigint unsigned not null,
                 message text not null,
                 type varchar(20) not null default 'text',
-                time datetime(4) not null,
+                time datetime not null,
                 modify boolean default false,
                 deleted boolean default false
             );
         """.replaceAll(":tableName", roomName);
 
-        jdbcTemplate.update(createSql, new HashMap<>());
+        try {
+            jdbcTemplate.update(createSql, new HashMap<>());
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.sqlUpdateFailed.getErrorMessage());
+            return returnJsonObject;
+        }
 
         if (insertRoomCount != 1 || !sqlDao.findTableName(roomName)) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlUpdateFailed.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.sqlUpdateFailed.getErrorMessage());
             return returnJsonObject;
         } else {
-            returnJsonObject.setSuccess(true);
-            returnJsonObject.setData(roomName);
+            returnJsonObject.setSuccessAndData(roomName);
         }
         return returnJsonObject;
     }
 
-    public ReturnJsonObject modifyUsersChatRoomUsers(String chatRoomName, String usersListStr) {
+    public @NotNull ReturnJsonObject modifyUsersChatRoomUsers(String chatRoomName, String usersListStr) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -165,29 +184,38 @@ public class UsersChatRoomDao {
         Map<String, Object> map = new HashMap<>(){{
             put("uuid", RoomNameConverter.convertChatRoomName(chatRoomName).toString());
         }};
-        List userIds = jdbcTemplate.queryForObject(selectSql, map, List.class);
+        List userIds;
+        try {
+            userIds = jdbcTemplate.queryForObject(selectSql, map, List.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoom.getErrorMessage());
+            return returnJsonObject;
+        }
 
         if (userIds == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoom.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoom.getErrorMessage());
             return returnJsonObject;
         }
         if (userIds.size() != 1) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.usersHasMulti.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.usersHasMulti.getErrorMessage());
             return returnJsonObject;
         }
         String updateSql = "update :tableName set users=:users where uuid=:uuid;"
                 .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
         map.put("users", usersListStr);
-        int count = jdbcTemplate.update(updateSql, map);
-
-        if (count != 1) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.usersSaveFailed.getErrorMessage());
+        int count;
+        try {
+            count = jdbcTemplate.update(updateSql, map);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.usersSaveFailed.getErrorMessage());
             return returnJsonObject;
         }
-        returnJsonObject.setSuccess(true);
+
+        if (count != 1) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.usersSaveFailed.getErrorMessage());
+            return returnJsonObject;
+        }
+        returnJsonObject.setSuccessAndData("");
         return returnJsonObject;
     }
 
@@ -195,7 +223,7 @@ public class UsersChatRoomDao {
         if (jdbcTemplate == null || chatRoomName == null) return false;
         String sql = "select * from :tableName where uuid=:uuid;"
                 .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
-        UUID chatRoomUUID = null;
+        UUID chatRoomUUID;
         try {
             chatRoomUUID = UUID.fromString(chatRoomName);
         } catch (Exception e) {
@@ -205,7 +233,12 @@ public class UsersChatRoomDao {
         Map<String, Object> map = new HashMap<>() {{
             if (finalChatRoomUUID != null) put("uuid", finalChatRoomUUID.toString());
         }};
-        List<UsersChatRoom> usersChatRoomList = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+        List<UsersChatRoom> usersChatRoomList;
+        try {
+            usersChatRoomList = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+        } catch (Exception e ){
+            return false;
+        }
         return !usersChatRoomList.isEmpty();
 
     }

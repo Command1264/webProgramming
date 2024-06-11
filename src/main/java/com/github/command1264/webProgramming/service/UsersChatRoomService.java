@@ -35,13 +35,19 @@ public class UsersChatRoomService {
 
     public ReturnJsonObject getUsersChatRoom(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if(sqlDao.checkNotConnect()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//        if(sqlDao.checkNotConnect()) {
+//            returnJsonObject.setSuccess(false);
+//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//            return returnJsonObject;
+//        }
+
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         if (!jsonObject.has(JsonKeyEnum.chatRoomName.name()) || jsonObject.get(JsonKeyEnum.chatRoomName.name()).isJsonNull()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoom.getErrorMessage());
@@ -114,14 +120,20 @@ public class UsersChatRoomService {
 
     public ReturnJsonObject createUsersChatRoom(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if(sqlDao.checkNotConnect()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//        if(sqlDao.checkNotConnect()) {
+//            returnJsonObject.setSuccess(false);
+//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//            return returnJsonObject;
+//        }
+
+
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
-
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         if ((!jsonObject.has(JsonKeyEnum.userIds.name()) || jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) &&
                 (!jsonObject.has(JsonKeyEnum.ids.name()) || jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull()) ) {
             returnJsonObject.setSuccess(false);

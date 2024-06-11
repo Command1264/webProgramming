@@ -9,8 +9,8 @@ HOST: https://polls.apiblueprint.org/ -->
 
 # 指令Command1 
 ## 網路程式設計 API文件
-##### version: 1.2.2
-##### last edit time: 2024/06/10 06:43:10 AM
+##### version: 1.2.3
+##### last edit time: 2024/06/10 11:20L40 PM
 
 
 <!-- Polls is a simple API allowing consumers to view polls and vote in them. -->
@@ -123,7 +123,7 @@ http://26.208.147.218:60922/api/v1/loginAccount
                     "id": "1",
                     "userId": "Command1",
                     "name": "指令 Command1",
-                    "createTime": "2004-01-06 20:07:09.2200",
+                    "createTime": "2004-01-06 20:07:09",
                     "photoStickerBase64": "",
                     "chatRooms": [
                         {
@@ -177,8 +177,8 @@ http://26.208.147.218:60922/api/v1/loginAccount
                 "data": {
                     "id": "1",
                     "token": "wPtxDzgDP/u2Qs0StJ0r9y8yLCIIdFkU",
-                    "expiredTime": "2024-06-11 01:07:20.1052",
-                    "expiredTimeWithTime": "2024-06-11T01:07:20.1052"
+                    "expiredTime": "2024-06-11 01:07:20",
+                    "expiredTimeWithTime": "2024-06-11T01:07:20"
                 }
             }
 
@@ -216,8 +216,8 @@ http://26.208.147.218:60922/api/v1/changeToken
                 "data": {
                     "id": "1",
                     "token": "EF8kw6n3/9BeBGZWGDqzEsgU+UaYjCwQ",
-                    "expiredTime": "2024-06-11 01:55:51.9979",
-                    "expiredTimeWithTime": "2024-06-11T01:55:51.9979"
+                    "expiredTime": "2024-06-11 01:55:51",
+                    "expiredTimeWithTime": "2024-06-11T01:55:51"
                 }
             }
 
@@ -290,34 +290,34 @@ http://26.208.147.218:60922/api/v1/getUserChatRoom
                         "uuid": "431c1373-2b76-4176-8962-b8419ffa6112",
                         "name": "431c1373-2b76-4176-8962-b8419ffa6112",
                         "users": "[\"1\"]",
-                        "lastModify": "2024-06-04 16:41:17.4245",
+                        "lastModify": "2024-06-04 16:41:17",
                         "userList": [
                             "1"
                         ],
-                        "lastModifyWithTime": "2024-06-04T16:41:17.4245"
+                        "lastModifyWithTime": "2024-06-04T16:41:17"
                     },
                     "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": {
                         "uuid": "e9ac0054-fd27-44a8-b2ca-eb704aebf8c0",
                         "name": "e9ac0054-fd27-44a8-b2ca-eb704aebf8c0",
                         "users": "[\"1\",\"2\",\"3\"]",
-                        "lastModify": "2024-06-04 16:28:30.8981",
+                        "lastModify": "2024-06-04 16:28:30",
                         "userList": [
                             "1",
                             "2",
                             "3"
                         ],
-                        "lastModifyWithTime": "2024-06-04T16:28:30.8981"
+                        "lastModifyWithTime": "2024-06-04T16:28:30"
                     },
                     "room_a84013c4_06a9_46f6_bdfa_272d408c9581": {
                         "uuid": "a84013c4-06a9-46f6-bdfa-272d408c9581",
                         "name": "",
                         "users": "[\"1\",\"2\"]",
-                        "lastModify": "2024-06-04 16:29:22.3116",
+                        "lastModify": "2024-06-04 16:29:22",
                         "userList": [
                             "1",
                             "2"
                         ],
-                        "lastModifyWithTime": "2024-06-04T16:29:22.3116"
+                        "lastModifyWithTime": "2024-06-04T16:29:22"
                     }
                 }
             }
@@ -375,7 +375,7 @@ http://26.208.147.218:60922/api/v1/getUsersChatRoomChats
                             "senderId": null,
                             "message": "test1",
                             "type": "text",
-                            "time": "2024-06-09 22:30:25.4586",
+                            "time": "2024-06-09 22:30:25",
                             "modify": false,
                             "deleted": false
                         }
@@ -466,7 +466,7 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
                             "senderId": null,
                             "message": "test1",
                             "type": "text",
-                            "time": "2024-06-09 22:30:25.4586",
+                            "time": "2024-06-09 22:30:25",
                             "modify": false,
                             "deleted": false
                         }

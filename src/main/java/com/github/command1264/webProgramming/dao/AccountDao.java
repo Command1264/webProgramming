@@ -3,11 +3,11 @@ package com.github.command1264.webProgramming.dao;
 import com.github.command1264.webProgramming.accouunt.*;
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
-import com.github.command1264.webProgramming.userChatRoom.UsersChatRoomRowMapper;
 import com.github.command1264.webProgramming.util.BaseRandomGenerator;
 import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -51,7 +51,12 @@ public class AccountDao {
             put("loginAccount", loginAccount);
             put("loginPassword", loginPassword);
         }};
-        List<Account> accountList = jdbcTemplate.query(sql, map, new AccountRowMapper());
+        List<Account> accountList;
+        try {
+            accountList = jdbcTemplate.query(sql, map, new AccountRowMapper());
+        } catch (Exception e) {
+            return 0;
+        }
         if (accountList.size() != 1) return -1;
 
         if (accountList.get(0).getLoginPassword().equals(loginPassword)) return 1;
@@ -78,7 +83,12 @@ public class AccountDao {
             put("loginAccount", loginAccount);
             put("loginPassword", loginPassword);
         }};
-        List<Account> accountList = jdbcTemplate.query(sql, map, new AccountRowMapper());
+        List<Account> accountList;
+        try {
+            accountList = jdbcTemplate.query(sql, map, new AccountRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (accountList.size() != 1) return null;
 
         Account account = accountList.get(0);
@@ -98,18 +108,27 @@ public class AccountDao {
         Map<String, Object> map = new HashMap<>() {{
             put("token", token);
         }};
-        List<Token> tokenList = jdbcTemplate.query(sql, map, new TokenRowMapper());
+        List<Token> tokenList;
+        try {
+            tokenList = jdbcTemplate.query(sql, map, new TokenRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (tokenList.size() != 1) {
-            sql = "delete from :tableName where token=:token;"
-                .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
-            jdbcTemplate.update(sql, map);
+            try {
+                sql = "delete from :tableName where token=:token;"
+                    .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
+                jdbcTemplate.update(sql, map);
+            } catch (Exception e) {
+                return null;
+            }
             return null;
         }
 
         return tokenList.get(0).getId();
     }
 
-    public Token createToken(String id) {
+    public @Nullable Token createToken(String id) {
         if (jdbcTemplate == null || id == null) return null;
 
         Token token = checkHasToken(id);
@@ -130,7 +149,11 @@ public class AccountDao {
         do {
             tokenStr = BaseRandomGenerator.base64(generateLength);
             map.put("token", tokenStr);
-            tokenList = jdbcTemplate.query(checkTokenSql, map, new TokenRowMapper());
+            try {
+                tokenList = jdbcTemplate.query(checkTokenSql, map, new TokenRowMapper());
+            } catch (Exception e) {
+                return null;
+            }
         } while (!tokenList.isEmpty());
 
         token = new Token(id, tokenStr, LocalDateTime.now().plusDays(1));
@@ -144,12 +167,17 @@ public class AccountDao {
         map.put("token", token.getToken());
         map.put("expiredTime", token.getExpiredTime());
 
-        int count = jdbcTemplate.update(sql, map);
+        int count;
+        try {
+            count = jdbcTemplate.update(sql, map);
+        } catch (Exception e) {
+            return null;
+        }
         if (count != 1) return null;
         return token;
     }
 
-    public Token checkHasToken(String id) {
+    public @Nullable Token checkHasToken(String id) {
         if (jdbcTemplate == null || id == null) return null;
 
         String checkUserHasTokenSql = "select * from :tableName where id=:id;"
@@ -157,7 +185,12 @@ public class AccountDao {
         Map<String, Object> map = new HashMap<>() {{
             put("id", id);
         }};
-        List<Token> tokenList = jdbcTemplate.query(checkUserHasTokenSql, map, new TokenRowMapper());
+        List<Token> tokenList;
+        try {
+            tokenList = jdbcTemplate.query(checkUserHasTokenSql, map, new TokenRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (tokenList.size() != 1) return null;
         return tokenList.get(0);
 
@@ -165,7 +198,7 @@ public class AccountDao {
     }
 
 
-    public ReturnJsonObject createAccount(AccountAndRooms accountAndRooms) {
+    public @NotNull ReturnJsonObject createAccount(AccountAndRooms accountAndRooms) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -192,7 +225,12 @@ public class AccountDao {
         do {
             userId = BaseRandomGenerator.base58(generateLength);
             map.put("userId", userId);
-            accountList = jdbcTemplate.query(checkRandomUserIdSql, map, new AccountRowMapper());
+            try {
+                accountList = jdbcTemplate.query(checkRandomUserIdSql, map, new AccountRowMapper());
+            } catch (Exception e) {
+                returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+                return returnJsonObject;
+            }
 
             if (++tryCount >= 10) {
                 tryCount = 0;
@@ -222,30 +260,43 @@ public class AccountDao {
         map.put("photoStickerBase64", accountAndRooms.getPhotoStickerBase64());
         map.put("chatRooms", accountAndRooms.getChatRoomsSerialize());
 
-        int executeInfoCount = jdbcTemplate.update(insertInfoSql, map);
+        int executeInfoCount;
+        try {
+            executeInfoCount = jdbcTemplate.update(insertInfoSql, map);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+            return returnJsonObject;
+        }
         if (executeInfoCount != 1) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
             return returnJsonObject;
         }
 
-        accountList = jdbcTemplate.query(selectInfoSql, map, new AccountRowMapper());
+        try {
+            accountList = jdbcTemplate.query(selectInfoSql, map, new AccountRowMapper());
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+            return returnJsonObject;
+        }
         if (accountList.size() != 1) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
             return returnJsonObject;
         }
         map.put("id", accountList.get(0).getId());
 
-        int executeChatRoomsCount = jdbcTemplate.update(insertChatRoomsSql, map);
+        int executeChatRoomsCount;
+        try {
+            executeChatRoomsCount = jdbcTemplate.update(insertChatRoomsSql, map);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+            return returnJsonObject;
+        }
         if (executeChatRoomsCount != 1) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
             return returnJsonObject;
         }
 
-        returnJsonObject.setSuccess(true);
-        returnJsonObject.setErrorMessage("");
+        returnJsonObject.setSuccessAndData("");
         return returnJsonObject;
     }
 
@@ -265,7 +316,12 @@ public class AccountDao {
             put("userId", userId);
         }};
 
-        List<Account> accountList = jdbcTemplate.query(sql, map, new AccountRowMapper());
+        List<Account> accountList;
+        try {
+            accountList = jdbcTemplate.query(sql, map, new AccountRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (accountList.size() != 1) return null;
         return accountList.get(0);
     }
@@ -285,7 +341,12 @@ public class AccountDao {
             put("id", id);
         }};
 
-        List<Account> queryList = jdbcTemplate.query(sql, map, new AccountRowMapper());
+        List<Account> queryList;
+        try {
+            queryList = jdbcTemplate.query(sql, map, new AccountRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (queryList.size() != 1) return null;
         return queryList.get(0);
     }
@@ -309,7 +370,12 @@ public class AccountDao {
             put("loginPassword", loginPassword);
         }};
 
-        List<UserAndRooms> userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+        List<UserAndRooms> userAndRoomsList;
+        try {
+            userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (userAndRoomsList.size() != 1) return null;
         return userAndRoomsList.get(0);
     }
@@ -334,7 +400,12 @@ public class AccountDao {
             put("loginPassword", loginPassword);
         }};
 
-        List<AccountAndRooms> accountAndRoomsList = jdbcTemplate.query(sql, map, new AccountAndRoomsRowMapper());
+        List<AccountAndRooms> accountAndRoomsList;
+        try {
+            accountAndRoomsList = jdbcTemplate.query(sql, map, new AccountAndRoomsRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (accountAndRoomsList.size() != 1) return null;
         return accountAndRoomsList.get(0);
     }
@@ -356,7 +427,12 @@ public class AccountDao {
             put("userId", userId);
         }};
 
-        List<UserAndRooms> userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+        List<UserAndRooms> userAndRoomsList;
+        try {
+            userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (userAndRoomsList.size() != 1) return null;
         return userAndRoomsList.get(0);
     }
@@ -379,7 +455,12 @@ public class AccountDao {
             put("userId", userId);
         }};
 
-        List<AccountAndRooms> accountAndRoomsList = jdbcTemplate.query(sql, map, new AccountAndRoomsRowMapper());
+        List<AccountAndRooms> accountAndRoomsList;
+        try {
+            accountAndRoomsList = jdbcTemplate.query(sql, map, new AccountAndRoomsRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (accountAndRoomsList.size() != 1) return null;
         return accountAndRoomsList.get(0);
     }
@@ -402,7 +483,12 @@ public class AccountDao {
             put("id", id);
         }};
 
-        List<UserAndRooms> userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+        List<UserAndRooms> userAndRoomsList;
+        try {
+            userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (userAndRoomsList.size() != 1) return null;
         return userAndRoomsList.get(0);
     }
@@ -426,7 +512,12 @@ public class AccountDao {
             put("id", id);
         }};
 
-        List<AccountAndRooms> accountAndRoomsList = jdbcTemplate.query(sql, map, new AccountAndRoomsRowMapper());
+        List<AccountAndRooms> accountAndRoomsList;
+        try {
+            accountAndRoomsList = jdbcTemplate.query(sql, map, new AccountAndRoomsRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
         if (accountAndRoomsList.size() != 1) return null;
         return accountAndRoomsList.get(0);
     }
@@ -441,7 +532,12 @@ public class AccountDao {
         Map<String, Object> map = new HashMap<>() {{
             put("token", token);
         }};
-        List<Token> tokenList = jdbcTemplate.query(selectTokenSql, map, new TokenRowMapper());
+        List<Token> tokenList;
+        try {
+            tokenList = jdbcTemplate.query(selectTokenSql, map, new TokenRowMapper());
+        } catch (Exception e) {
+            return true;
+        }
         if (tokenList.size() != 1) return true;
         Token tableToken = tokenList.get(0);
         // 如果前面時間比後面時間還晚，回傳 1
@@ -499,7 +595,12 @@ public class AccountDao {
         }
         updateSql.append(" where userId=:oldUserId;");
 
-        int count = jdbcTemplate.update(updateSql.toString(), map);
+        int count;
+        try {
+            count = jdbcTemplate.update(updateSql.toString(), map);
+        } catch (Exception e) {
+            return false;
+        }
         return (count == 1);
     }
 
@@ -518,10 +619,21 @@ public class AccountDao {
         Map<String, Object> map = new HashMap<>() {{
             put("userId", userId);
         }};
-        List<Account> accountList = jdbcTemplate.query(selectSql, map, new AccountRowMapper());
+        List<Account> accountList;
+        try {
+            accountList = jdbcTemplate.query(selectSql, map, new AccountRowMapper());
+        } catch (Exception e) {
+            return false;
+        }
         if (accountList.size() != 1) return false;
 
-        int count = jdbcTemplate.update("delete from :tableName where userId=:userId;".replaceAll(":tableName", SqlTableEnum.accountInfo.name()), map);
+        int count;
+        try {
+            count = jdbcTemplate.update("delete from :tableName where userId=:userId;"
+                    .replaceAll(":tableName", SqlTableEnum.accountInfo.name()), map);
+        } catch (Exception e) {
+            return false;
+        }
         return (count == 1);
     }
 
@@ -534,7 +646,12 @@ public class AccountDao {
             put("id", id);
         }};
 
-        List<AccountRoom> accountRoomList = jdbcTemplate.query(selectSql, map, new AccountRoomRowMapper());
+        List<AccountRoom> accountRoomList;
+        try {
+            accountRoomList = jdbcTemplate.query(selectSql, map, new AccountRoomRowMapper());
+        } catch (Exception e) {
+            return false;
+        }
         if (accountRoomList.size() != 1) return false;
 
         AccountRoom accountRoom = accountRoomList.get(0);
@@ -546,7 +663,12 @@ public class AccountDao {
         }});
         map.put("chatRooms", accountRoom.getChatRoomsSerialize());
 
-        int count = jdbcTemplate.update(updateSql, map);
+        int count;
+        try {
+            count = jdbcTemplate.update(updateSql, map);
+        } catch (Exception e) {
+            return false;
+        }
         return count > 0;
     }
 
@@ -570,7 +692,12 @@ public class AccountDao {
             put("userId", userId);
         }};
 
-        List<AccountAndRooms> accountAndRoomsList = jdbcTemplate.query(selectSql, map, new AccountAndRoomsRowMapper());
+        List<AccountAndRooms> accountAndRoomsList;
+        try {
+            accountAndRoomsList = jdbcTemplate.query(selectSql, map, new AccountAndRoomsRowMapper());
+        } catch (Exception e){
+            return false;
+        }
         if (accountAndRoomsList.size() != 1) return false;
 
         AccountAndRooms accountAndRooms = accountAndRoomsList.get(0);
@@ -582,7 +709,12 @@ public class AccountDao {
         }});;
         map.put("chatRooms", accountAndRooms.getChatRoomsSerialize());
 
-        int count = jdbcTemplate.update(updateSql, map);
+        int count;
+        try {
+            count = jdbcTemplate.update(updateSql, map);
+        } catch (Exception e) {
+            return false;
+        }
         return count > 0;
     }
 

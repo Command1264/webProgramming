@@ -64,7 +64,7 @@ public class UsersChatRoom {
         try {
             return LocalDateTime.parse(this.lastModify, DateTimeFormatter.ofPattern(DateTimeFormat.format));
         } catch (DateTimeParseException e) {
-            return null;
+            return LocalDateTime.now();
         }
     }
 }

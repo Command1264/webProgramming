@@ -8,7 +8,6 @@ import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.util.JsonKeyEnum;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +31,8 @@ public class AccountService {
         JsonObject jsonObject;
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
-        } catch (JsonSyntaxException e) {
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
         if ((!jsonObject.has(JsonKeyEnum.loginAccount.name()) || !jsonObject.has(JsonKeyEnum.loginPassword.name())) &&
@@ -105,7 +105,14 @@ public class AccountService {
             returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
             return returnJsonObject;
         }
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+//        Printer.println(json);
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject;
+        }
         if (!(jsonObject.has(JsonKeyEnum.token.name()) || jsonObject.get(JsonKeyEnum.token.name()).isJsonNull())) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
@@ -143,8 +150,14 @@ public class AccountService {
     }
 
     public ReturnJsonObject createAccount(String json) {
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject;
+        }
         AccountAndRooms accountandRooms = new AccountAndRooms();
         for(String key : new String[] {"name", "loginAccount", "loginPassword"}) {
             if (jsonObject.has(key) &&
@@ -164,13 +177,19 @@ public class AccountService {
     @Deprecated
     public ReturnJsonObject getUser(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if(sqlDao.checkNotConnect()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//        if(sqlDao.checkNotConnect()) {
+//            returnJsonObject.setSuccess(false);
+//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//            return returnJsonObject;
+//        }
+
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         if ((!jsonObject.has(JsonKeyEnum.id.name()) || jsonObject.get(JsonKeyEnum.id.name()).isJsonNull()) &&
                 (!jsonObject.has(JsonKeyEnum.userId.name()) || jsonObject.get(JsonKeyEnum.userId.name()).isJsonNull())) {
             returnJsonObject.setSuccess(false);
@@ -198,13 +217,19 @@ public class AccountService {
 
     public ReturnJsonObject getAccount(@RequestBody String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if(sqlDao.checkNotConnect()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//        if(sqlDao.checkNotConnect()) {
+//            returnJsonObject.setSuccess(false);
+//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//            return returnJsonObject;
+//        }
+
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         if ((!jsonObject.has(JsonKeyEnum.id.name()) || jsonObject.get(JsonKeyEnum.id.name()).isJsonNull()) &&
                 (!jsonObject.has(JsonKeyEnum.userId.name()) || jsonObject.get(JsonKeyEnum.userId.name()).isJsonNull()) &&
                 (!jsonObject.has(JsonKeyEnum.loginAccount.name()) || jsonObject.get(JsonKeyEnum.loginAccount.name()).isJsonNull() ||
@@ -241,13 +266,19 @@ public class AccountService {
     // todo
     public ReturnJsonObject modifyUser(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if(sqlDao.checkNotConnect()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//        if(sqlDao.checkNotConnect()) {
+//            returnJsonObject.setSuccess(false);
+//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+//            return returnJsonObject;
+//        }
+
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
         if (!jsonObject.has(JsonKeyEnum.id.name())) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindIdOrUserId.getErrorMessage());

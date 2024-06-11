@@ -4,6 +4,8 @@ public enum ErrorType {
     sqlNotConnect("資料庫未連接"),
     sqlUpdateFailed("資料庫添加失敗"),
 
+    dataNotFound("找不到資料"),
+
     cantFindChatRoomName("找不到聊天室名稱"),
     cantFindChatRoomMessageId("找不到聊天室訊息ID"),
     cantFindChatRoom("找不到聊天室"),

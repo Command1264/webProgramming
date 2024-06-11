@@ -60,6 +60,15 @@ public class ReturnJsonObject {
         this.errorMessage = "";
         this.exception = "";
     }
+    public void setSuccessAndErrorMessage(String errorMessage) {
+        this.setSuccessAndErrorMessage(errorMessage, "");
+    }
+    public void setSuccessAndErrorMessage(String errorMessage, String exception) {
+        this.success = false;
+        this.data = "";
+        this.errorMessage = errorMessage;
+        this.exception = exception;
+    }
 
 
     public String serialize() {

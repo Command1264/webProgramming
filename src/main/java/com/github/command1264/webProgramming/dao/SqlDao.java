@@ -34,7 +34,7 @@ public class SqlDao {
                 id bigint unsigned NOT NULL AUTO_INCREMENT,
                 userId varchar(64) NOT NULL,
                 name varchar(256) not null,
-                createTime datetime(4) not null,
+                createTime datetime not null,
                 loginAccount varchar(256) not null,
                 loginPassword varchar(64) not null,
                 photoStickerBase64 text,
@@ -64,7 +64,7 @@ public class SqlDao {
             create table if not exists :tableName(
                 uuid varchar(36) not null primary key,
                 users text not null,
-                lastModify datetime(4) not null
+                lastModify datetime not null
             );
         """.replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
         jdbcTemplate.update(createUsersChatRoomSql, map);
@@ -73,7 +73,7 @@ public class SqlDao {
             create table if not exists :tableName(
                 id varchar(64) primary key not null,
                 token text not null,
-                expiredTime datetime(4) not null
+                expiredTime datetime not null
             );
         """.replaceAll(":tableName", SqlTableEnum.loginTokens.name());
         jdbcTemplate.update(createCookieSessionSql, map);
@@ -108,17 +108,17 @@ public class SqlDao {
         return (!jdbcTemplate.queryForList(sql, map).isEmpty());
     }
 
-    public boolean checkConnect() {
-        if (jdbcTemplate == null) return false;
-        if (dataSource == null) return false;
-        try {
-            if (dataSource.getConnection() == null) return false;
-        } catch (SQLException e) {
-            return false;
-        }
-        return true;
-    }
-    public boolean checkNotConnect() {
-        return !checkConnect();
-    }
+//    public boolean checkConnect() {
+//        if (jdbcTemplate == null) return false;
+//        if (dataSource == null) return false;
+//        try {
+//            if (dataSource.getConnection() == null) return false;
+//        } catch (SQLException e) {
+//            return false;
+//        }
+//        return true;
+//    }
+//    public boolean checkNotConnect() {
+//        return !checkConnect();
+//    }
 }

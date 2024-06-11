@@ -34,6 +34,8 @@ public class HttpController {
     @Autowired
     private MessagesService messagesService;
 
+    private final boolean printLog = false;
+
 //    public SpringController() {
 ////        sqlDao = new SqlDao("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=Asia/Taipei&characterEncoding=utf-8", "root", "Margaret20070922");
 //        accountService = new AccountService(gson, sqlDao);
@@ -51,10 +53,9 @@ public class HttpController {
 //    }
 
 //    @CrossOrigin(origins = "*")
-//    @CrossOrigin(origins = "*")
     @GetMapping("/ping")
     public String ping() {
-        Printer.println("Pong!");
+        if (printLog) Printer.println("Pong!");
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         returnJsonObject.setSuccess(true);
         returnJsonObject.setData("alive");
@@ -64,8 +65,9 @@ public class HttpController {
     @PostMapping("/test")
 //    @CrossOrigin(origins = "*")
     public String test(@RequestBody String json) {
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        return gson.toJson(jsonObject.get("test").getAsString());
+        return "test";
+//        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+//        return gson.toJson(jsonObject.get("test").getAsString());
 //        return accountDao.getAccountWithUserId(jsonObject.get(JsonKeyEnum.id.name()).getAsString()).serialize();
 //        return sqlDao.test(jsonObject.get(JsonKeyEnum.id.name()).getAsString());
 //        JsonElement jsonElement = new JsonPrimitive("String");
@@ -77,21 +79,21 @@ public class HttpController {
     @PostMapping("/api/v1/createAccount")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject createAccount(@RequestBody String json) {
-        Printer.println("createAccount!");
+        if (printLog) Printer.println("createAccount!");
         return accountService.createAccount(json);
     }
 
     @PostMapping("/api/v1/loginAccount")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject loginAccount(@RequestBody String json) {
-        Printer.println("loginAccount!");
+        if (printLog) Printer.println("loginAccount!");
         return accountService.loginAccount(json);
     }
 
     @PostMapping("/api/v1/changeToken")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject changeToken(@RequestBody String json) {
-        Printer.println("changeToken!");
+        if (printLog) Printer.println("changeToken!");
         return accountService.changeToken(json);
     }
 
@@ -99,7 +101,7 @@ public class HttpController {
 //    @CrossOrigin(origins = "*")
     @Deprecated
     public ReturnJsonObject getUser(@RequestBody String json) {
-        Printer.println("getUser!");
+        if (printLog) Printer.println("getUser!");
         return new ReturnJsonObject(false, "", "", "");
 //        return accountService.getUser(json);
     }
@@ -107,7 +109,7 @@ public class HttpController {
     @PostMapping("/api/v1/getAccount")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject getAccount(@RequestBody String json) {
-        Printer.println("getAccount!");
+        if (printLog) Printer.println("getAccount!");
         return accountService.getAccount(json);
     }
 
@@ -116,14 +118,14 @@ public class HttpController {
     @PostMapping("/api/v1/getUserChatRoom")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject getUserChatRoom(@RequestBody String json) {
-        Printer.println("getUserChatRoom!");
+        if (printLog) Printer.println("getUserChatRoom!");
         return usersChatRoomService.getUsersChatRoom(json);
     }
 
     @PostMapping("/api/v1/createUserChatRoom")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject createUserChatRoom( @RequestBody String json) {
-        Printer.println("createUserChatRoom!");
+        if (printLog) Printer.println("createUserChatRoom!");
         return usersChatRoomService.createUsersChatRoom(json);
     }
 
@@ -132,21 +134,21 @@ public class HttpController {
     @PostMapping("/api/v1/getUsersChatRoomChats")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject getUsersChatRoomChats(@RequestBody String json) {
-        Printer.println("getUsersChatRoomChats!");
+        if (printLog) Printer.println("getUsersChatRoomChats!");
         return messagesService.getUsersChatRoomChats(json);
     }
 
     @PutMapping("/api/v1/userSendMessage")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject userSendMessage(@RequestBody String json) {
-        Printer.println("userSendMessage!");
+        if (printLog) Printer.println("userSendMessage!");
         return messagesService.userSendMessage(json);
     }
 
     @PostMapping("/api/v1/getUserReceiveMessage")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject getUserReceiveMessage(@RequestBody String json) {
-        Printer.println("getUserReceiveMessage!");
+        if (printLog) Printer.println("getUserReceiveMessage!");
         return messagesService.getUserReceiveMessage(json);
     }
 

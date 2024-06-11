@@ -8,6 +8,7 @@ import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class MessagesDao {
     AccountDao accountDao;
     private final Gson gson = new Gson();
 
-    public List<MessageSendReceive> getUsersChatRoomChat(String token, String chatRoomName) {
+    public @NotNull List<MessageSendReceive> getUsersChatRoomChat(String token, String chatRoomName) {
         if (jdbcTemplate == null  || token == null || chatRoomName == null) return new ArrayList<>();
 
         String selectMessageSql = StringUtils.replaceEach("""
@@ -46,14 +47,14 @@ public class MessagesDao {
         }
     }
 
-    public ReturnJsonObject modifyUsersChatRoomChat(
+    public @NotNull ReturnJsonObject modifyUsersChatRoomChat(
             UUID chatRoomUUID,
             MessageSendReceive oldMessage,
             MessageSendReceive newMessage) {
         return this.modifyUsersChatRoomChat(RoomNameConverter.convertChatRoomName(chatRoomUUID), oldMessage, newMessage);
     }
 
-    public ReturnJsonObject modifyUsersChatRoomChat(
+    public @NotNull ReturnJsonObject modifyUsersChatRoomChat(
             String chatRoomName,
             MessageSendReceive oldMessage,
             MessageSendReceive newMessage) {
@@ -85,7 +86,13 @@ public class MessagesDao {
         Map<String, Object> map = new HashMap<>() {{
             put("id", oldMessage.getId());
         }};
-        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
+        List<MessageSendReceive> messagesList;
+        try {
+            messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
+        } catch (Exception e){
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            return returnJsonObject;
+        }
         if (messagesList.isEmpty()) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
@@ -101,17 +108,22 @@ public class MessagesDao {
         map.put("message", newMessage.getMessage());
         map.put("type", newMessage.getType());
 
-        int count = jdbcTemplate.update(updateSql, map);
+        int count;
+        try {
+            count = jdbcTemplate.update(updateSql, map);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
+            return returnJsonObject;
+        }
         if (count != 1) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
             return returnJsonObject;
         }
         returnJsonObject.setSuccess(true);
         return returnJsonObject;
     }
 
-    public ReturnJsonObject deleteUsersChatRoomChat(String chatRoomName, MessageSendReceive message) {
+    public @NotNull ReturnJsonObject deleteUsersChatRoomChat(String chatRoomName, MessageSendReceive message) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -141,32 +153,41 @@ public class MessagesDao {
         Map<String, Object> map = new HashMap<>() {{
             put("id", message.getId());
         }};
-        List<MessageSendReceive> messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
+        List<MessageSendReceive> messagesList;
+        try {
+            messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            return returnJsonObject;
+        }
         if (messagesList.isEmpty()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
             return returnJsonObject;
         } else if (messagesList.size() != 1) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.messageHasMulti.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageHasMulti.getErrorMessage());
             return returnJsonObject;
         }
         String deleteSql = "update :chatRoomName set deleted=true where id=:id;"
                 .replaceAll(":chatRoomName", chatRoomName);
 
-        int count = jdbcTemplate.update(deleteSql, map);
-        if (count != 1) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.messageDeleteFailed.getErrorMessage());
+        int count;
+        try {
+            count = jdbcTemplate.update(deleteSql, map);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageDeleteFailed.getErrorMessage());
             return returnJsonObject;
         }
-        returnJsonObject.setSuccess(true);
+        if (count != 1) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageDeleteFailed.getErrorMessage());
+            return returnJsonObject;
+        }
+        returnJsonObject.setSuccessAndData("");
         return returnJsonObject;
     }
 
 
 
-    public ReturnJsonObject userSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
+    public @NotNull ReturnJsonObject userSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -182,10 +203,15 @@ public class MessagesDao {
             put("type", messageSendReceive.getType());
             put("time", messageSendReceive.getTime());
         }};
-        int count = jdbcTemplate.update(sql, map);
+        int count;
+        try {
+            count = jdbcTemplate.update(sql, map);
+        } catch (Exception e) {
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
+            return returnJsonObject;
+        }
         if (count != 1) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
             return returnJsonObject;
         }
         returnJsonObject.setSuccess(true);
@@ -193,9 +219,9 @@ public class MessagesDao {
 
     }
 
-    public List<MessageSendReceive> userReceiveMessageWithId(String chatRoomName, String id) {
+    public @NotNull List<MessageSendReceive> userReceiveMessageWithId(String chatRoomName, String id) {
         if (jdbcTemplate == null || chatRoomName == null || id == null) {
-            return  new ArrayList<>();
+            return new ArrayList<>();
         }
         String selectMessageSql = StringUtils.replaceEach("""
                 select room.id, info.userId,
@@ -215,6 +241,10 @@ public class MessagesDao {
         Map<String, Object> map = new HashMap<>() {{
             put("id", id);
         }};
-        return jdbcTemplate.query(selectMessageSql, map, new MessageSendReceiveRowMapper());
+        try {
+            return jdbcTemplate.query(selectMessageSql, map, new MessageSendReceiveRowMapper());
+        } catch (Exception e ){
+            return new ArrayList<>();
+        }
     }
 }
