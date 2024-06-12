@@ -3,10 +3,10 @@ package com.github.command1264.webProgramming.service;
 import com.github.command1264.webProgramming.dao.AccountDao;
 import com.github.command1264.webProgramming.dao.MessagesDao;
 import com.github.command1264.webProgramming.dao.SqlDao;
-import com.github.command1264.webProgramming.dao.UsersChatRoomDao;
+import com.github.command1264.webProgramming.dao.UserChatRoomDao;
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
-import com.github.command1264.webProgramming.userChatRoom.UsersChatRoom;
+import com.github.command1264.webProgramming.userChatRoom.UserChatRoom;
 import com.github.command1264.webProgramming.util.JsonKeyEnum;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.github.command1264.webProgramming.util.UsersSorter;
@@ -20,7 +20,7 @@ import java.util.*;
 
 
 @Component
-public class UsersChatRoomService {
+public class UserChatRoomService {
     @Autowired
     private UsersSorter usersSorter;
     @Autowired
@@ -28,12 +28,12 @@ public class UsersChatRoomService {
     @Autowired
     private AccountDao accountDao;
     @Autowired
-    private UsersChatRoomDao usersChatRoomDao;
+    private UserChatRoomDao userChatRoomDao;
     @Autowired
     private MessagesDao messagesDao;
     private Gson gson = new Gson();
 
-    public ReturnJsonObject getUsersChatRoom(String json) {
+    public ReturnJsonObject getUserChatRoom(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
 //        if(sqlDao.checkNotConnect()) {
 //            returnJsonObject.setSuccess(false);
@@ -82,14 +82,19 @@ public class UsersChatRoomService {
         } catch (Exception e) {
             try {
                 jsonObject.get(JsonKeyEnum.chatRoomName.name()).getAsJsonArray().asList().forEach((jsonElement -> {
-                    String chatRoomName = jsonElement.getAsString();
-                    UUID chatRoomUUID;
+                    String chatRoomName = null;
                     try {
-                        chatRoomUUID = UUID.fromString(chatRoomName);
-                    } catch (Exception ex) {
-                        chatRoomUUID = RoomNameConverter.convertChatRoomName(chatRoomName);
+                        chatRoomName = jsonElement.getAsString();
+                    } catch (Exception ignored) {}
+                    if (chatRoomName != null) {
+                        UUID chatRoomUUID;
+                        try {
+                            chatRoomUUID = UUID.fromString(chatRoomName);
+                        } catch (Exception ex) {
+                            chatRoomUUID = RoomNameConverter.convertChatRoomName(chatRoomName);
+                        }
+                        chatRoomUUIDs.add(chatRoomUUID);
                     }
-                    chatRoomUUIDs.add(chatRoomUUID);
                 }));
             } catch (Exception ignored) {}
         }
@@ -101,11 +106,11 @@ public class UsersChatRoomService {
 
         Map<String, Object> dataMap = new HashMap<>();
         for (UUID uuid : chatRoomUUIDs) {
-            UsersChatRoom usersChatRoom = usersChatRoomDao.getUsersChatRoom(uuid);
-            if (usersChatRoom != null) {
-                if (usersChatRoom.getUserList().contains(tokenId)) {
+            UserChatRoom userChatRoom = userChatRoomDao.getUserChatRoom(uuid);
+            if (userChatRoom != null) {
+                if (userChatRoom.getUserList().contains(tokenId)) {
                     dataMap.put(RoomNameConverter.convertChatRoomName(uuid),
-                            usersChatRoom);
+                            userChatRoom);
                 }
             }
         }
@@ -118,7 +123,7 @@ public class UsersChatRoomService {
         return returnJsonObject;
     }
 
-    public ReturnJsonObject createUsersChatRoom(String json) {
+    public ReturnJsonObject createUserChatRoom(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
 //        if(sqlDao.checkNotConnect()) {
 //            returnJsonObject.setSuccess(false);
@@ -183,7 +188,7 @@ public class UsersChatRoomService {
             return returnJsonObject;
         }
 
-        ReturnJsonObject createRoomJson = usersChatRoomDao.createUsersChatRoom(usersListStr, name);
+        ReturnJsonObject createRoomJson = userChatRoomDao.createUserChatRoom(usersListStr, name);
         if (!createRoomJson.isSuccess()) return createRoomJson;
         boolean flag = false;
         for(String id : userIds) {

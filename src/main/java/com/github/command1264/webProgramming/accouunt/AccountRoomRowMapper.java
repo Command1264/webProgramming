@@ -5,12 +5,12 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class AccountRoomRowMapper implements RowMapper<AccountRoom> {
+public class AccountRoomRowMapper implements RowMapper<AccountChatRooms> {
     @Override
-    public AccountRoom mapRow(ResultSet rs, int rowNum) throws SQLException {
-        AccountRoom accountRoom = new AccountRoom();
-        accountRoom.setId(rs.getString("id"));
-        accountRoom.setChatRooms(rs.getString("chatRooms"));
-        return accountRoom;
+    public AccountChatRooms mapRow(ResultSet rs, int rowNum) throws SQLException {
+        AccountChatRooms accountChatRooms = new AccountChatRooms();
+        accountChatRooms.setId(rs.getString("id"));
+        accountChatRooms.setChatRooms(rs.getString("chatRooms"));
+        return accountChatRooms;
     }
 }

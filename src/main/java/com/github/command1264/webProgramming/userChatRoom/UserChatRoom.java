@@ -10,12 +10,12 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.UUID;
 
-public class UsersChatRoom {
+public class UserChatRoom {
     private UUID uuid = null;
     private String name = "";
     private String users = "";
     private String lastModify = "";
-    public UsersChatRoom() {}
+    public UserChatRoom() {}
 
     public void setUUID(String uuid) {
         if (uuid == null) return;

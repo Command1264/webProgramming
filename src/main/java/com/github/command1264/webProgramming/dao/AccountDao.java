@@ -646,22 +646,23 @@ public class AccountDao {
             put("id", id);
         }};
 
-        List<AccountRoom> accountRoomList;
+        List<AccountChatRooms> accountChatRoomsList;
         try {
-            accountRoomList = jdbcTemplate.query(selectSql, map, new AccountRoomRowMapper());
+            accountChatRoomsList = jdbcTemplate.query(selectSql, map, new AccountRoomRowMapper());
         } catch (Exception e) {
             return false;
         }
-        if (accountRoomList.size() != 1) return false;
+        if (accountChatRoomsList.size() != 1) return false;
 
-        AccountRoom accountRoom = accountRoomList.get(0);
+        AccountChatRooms accountChatRooms = accountChatRoomsList.get(0);
         String updateSql = "update :tableName set chatRooms=:chatRooms where id=:id;"
                 .replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
 
-        accountRoom.getChatRooms().add(new HashMap<>(){{
-            put(chatRoomName, 0L);
-        }});
-        map.put("chatRooms", accountRoom.getChatRoomsSerialize());
+        accountChatRooms.getChatRooms().put(chatRoomName, 0L);
+//        accountChatRooms.getChatRooms().add(new HashMap<>(){{
+//            put(chatRoomName, 0L);
+//        }});
+        map.put("chatRooms", accountChatRooms.getChatRoomsSerialize());
 
         int count;
         try {
@@ -704,14 +705,48 @@ public class AccountDao {
         String updateSql = "update :tableName set chatRooms=:chatRooms where id=:id;"
                 .replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
 
-        accountAndRooms.getChatRooms().add(new HashMap<>(){{
-            put(chatRoomName, 0L);
-        }});;
+        accountAndRooms.getChatRooms().put(chatRoomName, 0L);
+//        accountAndRooms.getChatRooms().add(new HashMap<>(){{
+//            put(chatRoomName, 0L);
+//        }});;
         map.put("chatRooms", accountAndRooms.getChatRoomsSerialize());
 
         int count;
         try {
             count = jdbcTemplate.update(updateSql, map);
+        } catch (Exception e) {
+            return false;
+        }
+        return count > 0;
+    }
+
+    public AccountChatRooms getAccountChatRooms(String id) {
+        if (jdbcTemplate == null || id == null) return null;
+        String sql = "select * from :tableName where id=:id;"
+                .replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
+        List<AccountChatRooms> accountChatRoomsList;
+        try {
+            accountChatRoomsList = jdbcTemplate.query(sql, new HashMap<>() {{
+                put("id", id);
+            }}, new AccountRoomRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
+        if (accountChatRoomsList.size() != 1) return null;
+        return accountChatRoomsList.get(0);
+    }
+
+    public boolean setAccountChatRooms(String id, AccountChatRooms accountChatRooms) {
+        if (jdbcTemplate == null || id == null ||
+                accountChatRooms == null || accountChatRooms.getChatRooms() == null) return false;
+        String sql = "update :tableName set chatRooms=:chatRooms where id=:id;"
+                .replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
+        int count;
+        try {
+            count = jdbcTemplate.update(sql, new HashMap<>() {{
+                put("id", id);
+                put("chatRooms", accountChatRooms.getChatRoomsSerialize());
+            }});
         } catch (Exception e) {
             return false;
         }

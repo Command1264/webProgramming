@@ -32,7 +32,7 @@ public class WebProgrammingApplication {
 //				registry.addMapping("/api/v1/getAccount").allowedOrigins(ip);
 //				registry.addMapping("/api/v1/getUserChatRoom").allowedOrigins(ip);
 //				registry.addMapping("/api/v1/createUserChatRoom").allowedOrigins(ip);
-//				registry.addMapping("/api/v1/getUsersChatRoomChat").allowedOrigins(ip);
+//				registry.addMapping("/api/v1/getUserChatRoomChat").allowedOrigins(ip);
 //				registry.addMapping("/api/v1/userSendMessage").allowedOrigins(ip);
 //				registry.addMapping("/api/v1/getUserReceiveMessage").allowedOrigins(ip);
 //			}

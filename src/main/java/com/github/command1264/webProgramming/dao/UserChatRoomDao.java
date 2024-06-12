@@ -2,8 +2,8 @@ package com.github.command1264.webProgramming.dao;
 
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
-import com.github.command1264.webProgramming.userChatRoom.UsersChatRoom;
-import com.github.command1264.webProgramming.userChatRoom.UsersChatRoomRowMapper;
+import com.github.command1264.webProgramming.userChatRoom.UserChatRoom;
+import com.github.command1264.webProgramming.userChatRoom.UserChatRoomRowMapper;
 import com.github.command1264.webProgramming.util.DateTimeFormat;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.github.command1264.webProgramming.util.SqlTableEnum;
@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
-public class UsersChatRoomDao {
+public class UserChatRoomDao {
     private final Gson gson = new Gson();
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
@@ -32,13 +32,13 @@ public class UsersChatRoomDao {
     public @Nullable UUID getChatRoomUUID(String users) {
         if (jdbcTemplate == null) return null;
         String sql = "select * from :tableName where users=:users;"
-                .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
+                .replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
         Map<String, Object> map = new HashMap<>() {{
             put("users", users);
         }};
-        List<UsersChatRoom> result;
+        List<UserChatRoom> result;
         try {
-            result = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+            result = jdbcTemplate.query(sql, map, new UserChatRoomRowMapper());
         } catch (Exception e) {
             return null;
         }
@@ -46,10 +46,10 @@ public class UsersChatRoomDao {
         return result.get(0).getUUID();
     }
 
-    public @NotNull List<String> getUsersChatRoomUsers(String chatRoomName) {
+    public @NotNull List<String> getUserChatRoomUsers(String chatRoomName) {
         if (jdbcTemplate == null || chatRoomName == null) return new ArrayList<>();
         String sql = "select * from :tableName where uuid=:uuid;"
-                .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
+                .replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
         Map<String, Object> map = new HashMap<>();
         try {
             UUID chatRoomUUID = UUID.fromString(chatRoomName);
@@ -57,18 +57,18 @@ public class UsersChatRoomDao {
         } catch (Exception e) {
             map.put("uuid", RoomNameConverter.convertChatRoomName(chatRoomName).toString());
         }
-        List<UsersChatRoom> usersChatRoomList;
+        List<UserChatRoom> userChatRoomList;
          try {
-             usersChatRoomList = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+             userChatRoomList = jdbcTemplate.query(sql, map, new UserChatRoomRowMapper());
          } catch (Exception e) {
              return new ArrayList<>();
          }
-        if (usersChatRoomList.size() != 1) return new ArrayList<>();
-        return usersChatRoomList.get(0).getUserList();
+        if (userChatRoomList.size() != 1) return new ArrayList<>();
+        return userChatRoomList.get(0).getUserList();
     }
 
     @Deprecated
-    public @NotNull ReturnJsonObject getUsersChatRoom(String usersListStr) {
+    public @NotNull ReturnJsonObject getUserChatRoom(String usersListStr) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -86,23 +86,23 @@ public class UsersChatRoomDao {
         return returnJsonObject;
     }
 
-    public @Nullable UsersChatRoom getUsersChatRoom(UUID chatRoomUUID) {
+    public @Nullable UserChatRoom getUserChatRoom(UUID chatRoomUUID) {
         if (jdbcTemplate == null || chatRoomUUID == null) return null;
         String sql = "select * from :tableName where uuid=:uuid;"
-                .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
-        List<UsersChatRoom> usersChatRoomList = new ArrayList<>();
+                .replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
+        List<UserChatRoom> userChatRoomList = new ArrayList<>();
         try {
-            usersChatRoomList =jdbcTemplate.query(sql, new HashMap<>() {{
+            userChatRoomList =jdbcTemplate.query(sql, new HashMap<>() {{
                 put("uuid", chatRoomUUID.toString());
-            }}, new UsersChatRoomRowMapper());
+            }}, new UserChatRoomRowMapper());
         } catch (Exception e) {
             return null;
         }
-        if (usersChatRoomList.size() != 1) return null;
-        return usersChatRoomList.get(0);
+        if (userChatRoomList.size() != 1) return null;
+        return userChatRoomList.get(0);
     }
 
-    public @NotNull ReturnJsonObject createUsersChatRoom(String usersListStr, String name) {
+    public @NotNull ReturnJsonObject createUserChatRoom(String usersListStr, String name) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -110,7 +110,7 @@ public class UsersChatRoomDao {
             return returnJsonObject;
         }
 
-        if (sqlDao.checkRepeat(SqlTableEnum.usersChatRooms.name(), "users", usersListStr)) {
+        if (sqlDao.checkRepeat(SqlTableEnum.userChatRooms.name(), "users", usersListStr)) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.chatRoomExist.getErrorMessage());
             return returnJsonObject;
@@ -118,11 +118,11 @@ public class UsersChatRoomDao {
         UUID uuid;
         do {
             uuid = UUID.randomUUID();
-        } while (sqlDao.checkRepeat(SqlTableEnum.usersChatRooms.name(), "uuid", uuid.toString()));
+        } while (sqlDao.checkRepeat(SqlTableEnum.userChatRooms.name(), "uuid", uuid.toString()));
         String roomName = RoomNameConverter.convertChatRoomName(uuid);
 
         String insertSql = "insert into :tableName (uuid, name, users, lastModify)  values(:uuid, :name, :users, :lastModify);"
-                .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
+                .replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
         UUID finalUuid = uuid;
         Map<String, Object> insertMap = new HashMap<>() {{
             put("uuid", finalUuid.toString());
@@ -167,7 +167,7 @@ public class UsersChatRoomDao {
         return returnJsonObject;
     }
 
-    public @NotNull ReturnJsonObject modifyUsersChatRoomUsers(String chatRoomName, String usersListStr) {
+    public @NotNull ReturnJsonObject modifyUserChatRoomUsers(String chatRoomName, String usersListStr) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
@@ -180,7 +180,7 @@ public class UsersChatRoomDao {
             return returnJsonObject;
         }
         String selectSql = "select users from :tableName where uuid=:uuid;"
-                .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
+                .replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
         Map<String, Object> map = new HashMap<>(){{
             put("uuid", RoomNameConverter.convertChatRoomName(chatRoomName).toString());
         }};
@@ -201,7 +201,7 @@ public class UsersChatRoomDao {
             return returnJsonObject;
         }
         String updateSql = "update :tableName set users=:users where uuid=:uuid;"
-                .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
+                .replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
         map.put("users", usersListStr);
         int count;
         try {
@@ -219,10 +219,10 @@ public class UsersChatRoomDao {
         return returnJsonObject;
     }
 
-    public boolean checkHasUsersChatRoom(String chatRoomName) {
+    public boolean checkHasUserChatRoom(String chatRoomName) {
         if (jdbcTemplate == null || chatRoomName == null) return false;
         String sql = "select * from :tableName where uuid=:uuid;"
-                .replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
+                .replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
         UUID chatRoomUUID;
         try {
             chatRoomUUID = UUID.fromString(chatRoomName);
@@ -233,13 +233,13 @@ public class UsersChatRoomDao {
         Map<String, Object> map = new HashMap<>() {{
             if (finalChatRoomUUID != null) put("uuid", finalChatRoomUUID.toString());
         }};
-        List<UsersChatRoom> usersChatRoomList;
+        List<UserChatRoom> userChatRoomList;
         try {
-            usersChatRoomList = jdbcTemplate.query(sql, map, new UsersChatRoomRowMapper());
+            userChatRoomList = jdbcTemplate.query(sql, map, new UserChatRoomRowMapper());
         } catch (Exception e ){
             return false;
         }
-        return !usersChatRoomList.isEmpty();
+        return !userChatRoomList.isEmpty();
 
     }
 

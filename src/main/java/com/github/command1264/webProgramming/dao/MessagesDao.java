@@ -23,7 +23,7 @@ public class MessagesDao {
     AccountDao accountDao;
     private final Gson gson = new Gson();
 
-    public @NotNull List<MessageSendReceive> getUsersChatRoomChat(String token, String chatRoomName) {
+    public @NotNull List<MessageSendReceive> getUserChatRoomChat(String token, String chatRoomName) {
         if (jdbcTemplate == null  || token == null || chatRoomName == null) return new ArrayList<>();
 
         String selectMessageSql = StringUtils.replaceEach("""
@@ -47,14 +47,14 @@ public class MessagesDao {
         }
     }
 
-    public @NotNull ReturnJsonObject modifyUsersChatRoomChat(
+    public @NotNull ReturnJsonObject modifyUserChatRoomChat(
             UUID chatRoomUUID,
             MessageSendReceive oldMessage,
             MessageSendReceive newMessage) {
-        return this.modifyUsersChatRoomChat(RoomNameConverter.convertChatRoomName(chatRoomUUID), oldMessage, newMessage);
+        return this.modifyUserChatRoomChat(RoomNameConverter.convertChatRoomName(chatRoomUUID), oldMessage, newMessage);
     }
 
-    public @NotNull ReturnJsonObject modifyUsersChatRoomChat(
+    public @NotNull ReturnJsonObject modifyUserChatRoomChat(
             String chatRoomName,
             MessageSendReceive oldMessage,
             MessageSendReceive newMessage) {
@@ -123,7 +123,7 @@ public class MessagesDao {
         return returnJsonObject;
     }
 
-    public @NotNull ReturnJsonObject deleteUsersChatRoomChat(String chatRoomName, MessageSendReceive message) {
+    public @NotNull ReturnJsonObject deleteUserChatRoomChat(String chatRoomName, MessageSendReceive message) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);

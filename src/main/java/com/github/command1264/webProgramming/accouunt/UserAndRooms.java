@@ -6,13 +6,12 @@ import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 public class UserAndRooms extends User {
-    protected List<Map<String, Long>> chatRooms;
-    public static final Type CHAT_ROOMS_TYPE = new TypeToken<List<Map<String, Long>>>() {}.getType();
+    protected Map<String, Long> chatRooms;
+    public static final Type CHAT_ROOMS_TYPE = new TypeToken<Map<String, Long>>() {}.getType();
 
     public UserAndRooms() {
         this(null, null);
@@ -21,13 +20,13 @@ public class UserAndRooms extends User {
         this(userId, name, "");
     }
     public UserAndRooms(String userId, String name, String photoStickerBase64) {
-        this(userId, name, photoStickerBase64, new ArrayList<>());
+        this(userId, name, photoStickerBase64, new HashMap<>());
     }
 
     public UserAndRooms(String userId,
                            String name,
                            String photoStickerBase64,
-                           List<Map<String, Long>> chatRooms) {
+                           Map<String, Long> chatRooms) {
         super(userId, name, photoStickerBase64);
         this.chatRooms = chatRooms;
     }
@@ -36,7 +35,7 @@ public class UserAndRooms extends User {
         if (chatRooms == null) return;
         this.chatRooms = new Gson().fromJson(chatRooms, CHAT_ROOMS_TYPE);
     }
-    public void setChatRooms(@Nullable List<Map<String, Long>> chatRooms) {
+    public void setChatRooms(@Nullable Map<String, Long> chatRooms) {
         if (chatRooms == null) return;
         this.chatRooms = chatRooms;
     }
@@ -55,7 +54,7 @@ public class UserAndRooms extends User {
     }
 
 
-    public List<Map<String, Long>> getChatRooms() {
+    public Map<String, Long> getChatRooms() {
         return this.chatRooms;
     }
     public String getChatRoomsSerialize() {

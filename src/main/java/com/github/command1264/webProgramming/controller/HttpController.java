@@ -3,11 +3,11 @@ package com.github.command1264.webProgramming.controller;
 
 import com.github.command1264.webProgramming.dao.AccountDao;
 import com.github.command1264.webProgramming.dao.MessagesDao;
-import com.github.command1264.webProgramming.dao.UsersChatRoomDao;
+import com.github.command1264.webProgramming.dao.UserChatRoomDao;
 import com.github.command1264.webProgramming.service.MessagesService;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.service.AccountService;
-import com.github.command1264.webProgramming.service.UsersChatRoomService;
+import com.github.command1264.webProgramming.service.UserChatRoomService;
 import com.github.command1264.webProgramming.dao.SqlDao;
 import com.github.command1264.webProgramming.util.Printer;
 import com.google.gson.*;
@@ -23,14 +23,14 @@ public class HttpController {
     @Autowired
     private AccountDao accountDao;
     @Autowired
-    private UsersChatRoomDao usersChatRoomDao;
+    private UserChatRoomDao userChatRoomDao;
     @Autowired
     private MessagesDao messagesDao;
 
     @Autowired
     private AccountService accountService;
     @Autowired
-    private UsersChatRoomService usersChatRoomService;
+    private UserChatRoomService userChatRoomService;
     @Autowired
     private MessagesService messagesService;
 
@@ -39,7 +39,7 @@ public class HttpController {
 //    public SpringController() {
 ////        sqlDao = new SqlDao("jdbc:mysql://localhost:3306/webprogramming?serverTimezone=Asia/Taipei&characterEncoding=utf-8", "root", "Margaret20070922");
 //        accountService = new AccountService(gson, sqlDao);
-//        usersChatRoomService = new UsersChatRoomService(gson, sqlDao);
+//        userChatRoomService = new UserChatRoomService(gson, sqlDao);
 //    }
 //    @MessageMapping("/hello")
 //    @SendTo("/topic/hello")
@@ -119,23 +119,23 @@ public class HttpController {
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject getUserChatRoom(@RequestBody String json) {
         if (printLog) Printer.println("getUserChatRoom!");
-        return usersChatRoomService.getUsersChatRoom(json);
+        return userChatRoomService.getUserChatRoom(json);
     }
 
     @PostMapping("/api/v1/createUserChatRoom")
 //    @CrossOrigin(origins = "*")
     public ReturnJsonObject createUserChatRoom( @RequestBody String json) {
         if (printLog) Printer.println("createUserChatRoom!");
-        return usersChatRoomService.createUsersChatRoom(json);
+        return userChatRoomService.createUserChatRoom(json);
     }
 
 
 
-    @PostMapping("/api/v1/getUsersChatRoomChats")
+    @PostMapping("/api/v1/getUserChatRoomChats")
 //    @CrossOrigin(origins = "*")
-    public ReturnJsonObject getUsersChatRoomChats(@RequestBody String json) {
-        if (printLog) Printer.println("getUsersChatRoomChats!");
-        return messagesService.getUsersChatRoomChats(json);
+    public ReturnJsonObject getUserChatRoomChats(@RequestBody String json) {
+        if (printLog) Printer.println("getUserChatRoomChats!");
+        return messagesService.getUserChatRoomChats(json);
     }
 
     @PutMapping("/api/v1/userSendMessage")
@@ -150,6 +150,13 @@ public class HttpController {
     public ReturnJsonObject getUserReceiveMessage(@RequestBody String json) {
         if (printLog) Printer.println("getUserReceiveMessage!");
         return messagesService.getUserReceiveMessage(json);
+    }
+
+    @PostMapping("/api/v1/userReadMessage")
+//    @CrossOrigin(origins = "*")
+    public ReturnJsonObject userReadMessage(@RequestBody String json) {
+        if (printLog) Printer.println("userReadMessage!");
+        return messagesService.userReadMessage(json);
     }
 
 }

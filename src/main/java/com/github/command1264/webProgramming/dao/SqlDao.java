@@ -18,9 +18,9 @@ public class SqlDao {
     @Autowired
     private DataSource dataSource;
 
-    public SqlDao() {
-        this.initTable();
-    }
+//    public SqlDao() {
+//        this.initTable();
+//    }
 
     public String test(String id) {
         return "";
@@ -60,14 +60,14 @@ public class SqlDao {
         jdbcTemplate.update(createAccountInfoSql, map);
         jdbcTemplate.update(initAccountInfoSql, map);
 
-        String createUsersChatRoomSql = """
+        String createUserChatRoomSql = """
             create table if not exists :tableName(
                 uuid varchar(36) not null primary key,
                 users text not null,
                 lastModify datetime not null
             );
-        """.replaceAll(":tableName", SqlTableEnum.usersChatRooms.name());
-        jdbcTemplate.update(createUsersChatRoomSql, map);
+        """.replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
+        jdbcTemplate.update(createUserChatRoomSql, map);
 
         String createCookieSessionSql = """
             create table if not exists :tableName(

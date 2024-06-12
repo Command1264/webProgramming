@@ -9,8 +9,8 @@ HOST: https://polls.apiblueprint.org/ -->
 
 # 指令Command1 
 ## 網路程式設計 API文件
-##### version: 1.2.3
-##### last edit time: 2024/06/10 11:20L40 PM
+##### version: 1.3.0
+##### last edit time: 2024/06/12 10:35:50 PM
 
 
 <!-- Polls is a simple API allowing consumers to view polls and vote in them. -->
@@ -20,7 +20,7 @@ HOST: https://polls.apiblueprint.org/ -->
 ### Ping [GET]
 http://26.208.147.218:60922/ping
 
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
     + Body
 
             {
@@ -33,7 +33,7 @@ http://26.208.147.218:60922/ping
 ### 創建帳戶 [POST]
 http://26.208.147.218:60922/api/v1/createAccount
 
-+ Request (application/json)
++ 輸入 (application/json)
 
     + Body
 
@@ -43,7 +43,7 @@ http://26.208.147.218:60922/api/v1/createAccount
                 "loginPassword": "25d55ad283aa400af464c76d713c07ad"
             }
 
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
 
     + Body
 
@@ -56,7 +56,7 @@ http://26.208.147.218:60922/api/v1/createAccount
         
         
 > noName
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
 
     + Body
 
@@ -68,7 +68,7 @@ http://26.208.147.218:60922/api/v1/createAccount
             }
         
 > noLoginAccount
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
     + Body
 
             {
@@ -79,7 +79,7 @@ http://26.208.147.218:60922/api/v1/createAccount
             }
         
 > noLoginPassword
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
     + Body
 
             {
@@ -90,7 +90,7 @@ http://26.208.147.218:60922/api/v1/createAccount
             }
 
 > loginAccountHasFound
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
     + Body
 
             {
@@ -105,14 +105,14 @@ http://26.208.147.218:60922/api/v1/createAccount
 http://26.208.147.218:60922/api/v1/loginAccount
 
 #### onlyToken
-+ Request (application/json)
++ 輸入 (application/json)
     + Body
 
             {
                 "token": "wPtxDzgDP/u2Qs0StJ0r9y8yLCIIdFkU"
             }
 
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
     + Body
 
             {
@@ -125,41 +125,19 @@ http://26.208.147.218:60922/api/v1/loginAccount
                     "name": "指令 Command1",
                     "createTime": "2004-01-06 20:07:09",
                     "photoStickerBase64": "",
-                    "chatRooms": [
-                        {
-                            "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": 0
-                        },
-                        {
-                            "room_a84013c4_06a9_46f6_bdfa_272d408c9581": 0
-                        },
-                        {
-                            "room_431c1373_2b76_4176_8962_b8419ffa6112": 0
-                        },
-                        {
-                            "room_25f77d46_bbc8_4ba0_bcdd_035226a5296f": 0
-                        },
-                        {
-                            "room_1fded8c8_b18e_4fcc_84f6_562ee4976015": 0
-                        },
-                        {
-                            "room_0bf9cc76_c30e_44a1_83df_7c9dbbb00ddf": 0
-                        },
-                        {
-                            "room_0bf9cc76_c30e_44a1_83df_7c9dbbb00ddf": 0
-                        },
-                        {
-                            "room_6747db05_4d30_430c_bec6_1c49f942a7c3": 0
-                        },
-                        {
-                            "room_e3e810ce_9660_43d7_93c0_f68489e72815": 0
-                        }
-                    ],
-                    "chatRoomsSerialize": "[{\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":0},{\"room_a84013c4_06a9_46f6_bdfa_272d408c9581\":0},{\"room_431c1373_2b76_4176_8962_b8419ffa6112\":0},{\"room_25f77d46_bbc8_4ba0_bcdd_035226a5296f\":0},{\"room_1fded8c8_b18e_4fcc_84f6_562ee4976015\":0},{\"room_0bf9cc76_c30e_44a1_83df_7c9dbbb00ddf\":0},{\"room_0bf9cc76_c30e_44a1_83df_7c9dbbb00ddf\":0},{\"room_6747db05_4d30_430c_bec6_1c49f942a7c3\":0},{\"room_e3e810ce_9660_43d7_93c0_f68489e72815\":0}]"
+                    "chatRooms": {
+                        "room_431c1373_2b76_4176_8962_b8419ffa6112": 0,
+                        "room_6747db05_4d30_430c_bec6_1c49f942a7c3": 0,
+                        "room_a84013c4_06a9_46f6_bdfa_272d408c9581": 0,
+                        "room_e3e810ce_9660_43d7_93c0_f68489e72815": 0,
+                        "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": 0
+                    },
+                    "chatRoomsSerialize": "{\"room_431c1373_2b76_4176_8962_b8419ffa6112\":0,\"room_6747db05_4d30_430c_bec6_1c49f942a7c3\":0,\"room_a84013c4_06a9_46f6_bdfa_272d408c9581\":0,\"room_e3e810ce_9660_43d7_93c0_f68489e72815\":0,\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":0}"
                 }
             }
 
 #### onlyLogin
-+ Request (application/json)
++ 輸入 (application/json)
     + Body
 
             {
@@ -167,7 +145,7 @@ http://26.208.147.218:60922/api/v1/loginAccount
                 "loginPassword": "25d55ad283aa400af464c76d713c07ad"
             }
 
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
     + Body
 
             {
@@ -183,7 +161,7 @@ http://26.208.147.218:60922/api/v1/loginAccount
             }
 
 #### Both
-+ Request (application/json)
++ 輸入 (application/json)
     + Body
 
             {
@@ -192,20 +170,20 @@ http://26.208.147.218:60922/api/v1/loginAccount
                 "loginPassword": "25d55ad283aa400af464c76d713c07ad"
             }
 
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
     + Body
 
             同 onlyToken
 ---
 ### 更換Token [POST]
 http://26.208.147.218:60922/api/v1/changeToken
-+ Request (application/json)
++ 輸入 (application/json)
     + Body
 
             {
                 "token": "wPtxDzgDP/u2Qs0StJ0r9y8yLCIIdFkU"
             }
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
 
     + Body
 
@@ -226,7 +204,7 @@ http://26.208.147.218:60922/api/v1/changeToken
 http://26.208.147.218:60922/api/v1/createUserChatRoom
 
 #### userIds
-+ Request (application/json)
++ 輸入 (application/json)
     + Body
 
             {
@@ -238,7 +216,7 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
                 ]
             }
 <!-- #### ids (Number/String)
-+ Request (application/json)
++ 輸入 (application/json)
     + Body
 
             {
@@ -248,7 +226,7 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
                     4
                 ]
             } -->
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
 
     + Body
 
@@ -264,7 +242,7 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
 http://26.208.147.218:60922/api/v1/getUserChatRoom
 
 #### chatRoomName (String/JsonArray)
-+ Request (application/json)
++ 輸入 (application/json)
     + Body
 
             {
@@ -277,7 +255,7 @@ http://26.208.147.218:60922/api/v1/getUserChatRoom
                 ]
             }
 
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
 
     + Body
 
@@ -324,10 +302,10 @@ http://26.208.147.218:60922/api/v1/getUserChatRoom
 
 ---
 ### 取得聊天室訊息 [POST]
-http://26.208.147.218:60922/api/v1/getUsersChatRoomChats
+http://26.208.147.218:60922/api/v1/getUserChatRoomChats
 
 #### chatRoomName (String/JsonArray)
-+ Request (application/json)
++ 輸入 (application/json)
 
     + Body
 
@@ -339,7 +317,7 @@ http://26.208.147.218:60922/api/v1/getUsersChatRoomChats
                 ]
             }
 
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
 
     + Body
 
@@ -388,7 +366,7 @@ http://26.208.147.218:60922/api/v1/getUsersChatRoomChats
 http://26.208.147.218:60922/api/v1/userSendMessage
 
 #### chatRoomName (String/JsonArray)
-+ Request (application/json)
++ 輸入 (application/json)
 
     + Body
 
@@ -403,7 +381,7 @@ http://26.208.147.218:60922/api/v1/userSendMessage
                 }
             }
 
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
 
     + Body
 
@@ -413,12 +391,13 @@ http://26.208.147.218:60922/api/v1/userSendMessage
                 "exception": "",
                 "data": ""
             }
+---
 
 ### 取得聊天室更新訊息 [POST]
 http://26.208.147.218:60922/api/v1/getUserReceiveMessage
 
 #### chatRoomName (String/JsonArray)
-+ Request (application/json)
++ 輸入 (application/json)
 
     + Body
 
@@ -430,7 +409,7 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
                 }
             }
 
-+ Response 200 (application/json)
++ 回傳 200 (application/json)
 
     + Body
 
@@ -473,3 +452,42 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
                     ]
                 }
             }
+---
+
+### 已讀聊天室訊息進度更新 [POST]
+http://26.208.147.218:60922/api/v1/userReadMessage
+
+#### chatRoomName
++ 輸入 (application/json)
+
+    + Body
+
+            {
+                "token": "7nY6oJXSTbNm/OksIzXretRRRoTDOJa0",
+                "chatRoomName": {
+                    "room_431c1373_2b76_4176_8962_b8419ffa6112": 10,
+                    "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": 10
+                }
+            }
++ 回傳 200 (application/json)
+
+    + Body
+
+            {
+                "success": true,
+                "errorMessage": "",
+                "exception": "",
+                "data": {
+                    "id": "1",
+                    "chatRooms": {
+                        "room_431c1373_2b76_4176_8962_b8419ffa6112": 10,
+                        "room_6747db05_4d30_430c_bec6_1c49f942a7c3": 0,
+                        "room_a84013c4_06a9_46f6_bdfa_272d408c9581": 0,
+                        "room_e3e810ce_9660_43d7_93c0_f68489e72815": 0,
+                        "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": 10
+                    },
+                    "chatRoomsSerialize": "{\"room_431c1373_2b76_4176_8962_b8419ffa6112\":10,\"room_6747db05_4d30_430c_bec6_1c49f942a7c3\":0,\"room_a84013c4_06a9_46f6_bdfa_272d408c9581\":0,\"room_e3e810ce_9660_43d7_93c0_f68489e72815\":0,\"room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0\":10}"
+                }
+            }
+
+---
