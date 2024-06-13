@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>index</title>
+    <link rel="icon" href="ico/ico.ico" type="image/x-icon">
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+    <script>
+        if(localStorage.getItem('token')===null){
+            window.location.href='login.html';
+        }
+    </script>
+    <dialog id="setting">
+        <ul>
+            <li>user name</li>
+        </ul>
+    </dialog>
+    <dialog id="add_room">
+        <div><span>neme:</span><input type="text"></div>
+        <div><input type="button" value="取消"><input type="button" value="建立"></div>
+    </dialog>
+    <div class="top_list"></div>
+    <div id="main">
+        <div id="obj_list">
+            <div id="menu"><span>menu</span><span>add room</span></div>
+            <div id="obj_list_ct"></div>
+        </div>
+        <div id="obj_content">
+            <div class="msg_name"><span id="back_btn"><</span><span>name</span></div>
+            <div id="msg"></div>
+            <div id="textin">
+                <input type="text" id="msg_text" autocomplete="off">
+                <input type="button" value="enter">
+            </div>
+            
+        </div>
+    </div>
+
+    
+
+    <script src="js/index.js" type="module"></script>
+</body>
+</html>

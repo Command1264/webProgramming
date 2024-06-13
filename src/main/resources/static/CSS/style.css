@@ -1,0 +1,220 @@
+:root{
+    --main-col:#fff;
+    --main-bg-col:#eee;
+    --list-bg-col:#ddd;
+    --user-col:#cce;
+}
+
+
+/* 整體CSS */
+li{
+    list-style-type: none;
+}
+a{
+    color: black;
+    text-decoration: none;
+}
+body{
+    font-family: Arial,"微軟正黑體", Helvetica, sans-serif;
+    overflow: hidden;
+}
+
+/* 主窗口 */
+#main{
+    display: flex;
+    width: 100%;
+    /* background-color: #aaa; */
+    flex-wrap: wrap;
+}
+#main>div{
+    flex-grow: 1;
+    /* border: 1px solid #000; */
+    height: 95vh;
+}
+/* 聊天室選擇 */
+#obj_list{
+    box-sizing: content-box;
+    padding: 0.5rem;
+    /* max-width: 100vw; */
+    max-width: 25rem;
+    background-color: var(--list-bg-col);
+    border-radius: 1.5rem 0 0 1.5rem;
+    overflow: auto;
+}
+#main:has(#obj_content[style*="display: none"]) > #obj_list {
+    max-width: 100vw;
+    border-radius: 1.5rem;
+}
+
+#obj_list_ct{
+    margin: 0 auto;
+    padding: 0;
+    overflow: auto;
+    user-select: none;
+}
+#obj_list_ct>a{
+    border-radius: 1.5rem;
+    background-color: var(--main-col);
+    margin-bottom: 0.5rem;
+    padding: 1rem;
+    cursor: pointer;
+    display: block;
+}
+#obj_list_ct>a:active{
+    background-color: var(--main-bg-col);
+    /* background-color: #eee; */
+    transition: all 0.1;
+}
+/* menu btn */
+#menu{
+    /* background-color: #fff; */
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    user-select: none;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+}
+#menu span{
+    cursor: pointer;
+}
+/* 聊天室 */
+#obj_content{
+    padding: 0.5rem;
+    background-color: var(--main-bg-col);
+    /* height: 100vh; */
+    border-radius: 0 1.5rem 1.5rem 0;
+    display: none;
+    flex-direction: column;
+}
+#main:has(#obj_list[style*="display: none"]) > #obj_content {
+    border-radius: 1.5rem;
+}
+
+.msg_name{
+    background-color: var(--main-col);
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    display: flex;
+}
+.msg_name>span{
+    margin: 0 auto;
+    padding: 0.5rem 1rem;
+}
+.msg_name>#back_btn{
+    margin: 0;
+    /* background-color: #ccc; */
+    /* border-radius: 20%; */
+    cursor: pointer;
+    user-select: none;
+}
+.msg_name>#back_btn:hover{
+    text-shadow: -1px 1px 1px #ddd;
+}
+#msg{
+    display: flex;
+    flex-direction:column;
+    height: 80vh;
+    overflow: auto;
+    
+}
+.my_mes,.you_mes{
+    background-color: var(--main-col);
+    padding: 0.5rem 0.5rem;
+    margin: 0.5rem;
+    border-radius: 1rem;
+    display: flex;
+}
+.my_mes{
+    margin-left: auto;
+}
+.you_mes{
+    margin-right: auto;
+    background-color: var(--user-col);
+}
+.my_msg_state{
+    color: var(--user-col);
+    font-size: 0.7rem;
+    margin-left: 1rem;
+}
+.my_msg_state::before,.you_msg_state::before{
+    content: "space";
+    visibility:hidden;
+    display: block;
+    user-select: none;
+}
+.you_msg_state{
+    color: var(--main-col);
+    font-size: 0.7rem;
+    text-align: right;
+}
+#textin{
+    /* width: 100%; */
+    display: flex;
+    background-color: var(--main-col);
+    padding: 0.5rem;
+    margin: 1rem;
+    border-radius: 1rem;
+}
+#textin>input[type="button"]{
+    margin-left: auto;
+    background-color: var(--user-col);
+    padding: 0.5rem;
+    border-radius: 1rem;
+    font-size: 1rem;
+    border: none;
+    transition: all .1s;
+    cursor: pointer;
+}
+#textin>input[type="button"]:hover{
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+#textin>input[type="text"]{
+    width: auto;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+/* 設定選單 */
+dialog{
+    border: none;
+    outline: none;
+    /* background-color: #ccc; */
+    margin: 0 auto;
+    box-shadow: 0 2px 6px #ccc;
+    border-radius: 1rem;
+    margin: 0 auto;
+
+    position: absolute;
+    top: 2rem;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    padding: 2rem;
+
+}
+#add_room input[type="text"]{
+    width: auto;
+    outline: none;
+    border: none;
+    width: 100%;
+    background-color: var(--main-bg-col);
+    padding: 0.5rem;
+    border-radius: 0.3rem;
+    margin-bottom: 1.5rem;
+}
+#add_room input[type="submit"],#add_room input[type="button"]{
+    margin-left: auto;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: none;
+    transition: all .1s;
+    cursor: pointer;
+    margin: 0 0.5rem;
+    border-radius: 0.3rem;
+}

@@ -1,0 +1,26 @@
+body{
+    background-color: #cce;
+}
+a{
+    color: #aaa;
+    text-decoration: none;
+    align-self:flex-start;
+    
+}
+.wrap{
+    background-color: #eee;
+    max-width: 30rem;
+    margin: 0 auto;
+    margin-top: 5rem;
+    padding: 2rem;
+    display: grid;
+    border-radius: 2rem;
+    box-shadow: 2px 2px 3px rgba(20, 20, 20, 0.7);
+}
+.wrap h3{
+    margin: 0 auto;
+    color: red;
+}
+.wrap p{
+    margin: 1.5rem auto;
+}

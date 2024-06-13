@@ -1,0 +1,55 @@
+body{
+    background-color: #cce;
+}
+a{
+    color: #aaa;
+    text-decoration: none;
+    align-self:flex-start;
+    list-style: none;
+    
+}
+.wrap{
+    background-color: #eee;
+    max-width: 30rem;
+    margin: 0 auto;
+    margin-top: 5rem;
+    padding: 2rem;
+    display: grid;
+    border-radius: 2rem;
+    box-shadow: 2px 2px 3px rgba(20, 20, 20, 0.7);
+}
+.wrap form{
+    margin: 0 auto;
+}
+.wrap form label{
+    color: red;
+    font-size: 0.7rem;
+    line-height: 0.1rem;
+    display: none;
+}
+.wrap h3{
+    margin: 0 auto;
+}
+.wrap input{
+    display: block;
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+.wrap input[type="email"],.wrap input[type="password"],.wrap input[type="text"]{
+    outline: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+.wrap input[type="button"]{
+    border: none;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    padding: 0.5rem 5.5rem;
+    margin: 0.8rem auto;
+}
+.wrap input[type="button"]:hover{
+    background-color: #ddd;
+    cursor: pointer;
+
+}
