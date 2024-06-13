@@ -58,11 +58,11 @@ public class UserChatRoomDao {
             map.put("uuid", RoomNameConverter.convertChatRoomName(chatRoomName).toString());
         }
         List<UserChatRoom> userChatRoomList;
-         try {
-             userChatRoomList = jdbcTemplate.query(sql, map, new UserChatRoomRowMapper());
-         } catch (Exception e) {
-             return new ArrayList<>();
-         }
+        try {
+            userChatRoomList = jdbcTemplate.query(sql, map, new UserChatRoomRowMapper());
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
         if (userChatRoomList.size() != 1) return new ArrayList<>();
         return userChatRoomList.get(0).getUserList();
     }
@@ -219,6 +219,11 @@ public class UserChatRoomDao {
         return returnJsonObject;
     }
 
+    public boolean checkHasUserChatRoom(UUID chatRoomUUID) {
+        if (jdbcTemplate == null | chatRoomUUID == null) return false;
+        return checkHasUserChatRoom(RoomNameConverter.convertChatRoomName(chatRoomUUID));
+    }
+
     public boolean checkHasUserChatRoom(String chatRoomName) {
         if (jdbcTemplate == null || chatRoomName == null) return false;
         String sql = "select * from :tableName where uuid=:uuid;"
@@ -240,6 +245,40 @@ public class UserChatRoomDao {
             return false;
         }
         return !userChatRoomList.isEmpty();
+
+    }
+
+    public boolean setLastModify(String chatRoomName, LocalDateTime lastModify) {
+        if (jdbcTemplate == null || chatRoomName == null || lastModify == null) return false;
+        return setLastModify(chatRoomName, lastModify.format(DateTimeFormat.formatter));
+    }
+
+    public boolean setLastModify(String chatRoomName, String lastModify) {
+        if (jdbcTemplate == null || chatRoomName == null || lastModify == null) return false;
+        String sql = "update :tableName set lastModify=:lastModify where uuid=:uuid;"
+                .replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
+        UUID chatRoomUUID = null;
+        try {
+            chatRoomUUID = UUID.fromString(chatRoomName);
+        } catch (Exception e) {
+            chatRoomUUID = RoomNameConverter.convertChatRoomName(chatRoomName);
+        }
+        if (chatRoomUUID == null) return false;
+
+        if (!checkHasUserChatRoom(chatRoomUUID) ||
+                !sqlDao.findTableName(RoomNameConverter.convertChatRoomName(chatRoomUUID))) {
+            return false;
+        }
+        try {
+            UUID finalChatRoomUUID = chatRoomUUID;
+            int count = jdbcTemplate.update(sql, new HashMap<>() {{
+                put("lastModify", lastModify);
+                put("uuid", finalChatRoomUUID.toString());
+            }});
+            return count > 0;
+        } catch (Exception e) {
+            return false;
+        }
 
     }
 

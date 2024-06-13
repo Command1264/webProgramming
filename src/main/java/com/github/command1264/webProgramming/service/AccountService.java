@@ -177,11 +177,6 @@ public class AccountService {
     @Deprecated
     public ReturnJsonObject getUser(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-//        if(sqlDao.checkNotConnect()) {
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-//            return returnJsonObject;
-//        }
 
         JsonObject jsonObject;
         try {
@@ -206,37 +201,26 @@ public class AccountService {
         }
 
         if (userAndRooms != null) {
-            returnJsonObject.setSuccess(true);
-            returnJsonObject.setData(userAndRooms);
+            return returnJsonObject.setSuccessAndData(userAndRooms);
         } else {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindAccount.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindAccount.getErrorMessage());
         }
-        return returnJsonObject;
     }
 
     public ReturnJsonObject getAccount(@RequestBody String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-//        if(sqlDao.checkNotConnect()) {
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-//            return returnJsonObject;
-//        }
 
         JsonObject jsonObject;
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
         }
         if ((!jsonObject.has(JsonKeyEnum.id.name()) || jsonObject.get(JsonKeyEnum.id.name()).isJsonNull()) &&
                 (!jsonObject.has(JsonKeyEnum.userId.name()) || jsonObject.get(JsonKeyEnum.userId.name()).isJsonNull()) &&
                 (!jsonObject.has(JsonKeyEnum.loginAccount.name()) || jsonObject.get(JsonKeyEnum.loginAccount.name()).isJsonNull() ||
                         !jsonObject.has(JsonKeyEnum.loginPassword.name()) || jsonObject.get(JsonKeyEnum.loginPassword.name()).isJsonNull() )) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindIdOrUserId.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindIdOrUserId.getErrorMessage());
         }
 
         UserAndRooms userAndRooms = null;
@@ -250,17 +234,14 @@ public class AccountService {
                 (jsonObject.has(JsonKeyEnum.loginPassword.name()) && !jsonObject.get(JsonKeyEnum.loginPassword.name()).isJsonNull()) &&
                 userAndRooms == null) {
             userAndRooms = accountDao.getUserAndRoomsWithLogin(jsonObject.get(JsonKeyEnum.loginAccount.name()).getAsString(),
-                                                    jsonObject.get(JsonKeyEnum.loginPassword.name()).getAsString());
+                    jsonObject.get(JsonKeyEnum.loginPassword.name()).getAsString());
         }
 
         if (userAndRooms != null) {
-            returnJsonObject.setSuccess(true);
-            returnJsonObject.setData(userAndRooms);
+            return returnJsonObject.setSuccessAndData(userAndRooms);
         } else {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindAccount.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindAccount.getErrorMessage());
         }
-        return returnJsonObject;
     }
 
     // todo

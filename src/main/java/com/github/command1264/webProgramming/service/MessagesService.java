@@ -9,6 +9,7 @@ import com.github.command1264.webProgramming.dao.UserChatRoomDao;
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.MessageSendReceive;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
+import com.github.command1264.webProgramming.util.DateTimeFormat;
 import com.github.command1264.webProgramming.util.JsonKeyEnum;
 import com.github.command1264.webProgramming.util.UsersSorter;
 import com.google.gson.Gson;
@@ -16,6 +17,7 @@ import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,11 +37,6 @@ public class MessagesService {
 
     public ReturnJsonObject userSendMessage(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-//        if(sqlDao.checkNotConnect()) {
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-//            return returnJsonObject;
-//        }
 
         JsonObject jsonObject;
         try {
@@ -76,11 +73,6 @@ public class MessagesService {
             returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
             return returnJsonObject;
         }
-//        if (!userChatRoomDao.checkHasUserChatRoom(chatRoomName)) {
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
-//            return returnJsonObject;
-//        }
 
         if (messageSendReceive == null) {
             returnJsonObject.setSuccess(false);
@@ -92,7 +84,7 @@ public class MessagesService {
         if (userAndRooms != null) {
             List<String> chatRoomUserList = userChatRoomDao.getUserChatRoomUsers(chatRoomName);
             if (!Objects.equals(tokenId, userAndRooms.getId()) ||
-                !chatRoomUserList.contains(tokenId)) {
+                    !chatRoomUserList.contains(tokenId)) {
                 returnJsonObject.setSuccess(false);
                 returnJsonObject.setErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
                 return returnJsonObject;
@@ -103,7 +95,27 @@ public class MessagesService {
             returnJsonObject.setErrorMessage(ErrorType.cantFindUsers.getErrorMessage());
             return returnJsonObject;
         }
-        return messagesDao.userSendMessage(chatRoomName, messageSendReceive);
+
+        if (!messagesDao.userSendMessage(chatRoomName, messageSendReceive)) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
+        }
+
+        LocalDateTime lastModify = null;
+        try {
+            lastModify = LocalDateTime.parse(messageSendReceive.getTime(), DateTimeFormat.formatter);
+            if (lastModify.plusMinutes(1).compareTo(LocalDateTime.now()) < 1 ||
+                    lastModify.plusMinutes(-1).compareTo(LocalDateTime.now()) > -1) {
+                lastModify = LocalDateTime.now();
+            }
+        } catch (Exception e) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
+        }
+
+        if (!userChatRoomDao.setLastModify(chatRoomName, lastModify)) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
+        }
+
+        return returnJsonObject.setSuccessAndData("");
     }
 
     public ReturnJsonObject userReadMessage(String json) {
@@ -175,17 +187,12 @@ public class MessagesService {
         if (!accountDao.setAccountChatRooms(tokenId, accountChatRooms)) {
             returnJsonObject.setSuccessAndErrorMessage(ErrorType.sqlUpdateFailed.getErrorMessage());
         }
-        returnJsonObject.setSuccessAndData(accountDao.getAccountChatRooms(tokenId));
-        return returnJsonObject;
+
+        return returnJsonObject.setSuccessAndData(accountDao.getAccountChatRooms(tokenId));
     }
 
     public ReturnJsonObject getUserReceiveMessage(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-//        if(sqlDao.checkNotConnect()) {
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-//            return returnJsonObject;
-//        }
 
         JsonObject jsonObject;
         try {
@@ -251,20 +258,13 @@ public class MessagesService {
             returnJsonObject.setErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
             return returnJsonObject;
         }
-        returnJsonObject.setSuccess(true);
-//        returnJsonObject.setData(gson.toJson(dataJsonObject, JsonObject.class));
-        returnJsonObject.setData(dataMap);
-        return returnJsonObject;
+
+        return returnJsonObject.setSuccessAndData(dataMap);
     }
 
     // todo 設定一次傳輸訊息的數量上限，為未讀訊息由最新開始向上 n 則(n=100)
     public ReturnJsonObject getUserChatRoomChats(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-//        if(sqlDao.checkNotConnect()) {
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-//            return returnJsonObject;
-//        }
 
 
         JsonObject jsonObject;
@@ -339,10 +339,7 @@ public class MessagesService {
             returnJsonObject.setErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
             return returnJsonObject;
         }
-        returnJsonObject.setSuccess(true);
-        returnJsonObject.setErrorMessage("");
-        returnJsonObject.setException("");
-        returnJsonObject.setData(chatRoomsChats);
-        return returnJsonObject;
+
+        return returnJsonObject.setSuccessAndData(chatRoomsChats);
     }
 }
