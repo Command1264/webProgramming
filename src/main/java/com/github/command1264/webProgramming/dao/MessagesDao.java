@@ -34,8 +34,8 @@ public class MessagesDao {
                     from :tableRoomName room left join :tableInfo info
                 on room.sender=info.id;
                 """,
-            new String [] {":tableRoomName", ":tableInfo"},
-            new String [] {chatRoomName, SqlTableEnum.accountInfo.name()}
+                new String [] {":tableRoomName", ":tableInfo"},
+                new String [] {chatRoomName, SqlTableEnum.accountInfo.name()}
         );
 
 //        String selectMessageSql = "select * from :tableName;"
@@ -187,13 +187,9 @@ public class MessagesDao {
 
 
 
-    public @NotNull ReturnJsonObject userSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
-        ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if (jdbcTemplate == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-            return returnJsonObject;
-        }
+    public boolean userSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
+        if (jdbcTemplate == null || chatRoomName == null || messageSendReceive == null) return false;
+
         String sql = "insert into :tableName (sender, message, type, time) values(:sender, :message, :type, :time);"
                 .replaceAll(":tableName", chatRoomName);
 
@@ -207,16 +203,9 @@ public class MessagesDao {
         try {
             count = jdbcTemplate.update(sql, map);
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
-            return returnJsonObject;
+            return false;
         }
-        if (count != 1) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
-            return returnJsonObject;
-        }
-        returnJsonObject.setSuccess(true);
-        return returnJsonObject;
-
+        return count > 0;
     }
 
     public @NotNull List<MessageSendReceive> userReceiveMessageWithId(String chatRoomName, String id) {

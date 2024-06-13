@@ -6,10 +6,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserRowMapper implements RowMapper<User> {
+    private boolean hasRawId = false;
+
+    public UserRowMapper() {
+        this(false);
+    }
+    public UserRowMapper(boolean hasRawId) {
+        this.hasRawId = hasRawId;
+    }
+
     @Override
     public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-        User user = new Account();
-        user.setId(rs.getString("id"));
+        User user = new User();
+        user.setId((hasRawId) ? rs.getString("id") : "");
         user.setUserId(rs.getString("userId"));
         user.setName(rs.getString("name"));
         user.setCreateTime(rs.getString("createTime"));

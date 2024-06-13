@@ -26,11 +26,11 @@ public class AccountDao {
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     /*
-    * 1 = correct
-    * 0 = null
-    * -1 = cant find (loginAccount or id)
-    * -2 = wrong password
-    */
+     * 1 = correct
+     * 0 = null
+     * -1 = cant find (loginAccount or id)
+     * -2 = wrong password
+     */
     public int checkAccount(@Nullable String loginAccount,
                             @Nullable String loginPassword) {
         if (loginAccount == null || loginPassword == null) return 0;
@@ -43,8 +43,8 @@ public class AccountDao {
                     on info.id=room.id
                 where info.loginAccount=:loginAccount or info.userId=:loginAccount;
         """,
-        new String[] {":tableNameInfo", ":tableNameChatRooms"},
-        new String[] {SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+                new String[] {":tableNameInfo", ":tableNameChatRooms"},
+                new String[] {SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
 //        String sql = "select * from :tableName where loginAccount=:loginAccount or userId=:loginAccount;"
 //                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
         Map<String, Object> map = new HashMap<>() {{
@@ -75,8 +75,8 @@ public class AccountDao {
                     on info.id=room.id
                 where info.loginAccount=:loginAccount or info.userId=:loginAccount;
         """,
-        new String[] {":tableNameInfo", ":tableNameChatRooms"},
-        new String[] {SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+                new String[] {":tableNameInfo", ":tableNameChatRooms"},
+                new String[] {SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
 //        String sql = "select * from :tableName where loginAccount=:loginAccount or userId=:loginAccount;"
 //                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
         Map<String, Object> map = new HashMap<>() {{
@@ -117,7 +117,7 @@ public class AccountDao {
         if (tokenList.size() != 1) {
             try {
                 sql = "delete from :tableName where token=:token;"
-                    .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
+                        .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
                 jdbcTemplate.update(sql, map);
             } catch (Exception e) {
                 return null;
@@ -201,16 +201,12 @@ public class AccountDao {
     public @NotNull ReturnJsonObject createAccount(AccountAndRooms accountAndRooms) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
         }
 
         for (String key : new String[]{"userId", "loginAccount"}) {
             if (sqlDao.checkRepeat(SqlTableEnum.accountInfo.name(), key, accountAndRooms.get(key))) {
-                returnJsonObject.setSuccess(false);
-                returnJsonObject.setErrorMessage(ErrorType.findKey.getErrorMessage().replaceAll(":key", key));
-                return returnJsonObject;
+                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.findKey.getErrorMessage().replaceAll(":key", key));
             }
         }
 
@@ -228,8 +224,7 @@ public class AccountDao {
             try {
                 accountList = jdbcTemplate.query(checkRandomUserIdSql, map, new AccountRowMapper());
             } catch (Exception e) {
-                returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
-                return returnJsonObject;
+                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
             }
 
             if (++tryCount >= 10) {
@@ -264,23 +259,19 @@ public class AccountDao {
         try {
             executeInfoCount = jdbcTemplate.update(insertInfoSql, map);
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
         }
         if (executeInfoCount != 1) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
         }
 
         try {
             accountList = jdbcTemplate.query(selectInfoSql, map, new AccountRowMapper());
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
         }
         if (accountList.size() != 1) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
         }
         map.put("id", accountList.get(0).getId());
 
@@ -288,16 +279,13 @@ public class AccountDao {
         try {
             executeChatRoomsCount = jdbcTemplate.update(insertChatRoomsSql, map);
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
         }
         if (executeChatRoomsCount != 1) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
         }
 
-        returnJsonObject.setSuccessAndData("");
-        return returnJsonObject;
+        return returnJsonObject.setSuccessAndData("");
     }
 
 
@@ -505,8 +493,8 @@ public class AccountDao {
                     on info.id=room.id
                 where info.id=:id;
             """,
-            new String[]{":tableInfo", ":tableChatRooms"},
-            new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+                new String[]{":tableInfo", ":tableChatRooms"},
+                new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
 
         Map<String, Object> map = new HashMap<>() {{
             put("id", id);
@@ -685,8 +673,8 @@ public class AccountDao {
                     on info.id=room.id
                 where info.userId=:userId;
                 """,
-        new String[]{":tableInfo", ":tableChatRooms"},
-        new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
+                new String[]{":tableInfo", ":tableChatRooms"},
+                new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
 //        String selectSql = "select * from :tableName where userId=:userId;"
 //                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
         Map<String, Object> map = new HashMap<>() {{
