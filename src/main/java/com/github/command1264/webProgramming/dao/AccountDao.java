@@ -73,7 +73,7 @@ public class AccountDao {
                         info.photoStickerBase64, room.chatRooms
                         from :tableNameInfo info inner join :tableNameChatRooms room
                     on info.id=room.id
-                where info.loginAccount=:loginAccount or info.userId=:loginAccount;
+                where (info.loginAccount=:loginAccount or info.userId=:loginAccount);
         """,
                 new String[] {":tableNameInfo", ":tableNameChatRooms"},
                 new String[] {SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -349,7 +349,8 @@ public class AccountDao {
                         info.photoStickerBase64, room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
-                where info.loginAccount=:loginAccount and info.loginPassword=:loginPassword;
+                where (info.loginAccount=:loginAccount or info.userId=:loginAccount)
+                        and info.loginPassword=:loginPassword;
             """,
                 new String[]{":tableInfo", ":tableChatRooms"},
                 new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -379,7 +380,8 @@ public class AccountDao {
                         info.photoStickerBase64, room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
-                where info.loginAccount=:loginAccount and info.loginPassword=:loginPassword;
+                where (info.loginAccount=:loginAccount or info.userId=:loginAccount)
+                        and info.loginPassword=:loginPassword;
             """,
                 new String[]{":tableInfo", ":tableChatRooms"},
                 new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
