@@ -481,6 +481,32 @@ public class AccountDao {
         return userAndRoomsList.get(0);
     }
 
+    public @NotNull List<User> getUserContainsUserIdOrName(String userId) {
+        if (jdbcTemplate == null || userId == null) return new ArrayList<>();
+
+        String sql = StringUtils.replace("""
+                select id, userId, name, createTime, photoStickerBase64
+                from :tableInfo
+                where userId regexp :userId or
+                name regexp :userId;
+            """,
+                ":tableInfo",
+                SqlTableEnum.accountInfo.name());
+
+        Map<String, Object> map = new HashMap<>() {{
+            put("userId", userId);
+        }};
+
+        List<User> userList;
+        try {
+            userList = jdbcTemplate.query(sql, map, new UserRowMapper());
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+        return userList;
+    }
+
+
     public @Nullable AccountAndRooms getAccountAndRoomsWithId(String id) {
         if (jdbcTemplate == null) return null;
 

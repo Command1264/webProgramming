@@ -125,12 +125,6 @@ public class UserChatRoomService {
 
     public ReturnJsonObject createUserChatRoom(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-//        if(sqlDao.checkNotConnect()) {
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-//            return returnJsonObject;
-//        }
-
 
         JsonObject jsonObject;
         try {
@@ -139,8 +133,8 @@ public class UserChatRoomService {
             returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
             return returnJsonObject;
         }
-        if ((!jsonObject.has(JsonKeyEnum.userIds.name()) || jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) &&
-                (!jsonObject.has(JsonKeyEnum.ids.name()) || jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull()) ) {
+        if ((!jsonObject.has(JsonKeyEnum.userIds.name()) || jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) /*&&
+                (!jsonObject.has(JsonKeyEnum.ids.name()) || jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull())*/) {
             returnJsonObject.setSuccess(false);
             returnJsonObject.setErrorMessage(ErrorType.usersIsZero.getErrorMessage());
             return returnJsonObject;
@@ -164,9 +158,9 @@ public class UserChatRoomService {
 
         if (jsonObject.has(JsonKeyEnum.userIds.name()) && !jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) {
             usersListStr = usersSorter.sortUserIdsReturnIds(jsonObject.getAsJsonArray(JsonKeyEnum.userIds.name()));
-        } else if (jsonObject.has(JsonKeyEnum.ids.name()) && !jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull()) {
+        }/* else if (jsonObject.has(JsonKeyEnum.ids.name()) && !jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull()) {
             usersListStr = usersSorter.sortIds(jsonObject.getAsJsonArray(JsonKeyEnum.ids.name()));
-        }
+        }*/
         String name = null;
 
         if (jsonObject.has(JsonKeyEnum.name.name()) && !jsonObject.get(JsonKeyEnum.name.name()).isJsonNull()) {
