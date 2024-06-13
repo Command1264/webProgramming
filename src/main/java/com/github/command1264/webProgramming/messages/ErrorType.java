@@ -29,6 +29,7 @@ public enum ErrorType {
 
     cantCreateAccount("無法新增帳戶"),
     cantFindLoginDataOrToken("找不到帳戶資訊或是Token"),
+    cantLogin("找不到帳戶資訊或是Token"),
     cantFindToken("找不到Token"),
     changeTokenFailed("更換Token失敗"),
     tokenIsExpired("Token已過期"),

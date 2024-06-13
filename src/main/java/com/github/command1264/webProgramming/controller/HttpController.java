@@ -97,21 +97,26 @@ public class HttpController {
         return accountService.changeToken(json);
     }
 
-    @PostMapping("/api/v1/getUser")
+    @PostMapping("/api/v1/getContainsUser")
 //    @CrossOrigin(origins = "*")
-    @Deprecated
-    public ReturnJsonObject getUser(@RequestBody String json) {
-        if (printLog) Printer.println("getUser!");
-        return new ReturnJsonObject(false, "", "", "");
-//        return accountService.getUser(json);
+    public ReturnJsonObject getContainsUser(@RequestBody String json) {
+        if (printLog) Printer.println("getContainsUser!");
+        return accountService.getContainsUser(json);
     }
 
-    @PostMapping("/api/v1/getAccount")
-//    @CrossOrigin(origins = "*")
-    public ReturnJsonObject getAccount(@RequestBody String json) {
-        if (printLog) Printer.println("getAccount!");
-        return accountService.getAccount(json);
-    }
+//    @PostMapping("/api/v1/getUser")
+////    @CrossOrigin(origins = "*")
+//    public ReturnJsonObject getUser(@RequestBody String json) {
+//        if (printLog) Printer.println("getUser!");
+//        return accountService.getUser(json);
+//    }
+
+//    @PostMapping("/api/v1/getAccount")
+////    @CrossOrigin(origins = "*")
+//    public ReturnJsonObject getAccount(@RequestBody String json) {
+//        if (printLog) Printer.println("getAccount!");
+//        return accountService.getAccount(json);
+//    }
 
 
 
