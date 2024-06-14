@@ -13,10 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
-public class MessagesDao {
+public class MessagesDao { // todo mybatis
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
     @Autowired
@@ -185,12 +186,16 @@ public class MessagesDao {
         return returnJsonObject;
     }
 
-
+    public boolean systemSendMessage(String chatRoomName, String message, String type) {
+        return userSendMessage(chatRoomName, new MessageSendReceive(
+                0, "system", "0", message, type, LocalDateTime.now(), false, false
+        ));
+    }
 
     public boolean userSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
         if (jdbcTemplate == null || chatRoomName == null || messageSendReceive == null) return false;
 
-        String sql = "insert into :tableName (sender, message, type, time) values(:sender, :message, :type, :time);"
+        String sql = "insert ignore into :tableName (sender, message, type, time) values(:sender, :message, :type, :time);"
                 .replaceAll(":tableName", chatRoomName);
 
         Map<String, Object> map = new HashMap<>() {{

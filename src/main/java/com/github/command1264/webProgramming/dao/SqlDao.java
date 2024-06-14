@@ -108,17 +108,4 @@ public class SqlDao {
         return (!jdbcTemplate.queryForList(sql, map).isEmpty());
     }
 
-//    public boolean checkConnect() {
-//        if (jdbcTemplate == null) return false;
-//        if (dataSource == null) return false;
-//        try {
-//            if (dataSource.getConnection() == null) return false;
-//        } catch (SQLException e) {
-//            return false;
-//        }
-//        return true;
-//    }
-//    public boolean checkNotConnect() {
-//        return !checkConnect();
-//    }
 }
