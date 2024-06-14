@@ -167,8 +167,12 @@ const refreshMsg = async(...chat_room)=>{
         chatRoomName : {},
     }
     for (let i of [...chat_room]){
-        sendBody.chatRoomName[i.room_name]=i.chatnum;
+        if(i.room_name!="")
+            sendBody.chatRoomName[i.room_name]=i.chatnum;
+        
     }
+    
+    
     try {
         const response = await fetch(sv.ip+sv.getUserReceiveMessage,{ 
             method: 'POST',
@@ -191,8 +195,9 @@ const refreshMsg = async(...chat_room)=>{
             return responseData.data
         }
 
-    } catch (error){
-        sv.urlToError(error);
+    } catch{
+    // } catch (error){
+        // sv.urlToError(error);
         setTimeout(()=>{
             refreshMsg(...chat_room);
         },100)
@@ -382,13 +387,13 @@ const lodMsg = async ()=>{
 }
 /**
  * 取得聊天室資訊
- * @param  {...string} RoomName 聊天室名稱
+ * @param  {string array} RoomName 聊天室名稱
  * @returns 聊天室資訊物件
  */
-const chatRoom_ct = async (...RoomName)=>{
+const chatRoom_ct = async (RoomName)=>{
     const sendBody={
         token:localStorage.getItem('token'),
-        chatRoomName:[...RoomName],
+        chatRoomName:RoomName,
     }
     try {
         const response = await fetch(sv.ip+sv.getUserChatRoom,{
@@ -407,10 +412,11 @@ const chatRoom_ct = async (...RoomName)=>{
         const responseData = await response.json();
         // 標記響應體
         if(responseData.success){
-            const rearr =[];
-            for(let item of Object.keys(responseData.data)){
-                rearr.push(responseData.data[item]);
-            }
+            const rearr =responseData.data;
+            // for(let item of Object.keys(responseData.data)){
+            //     rearr.push(responseData.data[item]);
+                
+            // }
             return rearr;
         }
     } catch (error) {
@@ -573,22 +579,46 @@ const refreshMsg_ct = async()=>{
     },100)
     
 }
+/**
+ * 畫面重複刷新至最新聊天室順序
+ */
+const refreshChatroom = async()=>{ 
+    const temp_obj_list_ct=document.createElement('div');
+    temp_obj_list_ct.innerHTML='';
+    tokenlogin().then(async userDt=>{
+        const chat_room_object=await chatRoom_ct(userDt.chatRooms);
+        if(chat_room_object){
+            Object.entries(chat_room_object).forEach(async ([key,item])=>{
+                const ctName = document.createElement('a');
+                ctName.href=`#${key}`;
+                ctName.id=item.uuid;
+                ctName.innerText=item.name;
+                temp_obj_list_ct.appendChild(ctName);
+            });
+        }
+    }).then(()=>{
+        if(temp_obj_list_ct.innerHTML!==doms.obj_list_ct.innerHTML){
+            doms.obj_list_ct.innerHTML=temp_obj_list_ct.innerHTML;
+        }
+        setTimeout(()=>{
+            refreshChatroom();
+        },200)
+    });
+    
+    
+}
 //==========window畫面載入==========
 window.addEventListener('DOMContentLoaded',() => {
-    
-    tokenlogin().then(userDt=>{
-        userDt.chatRooms.forEach(async item=>{
-            const ctName = document.createElement('a');
-            ctName.href=`#${item}`;
-            ctName.id=item;
-            const chatObj=await chatRoom_ct(`${item}`);
-            ctName.innerText=chatObj[0].name;
-            doms.obj_list_ct.appendChild(ctName);
-        });
+    tokenlogin().then(async userDt=>{
+        doms.setting.innerHTML='';
+        const setli = document.createElement('li');
+        setli.innerText=`${userDt.name}`;
+        doms.setting.appendChild(setli);
     });
     refreshMsg_ct();
+    refreshChatroom();
     setTimeout(()=>{
         tokenChange();
-    },1000)
+    },100)
 });
 

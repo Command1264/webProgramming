@@ -43,7 +43,8 @@ export const sv={
             // 解析響應體
             // const responseData = await response.json();
         } catch (error) {
-            this.urlToError(error);
+            // this.urlToError(error);
+            this.urlToError(`server未連接\n${error}`);
         }
     },
     async verify(){
