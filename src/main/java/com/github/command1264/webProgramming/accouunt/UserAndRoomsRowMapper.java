@@ -14,6 +14,7 @@ public class UserAndRoomsRowMapper implements RowMapper<UserAndRooms> {
         userAndRooms.setName(rs.getString("name"));
         userAndRooms.setCreateTime(rs.getString("createTime"));
         userAndRooms.setPhotoStickerBase64(rs.getString("photoStickerBase64"));
+        userAndRooms.setDeleted(rs.getBoolean("deleted"));
         userAndRooms.setChatRooms(rs.getString("chatRooms"));
         return userAndRooms;
     }

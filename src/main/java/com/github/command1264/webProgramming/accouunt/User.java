@@ -14,6 +14,7 @@ public class User {
     protected String name;
     protected String createTime;
     protected String photoStickerBase64;
+    protected boolean deleted;
 
     public User() {
         this(null, null);
@@ -22,14 +23,15 @@ public class User {
         this(userId, name, "");
     }
     public User(String userId, String name, String photoStickerBase64) {
-        this(userId, name, LocalDateTime.now(), photoStickerBase64);
+        this(userId, name, LocalDateTime.now(), photoStickerBase64, false);
 
     }
-    public User(String userId, String name, LocalDateTime createTime, String photoStickerBase64) {
+    public User(String userId, String name, LocalDateTime createTime, String photoStickerBase64, boolean deleted) {
         this.userId = userId;
         this.name = name;
         this.createTime = createTime.format(DateTimeFormatter.ofPattern(DateTimeFormat.format));
         this.photoStickerBase64 = photoStickerBase64;
+        this.deleted = deleted;
     }
 
     public String getName() {
@@ -46,6 +48,9 @@ public class User {
     }
     public String getCreateTime() {
         return createTime;
+    }
+    public boolean getDeleted() {
+        return this.deleted;
     }
 
     public String get(@Nullable String key) {
@@ -85,6 +90,11 @@ public class User {
         if (photoStickerBase64 == null) return;
         this.photoStickerBase64 = photoStickerBase64;
     }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
     public void set(@Nullable String key, @Nullable String value) {
         if (key == null || value == null) return;
         switch (key.toLowerCase()) {

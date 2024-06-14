@@ -1,8 +1,6 @@
 package com.github.command1264.webProgramming.dao;
 
 import com.github.command1264.webProgramming.accouunt.*;
-import com.github.command1264.webProgramming.messages.ErrorType;
-import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.util.BaseRandomGenerator;
 import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
@@ -38,7 +36,8 @@ public class AccountDao { // todo mybatis
                 select info.id, info.userId,
                         info.name, info.createTime,
                         info.loginAccount, info.loginPassword,
-                        info.photoStickerBase64, room.chatRooms
+                        info.photoStickerBase64, info.deleted,
+                        room.chatRooms
                         from :tableNameInfo info inner join :tableNameChatRooms room
                     on info.id=room.id
                 where info.loginAccount=:loginAccount or info.userId=:loginAccount;
@@ -70,7 +69,8 @@ public class AccountDao { // todo mybatis
                 select info.id, info.userId,
                         info.name, info.createTime,
                         info.loginAccount, info.loginPassword,
-                        info.photoStickerBase64, room.chatRooms
+                        info.photoStickerBase64, info.deleted,
+                        room.chatRooms
                         from :tableNameInfo info inner join :tableNameChatRooms room
                     on info.id=room.id
                 where (info.loginAccount=:loginAccount or info.userId=:loginAccount);
@@ -330,7 +330,8 @@ public class AccountDao { // todo mybatis
         String sql = StringUtils.replaceEach("""
                 select info.id, info.userId,
                         info.name, info.createTime,
-                        info.photoStickerBase64, room.chatRooms
+                        info.photoStickerBase64, info.deleted,
+                        room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
                 where (info.loginAccount=:loginAccount or info.userId=:loginAccount)
@@ -361,7 +362,8 @@ public class AccountDao { // todo mybatis
                 select info.id, info.userId,
                         info.name, info.createTime,
                         info.loginAccount, info.loginPassword,
-                        info.photoStickerBase64, room.chatRooms
+                        info.photoStickerBase64, info.deleted,
+                        room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
                 where (info.loginAccount=:loginAccount or info.userId=:loginAccount)
@@ -390,7 +392,8 @@ public class AccountDao { // todo mybatis
         String sql = StringUtils.replaceEach("""
                 select info.id, info.userId,
                         info.name, info.createTime,
-                        info.photoStickerBase64, room.chatRooms
+                        info.photoStickerBase64, info.deleted,
+                        room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
                 where info.userId=:userId;
@@ -418,7 +421,8 @@ public class AccountDao { // todo mybatis
                 select info.id, info.userId,
                         info.name, info.createTime,
                         info.loginAccount, info.loginPassword,
-                        info.photoStickerBase64, room.chatRooms
+                        info.photoStickerBase64, info.deleted,
+                        room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
                 where info.userId=:userId;
@@ -445,7 +449,8 @@ public class AccountDao { // todo mybatis
         String sql = StringUtils.replaceEach("""
                 select info.id, info.userId,
                         info.name, info.createTime,
-                        info.photoStickerBase64, room.chatRooms
+                        info.photoStickerBase64, info.deleted,
+                        room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
                 where info.id=:id;
@@ -471,10 +476,12 @@ public class AccountDao { // todo mybatis
         if (jdbcTemplate == null || userId == null) return new ArrayList<>();
 
         String sql = StringUtils.replace("""
-                select id, userId, name, createTime, photoStickerBase64
+                select id, userId, name, createTime, photoStickerBase64, deleted
                 from :tableInfo
-                where userId regexp :userId or
-                name regexp :userId;
+                where
+                (userId regexp :userId or
+                    name regexp :userId) and
+                deleted=false;
             """,
                 ":tableInfo",
                 SqlTableEnum.accountInfo.name());
@@ -500,7 +507,8 @@ public class AccountDao { // todo mybatis
                 select info.id, info.userId,
                         info.name, info.createTime,
                         info.loginAccount, info.loginPassword,
-                        info.photoStickerBase64, room.chatRooms
+                        info.photoStickerBase64, info.deleted,
+                        room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
                 where info.id=:id;
@@ -648,7 +656,7 @@ public class AccountDao { // todo mybatis
 
         List<AccountChatRooms> accountChatRoomsList;
         try {
-            accountChatRoomsList = jdbcTemplate.query(selectSql, map, new AccountRoomRowMapper());
+            accountChatRoomsList = jdbcTemplate.query(selectSql, map, new AccountChatRoomRowMapper());
         } catch (Exception e) {
             return false;
         }
@@ -680,7 +688,8 @@ public class AccountDao { // todo mybatis
                 select info.id, info.userId,
                             info.name, info.createTime,
                             info.loginAccount, info.loginPassword,
-                            info.photoStickerBase64, room.chatRooms
+                            info.photoStickerBase64, info.deleted,
+                            room.chatRooms
                         from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
                 where info.userId=:userId;
@@ -728,7 +737,7 @@ public class AccountDao { // todo mybatis
         try {
             accountChatRoomsList = jdbcTemplate.query(sql, new HashMap<>() {{
                 put("id", id);
-            }}, new AccountRoomRowMapper());
+            }}, new AccountChatRoomRowMapper());
         } catch (Exception e) {
             return null;
         }

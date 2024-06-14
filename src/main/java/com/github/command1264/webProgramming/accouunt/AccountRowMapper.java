@@ -16,6 +16,7 @@ public class AccountRowMapper implements RowMapper<Account> {
         account.setLoginAccount(rs.getString("loginAccount"));
         account.setLoginPassword(rs.getString("loginPassword"));
         account.setPhotoStickerBase64(rs.getString("photoStickerBase64"));
+        account.setDeleted(rs.getBoolean("deleted"));
         return account;
     }
 }

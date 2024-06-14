@@ -26,7 +26,7 @@ public class Account extends User {
                    String loginAccount,
                    String loginPassword,
                    String photoStickerBase64) {
-        super(userId, name, LocalDateTime.now(), photoStickerBase64);
+        super(userId, name, photoStickerBase64);
         this.loginAccount = loginAccount;
         this.loginPassword = loginPassword;
     }

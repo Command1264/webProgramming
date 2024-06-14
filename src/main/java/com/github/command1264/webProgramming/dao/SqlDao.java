@@ -38,6 +38,7 @@ public class SqlDao {
                 loginAccount varchar(256) not null,
                 loginPassword varchar(64) not null,
                 photoStickerBase64 text,
+                deleted boolean not null default false,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `loginAccount` (`loginAccount`),
                 UNIQUE KEY `userId` (`userId`)

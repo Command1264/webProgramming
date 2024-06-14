@@ -16,6 +16,7 @@ public class AccountAndRoomsRowMapper implements RowMapper<AccountAndRooms> {
         accountAndRooms.setLoginAccount(rs.getString("loginAccount"));
         accountAndRooms.setLoginPassword(rs.getString("loginPassword"));
         accountAndRooms.setPhotoStickerBase64(rs.getString("photoStickerBase64"));
+        accountAndRooms.setDeleted(rs.getBoolean("deleted"));
         accountAndRooms.setChatRooms(rs.getString("chatRooms"));
         return accountAndRooms;
     }
