@@ -77,7 +77,6 @@ const datatime_str = {
     year:(now)=>
         String(now.getFullYear()).padStart(4, '0'),
 }
-
 /**
  * 取得該畫面最新訊息id
  * @returns 訊息id
@@ -95,7 +94,7 @@ const newMsgId=()=>{
 /**
  * 視窗刷新
  */
-const winChange=()=>{
+const winRefresh=()=>{
     if(window.innerWidth>getRemSize(50)){
         if(window.location.hash!==''){
             doms.obj_list.style.display='block';
@@ -140,7 +139,7 @@ const addMsg = (my,sender,cont,time,id,state='')=>{
     msgBubble.appendChild(msgCt);
     msgBubble.appendChild(msgSt);
     doms.msg.appendChild(msgBubble);
-    to_bottom()
+    to_bottom();
     
 }
 /**
@@ -154,35 +153,34 @@ const to_bottom = ()=>{
 }
 
 
-
 //==========網路連線function==========
 
 /**
  * 聊天室更新訊息
- * @param {string} room_name 
- * @param  {...any} user_name 
+ * @param {object} chat_room
+ * @param {string} chat_room.room_name
+ * @param {number} chat_room.chatnum 
  */
-const refreshMsg = async(room_name,...user_name)=>{
+const refreshMsg = async(...chat_room)=>{
     const sendBody={
         token:localStorage.getItem('token'),
-        neme:room_name,
-        userIds : [
-            localStorage.getItem('userId'),
-            ...user_name
-        ]
+        chatRoomName : {},
+    }
+    for (let i of [...chat_room]){
+        sendBody.chatRoomName[i.room_name]=i.chatnum;
     }
     try {
-        const response = await fetch(sv.ip+sv.getUserReceiveMessage,{
+        const response = await fetch(sv.ip+sv.getUserReceiveMessage,{ 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(sendBody)
-        })
+            body: JSON.stringify(sendBody),
+        });
         
         // 檢查請求是否成功
         if (!response.ok) {
-            throw new Error(`${response.status}`);
+            sv.urlToError(`${response.status}`);
         }
 
         // 解析響應體
@@ -190,13 +188,15 @@ const refreshMsg = async(room_name,...user_name)=>{
 
         // 標記響應體
         if(responseData.success){
-            window.location.href =`#${responseData.data}`;
-        }else{
-            window.alert(`創建失敗請重試`);
+            return responseData.data
         }
 
-    } catch (error) {
+    } catch (error){
         sv.urlToError(error);
+        setTimeout(()=>{
+            refreshMsg(...chat_room);
+        },100)
+        
     }
 }
 /**
@@ -207,7 +207,7 @@ const refreshMsg = async(room_name,...user_name)=>{
 const crChatroom = async (room_name,...user_name)=>{
     const sendBody={
         token:localStorage.getItem('token'),
-        neme:room_name,
+        name:room_name,
         userIds : [
             localStorage.getItem('userId'),
             ...user_name
@@ -219,12 +219,12 @@ const crChatroom = async (room_name,...user_name)=>{
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(sendBody)
-        })
+            body: JSON.stringify(sendBody),
+        });
         
         // 檢查請求是否成功
         if (!response.ok) {
-            throw new Error(`${response.status}`);
+            sv.urlToError(`${response.status}`);
         }
 
         // 解析響應體
@@ -242,8 +242,39 @@ const crChatroom = async (room_name,...user_name)=>{
     }
     doms.add_room.children[0].children[1].value='';
 }
+
 /**
- * token登入並 (刷新)尚未製作
+ * token登入刷新
+ */
+const tokenChange = async ()=>{
+    const sendBody={
+        token:localStorage.getItem('token'),
+    }
+    try {
+        const response = await fetch(sv.ip+sv.changeToken,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(sendBody),
+        });
+        // 檢查請求是否成功
+        if (!response.ok) {
+            sv.urlToError(`${response.status}`);
+        }
+        // 解析響應體
+        const responseData = await response.json();
+        // 標記響應體
+        if(responseData.success){
+            localStorage.setItem('token',responseData.data.token);
+
+        }
+    } catch (error) {
+        sv.urlToError(error);
+    }
+}
+/**
+ * token登入
  */
 const tokenlogin = async ()=>{
     const sendBody={
@@ -255,12 +286,12 @@ const tokenlogin = async ()=>{
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(sendBody)
-        })
+            body: JSON.stringify(sendBody),
+        });
         
         // 檢查請求是否成功
         if (!response.ok) {
-            throw new Error(`${response.status}`);
+            sv.urlToError(`${response.status}`);
         }
 
         // 解析響應體
@@ -294,56 +325,59 @@ const tokenlogin = async ()=>{
  * 畫面載入聊天室訊息
  */
 const lodMsg = async ()=>{
-    doms.msg.innerHTML='';
-    const sendBody={
-        token:localStorage.getItem('token'),
-        chatRoomName:window.location.hash.substring(1),
-    }
-    try {
-        const response = await fetch(sv.ip+sv.getUserChatRoomChats,{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(sendBody)
-        })
-        
-        // 檢查請求是否成功
-        if (!response.ok) {
-            throw new Error(`${response.status}`);
-        }
-        // 解析響應體
-        const responseData = await response.json();
-        // 標記響應體
-        if(responseData.success){
-            
+    if(window.location.hash){
 
-            // 載入聊天內容
-            responseData.data[window.location.hash.substring(1)].forEach(item=>{
-                
-                if(item.deleted){
-                    addMsg(localStorage.getItem('userId'),item.senderId,item.message,item.time,String(item.id),'已移除');
-                }else if(item.type==='text'){
-                    if(item.modify){
-                        addMsg(localStorage.getItem('userId'),item.senderId,item.message,item.time,String(item.id),'以編輯');
-                    }else{
-                        addMsg(localStorage.getItem('userId'),item.senderId,item.message,item.time,String(item.id),'');
-                    }
-                }
+        doms.msg.innerHTML='';
+        const sendBody={
+            token:localStorage.getItem('token'),
+            chatRoomName:window.location.hash.substring(1),
+        }
+        try {
+            const response = await fetch(sv.ip+sv.getUserChatRoomChats,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(sendBody),
             });
-        }else{
-            // console.log('login');
-            // console.log(responseData.errorMessage);
-            // console.log(sendBody.chatRoomName);
-            if(responseData.errorMessage==='沒有權限'){
-                // window.alert(`沒有存取 ${sendBody.chatRoomName} 的權限`);
-                window.location.hash='';
+            
+            // 檢查請求是否成功
+            if (!response.ok) {
+                sv.urlToError(`${response.status}`);
             }
-            // sv.urlToLogin();
+            // 解析響應體
+            const responseData = await response.json();
+            // 標記響應體
+            if(responseData.success){
+                
+    
+                // 載入聊天內容
+                responseData.data[window.location.hash.substring(1)].forEach(item=>{
+                    
+                    if(item.deleted){
+                        addMsg(localStorage.getItem('userId'),item.senderId,item.message,item.time,String(item.id),'已移除');
+                    }else if(item.type==='text'){
+                        if(item.modify){
+                            addMsg(localStorage.getItem('userId'),item.senderId,item.message,item.time,String(item.id),'已編輯');
+                        }else{
+                            addMsg(localStorage.getItem('userId'),item.senderId,item.message,item.time,String(item.id),'');
+                        }
+                    }
+                });
+            }else{
+                // console.log('login');
+                // console.log(responseData.errorMessage);
+                // console.log(sendBody.chatRoomName);
+                if(responseData.errorMessage==='沒有權限'){
+                    // window.alert(`沒有存取 ${sendBody.chatRoomName} 的權限`);
+                    window.location.hash='';
+                }
+                // sv.urlToLogin();
+            }
+    
+        } catch (error) {
+            sv.urlToError(error);
         }
-
-    } catch (error) {
-        sv.urlToError(error);
     }
 }
 /**
@@ -362,12 +396,12 @@ const chatRoom_ct = async (...RoomName)=>{
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(sendBody)
-        })
+            body: JSON.stringify(sendBody),
+        });
         
         // 檢查請求是否成功
         if (!response.ok) {
-            throw new Error(`${response.status}`);
+            sv.urlToError(`${response.status}`);
         }
         // 解析響應體
         const responseData = await response.json();
@@ -409,12 +443,12 @@ const sendMsg = async ()=>{
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(sendBody)
-            })
+                body: JSON.stringify(sendBody),
+            });
             
             // 檢查請求是否成功
             if (!response.ok) {
-                throw new Error(`${response.status}`);
+                sv.urlToError(`${response.status}`);
             }
             // 解析響應體
             const responseData = await response.json();
@@ -436,22 +470,23 @@ const sendMsg = async ()=>{
 // 顯示設定彈窗
 doms.menu.children[0].addEventListener('click',()=>{
     doms.setting.showModal();
-})
+});
 // 顯示創建聊天室彈窗
 doms.menu.children[1].addEventListener('click',()=>{
     doms.add_room.showModal();
-})
+});
 // 創建聊天室取消按紐
 doms.add_room.children[1].children[0].addEventListener('click',()=>{
     doms.add_room.close();
-})
+});
 // 創建聊天室創建按紐
 doms.add_room.children[1].children[1].addEventListener('click',()=>{
-    if(doms.add_room.children[0].children[1].value!==''){
-        crChatroom(doms.add_room.children[0].children[1].value,doms.add_room.children[0].children[1].value);
+    const textbox_value=doms.add_room.children[0].children[1].value;
+    if(textbox_value!==''){
+        crChatroom(`${localStorage.getItem('name')} 與 ${textbox_value}`,doms.add_room.children[0].children[1].value);
         doms.add_room.close();
     }
-})
+});
 // 設定按下彈窗外面關閉
 doms.setting.addEventListener('click',event=>{
     const rect = event.target.getBoundingClientRect();
@@ -496,19 +531,51 @@ document.addEventListener('keydown', event=>{
 });
 // 點選聊天室切換並刷新畫面
 doms.obj_list_ct.addEventListener('click',()=>{
-    winChange()
+    winRefresh();
 });
 // 聊天室切換(hash切換)
 window.addEventListener('hashchange', ()=>{
     lodMsg();
-    winChange();
+    winRefresh();
 });
 //視窗size變更
-window.addEventListener('resize', winChange);
+window.addEventListener('resize', winRefresh);
 
+//==========持續刷新==========
 
+/**
+ * 畫面重複刷新至最新訊息
+ */
+const refreshMsg_ct = async()=>{ 
+    const newmsg_li = await refreshMsg({
+        room_name:window.location.hash.substring(1),
+        chatnum:Number(newMsgId()),
+    });
+    if(newmsg_li){
+        Object.keys(newmsg_li).forEach(newmsg_id=>{
+            newmsg_li[newmsg_id].forEach(item=>{
+                if(!doms.msg.querySelector(`#msg-${item.id}`)){
+                    if(item.deleted)
+                        addMsg(localStorage.getItem('userId'),item.senderId,item.message,item.time,String(item.id),'已移除');
+                    else if(item.modify)
+                        addMsg(localStorage.getItem('userId'),item.senderId,item.message,item.time,String(item.id),'已編輯');
+                    else
+                        addMsg(localStorage.getItem('userId'),item.senderId,item.message,item.time,String(item.id),'');
+                }
+                    
+            });
+        });
+    }
+    winRefresh();
+    // console.log(newmsg_li);
+    setTimeout(()=>{
+        refreshMsg_ct();
+    },100)
+    
+}
 //==========window畫面載入==========
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded',() => {
+    
     tokenlogin().then(userDt=>{
         userDt.chatRooms.forEach(async item=>{
             const ctName = document.createElement('a');
@@ -517,10 +584,11 @@ window.addEventListener('DOMContentLoaded', () => {
             const chatObj=await chatRoom_ct(`${item}`);
             ctName.innerText=chatObj[0].name;
             doms.obj_list_ct.appendChild(ctName);
-            // console.log(item);
         });
-        winChange();
     });
-    
+    refreshMsg_ct();
+    setTimeout(()=>{
+        tokenChange();
+    },1000)
 });
 

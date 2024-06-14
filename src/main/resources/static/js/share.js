@@ -7,6 +7,7 @@ export const sv={
     getUserReceiveMessage:'/api/v1/getUserReceiveMessage',
     getUserChatRoom:'/api/v1/getUserChatRoom',
     getUserChatRoomChats:'/api/v1/getUserChatRoomChats',
+    changeToken:'/api/v1/changeToken',
     ping:'/ping',
     /**
      * 跳轉Login
