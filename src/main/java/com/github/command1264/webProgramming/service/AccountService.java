@@ -5,7 +5,9 @@ import com.github.command1264.webProgramming.dao.AccountDao;
 import com.github.command1264.webProgramming.dao.SqlDao;
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
+import com.github.command1264.webProgramming.util.JsonChecker;
 import com.github.command1264.webProgramming.util.JsonKeyEnum;
+import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,18 +132,26 @@ public class AccountService {
         } catch (Exception e) {
             return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
         }
-        AccountAndRooms accountandRooms = new AccountAndRooms();
+        AccountAndRooms accountAndRooms = new AccountAndRooms();
         for(String key : new String[] {"name", "loginAccount", "loginPassword"}) {
-            if (jsonObject.has(key) &&
-                    !jsonObject.get(key).isJsonNull() &&
+            if (JsonChecker.checkKey(jsonObject, key) &&
                     !Objects.equals(jsonObject.get(key).getAsString(), "")) {
-                accountandRooms.set(key, jsonObject.get(key).getAsString());
+                accountAndRooms.set(key, jsonObject.get(key).getAsString());
             } else {
                 return returnJsonObject.setSuccessAndErrorMessage(ErrorType.keyNoData.getErrorMessage()
                         .replaceAll(":key", key));
             }
         }
-        return accountDao.createAccount(accountandRooms);
+        for (String key : new String[]{"userId", "loginAccount"}) {
+            if (sqlDao.checkRepeat(SqlTableEnum.accountInfo.name(), key, accountAndRooms.get(key))) {
+                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.findKey.getErrorMessage().replaceAll(":key", key));
+            }
+        }
+
+        if (!accountDao.createAccount(accountAndRooms)) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+        }
+        return returnJsonObject.setSuccessAndData(true);
     }
 
     public ReturnJsonObject getContainsUser(String json) {

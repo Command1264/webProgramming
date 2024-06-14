@@ -7,6 +7,7 @@ import com.github.command1264.webProgramming.dao.UserChatRoomDao;
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.userChatRoom.UserChatRoom;
+import com.github.command1264.webProgramming.util.JsonChecker;
 import com.github.command1264.webProgramming.util.JsonKeyEnum;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.github.command1264.webProgramming.util.UsersSorter;
@@ -41,27 +42,20 @@ public class UserChatRoomService {
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
         }
         if (!jsonObject.has(JsonKeyEnum.chatRoomName.name()) || jsonObject.get(JsonKeyEnum.chatRoomName.name()).isJsonNull()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoom.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoom.getErrorMessage());
         }
 
         if ((!jsonObject.has(JsonKeyEnum.token.name()) || jsonObject.get(JsonKeyEnum.token.name()).isJsonNull())) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
         }
         String token = null;
         try {
             token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
         } catch (Exception e) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
         }
         String tokenId = accountDao.getIdWithToken(token);
 
@@ -97,9 +91,7 @@ public class UserChatRoomService {
             }
         }
         if (chatRoomUUIDs.isEmpty()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
         }
 
         Map<String, UserChatRoom> dataMap = new HashMap<>();
@@ -107,15 +99,15 @@ public class UserChatRoomService {
             UserChatRoom userChatRoom = userChatRoomDao.getUserChatRoom(uuid);
             if (userChatRoom != null) {
                 if (userChatRoom.getUserList().contains(tokenId)) {
-                    dataMap.put(RoomNameConverter.convertChatRoomName(uuid),
-                            userChatRoom);
+                    dataMap.put(
+                            RoomNameConverter.convertChatRoomName(uuid),
+                            userChatRoom
+                    );
                 }
             }
         }
         if (dataMap.isEmpty()) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
         }
         // 進行對於時間的排序(由最晚的時間至最早的時間)
         dataMap = dataMap.entrySet()
@@ -129,6 +121,7 @@ public class UserChatRoomService {
         return returnJsonObject;
     }
 
+    // todo need test
     public ReturnJsonObject createUserChatRoom(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
 
@@ -136,40 +129,32 @@ public class UserChatRoomService {
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
         }
-        if ((!jsonObject.has(JsonKeyEnum.userIds.name()) || jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) /*&&
-                (!jsonObject.has(JsonKeyEnum.ids.name()) || jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull())*/) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.usersIsZero.getErrorMessage());
-            return returnJsonObject;
+
+        if (!JsonChecker.checkKey(jsonObject, JsonKeyEnum.userIds.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.usersIsZero.getErrorMessage());
         }
-        if ((!jsonObject.has(JsonKeyEnum.token.name()) || jsonObject.get(JsonKeyEnum.token.name()).isJsonNull())) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
-            return returnJsonObject;
+        if (!JsonChecker.checkKey(jsonObject, JsonKeyEnum.token.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
         }
         String token = null;
         try {
             token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
         } catch (Exception e) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindToken.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
         }
 
 
-        String usersListStr = null;
-
-        if (jsonObject.has(JsonKeyEnum.userIds.name()) && !jsonObject.get(JsonKeyEnum.userIds.name()).isJsonNull()) {
+        String usersListStr;
+        try {
             usersListStr = usersSorter.sortUserIdsReturnIds(jsonObject.getAsJsonArray(JsonKeyEnum.userIds.name()));
-        }/* else if (jsonObject.has(JsonKeyEnum.ids.name()) && !jsonObject.get(JsonKeyEnum.ids.name()).isJsonNull()) {
-            usersListStr = usersSorter.sortIds(jsonObject.getAsJsonArray(JsonKeyEnum.ids.name()));
-        }*/
+        } catch (Exception e) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.usersIsZero.getErrorMessage());
+        }
         String name = null;
 
-        if (jsonObject.has(JsonKeyEnum.name.name()) && !jsonObject.get(JsonKeyEnum.name.name()).isJsonNull()) {
+        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.name.name())) {
             try {
                 name = jsonObject.get(JsonKeyEnum.name.name()).getAsString();
             } catch (Exception ignored) {
@@ -177,39 +162,29 @@ public class UserChatRoomService {
         }
 
         if (usersListStr == null) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.usersIsZero.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.usersIsZero.getErrorMessage());
         }
-        List<String> userIds = gson.fromJson(usersListStr, new TypeToken<List<String>>() {
-        }.getType());
+        List<String> userIds = gson.fromJson(usersListStr, new TypeToken<List<String>>(){}.getType());
         String tokenId = accountDao.getIdWithToken(token);
         if (!userIds.contains(tokenId)) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
-            return returnJsonObject;
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
         }
 
-        ReturnJsonObject createRoomJson = userChatRoomDao.createUserChatRoom(usersListStr, name);
-        if (!createRoomJson.isSuccess()) return createRoomJson;
+        String chatRoomName = userChatRoomDao.createUserChatRoom(usersListStr, name);
+        if (chatRoomName == null)
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.sqlUpdateFailed.getErrorMessage());
+
         boolean flag = false;
         for (String id : userIds) {
-            if (!accountDao.addChatRoomsWithId(id, String.valueOf(createRoomJson.getData()))) {
+            if (!accountDao.addChatRoomsWithId(id, chatRoomName)) {
                 flag = true;
             }
         }
+        if (flag) return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantSuccessAddAccount.getErrorMessage());
 
-        if (flag) {
-            returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantSuccessAddAccount.getErrorMessage());
-            return returnJsonObject;
-        }
-        messagesDao.systemSendMessage(String.valueOf(createRoomJson.getData()), "create ChatRoom", "create");
-//        messagesDao.userSendMessage(String.valueOf(createRoomJson.getData()), new MessageSendReceive(
-//                0, "system", "0", "create ChatRoom", "create", LocalDateTime.now(), false, false
-//        ));
-        return createRoomJson;
+        for (int i = 0; i < 10 && !messagesDao.systemSendMessage(chatRoomName, "create ChatRoom", "create"); i++) {}
 
+        return returnJsonObject.setSuccessAndData(chatRoomName);
     }
 
 }
