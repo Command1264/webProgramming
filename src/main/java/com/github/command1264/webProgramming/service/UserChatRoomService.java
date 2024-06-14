@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -31,15 +32,10 @@ public class UserChatRoomService {
     private UserChatRoomDao userChatRoomDao;
     @Autowired
     private MessagesDao messagesDao;
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     public ReturnJsonObject getUserChatRoom(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-//        if(sqlDao.checkNotConnect()) {
-//            returnJsonObject.setSuccess(false);
-//            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
-//            return returnJsonObject;
-//        }
 
         JsonObject jsonObject;
         try {
@@ -85,7 +81,8 @@ public class UserChatRoomService {
                     String chatRoomName = null;
                     try {
                         chatRoomName = jsonElement.getAsString();
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                     if (chatRoomName != null) {
                         UUID chatRoomUUID;
                         try {
@@ -96,7 +93,8 @@ public class UserChatRoomService {
                         chatRoomUUIDs.add(chatRoomUUID);
                     }
                 }));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         if (chatRoomUUIDs.isEmpty()) {
             returnJsonObject.setSuccess(false);
@@ -104,7 +102,7 @@ public class UserChatRoomService {
             return returnJsonObject;
         }
 
-        Map<String, Object> dataMap = new HashMap<>();
+        Map<String, UserChatRoom> dataMap = new HashMap<>();
         for (UUID uuid : chatRoomUUIDs) {
             UserChatRoom userChatRoom = userChatRoomDao.getUserChatRoom(uuid);
             if (userChatRoom != null) {
@@ -119,6 +117,14 @@ public class UserChatRoomService {
             returnJsonObject.setErrorMessage(ErrorType.tokenNoPermission.getErrorMessage());
             return returnJsonObject;
         }
+        // 進行對於時間的排序(由最晚的時間至最早的時間)
+        dataMap = dataMap.entrySet()
+                        .stream()
+                        .sorted((Map.Entry<String, UserChatRoom> e1, Map.Entry<String, UserChatRoom> e2) ->
+                            e2.getValue().getLastModifyWithTime().compareTo(e1.getValue().getLastModifyWithTime()))
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey, Map.Entry::getValue,
+                                (oldValue, newValue) -> oldValue, LinkedHashMap::new));
         returnJsonObject.setSuccessAndData(dataMap);
         return returnJsonObject;
     }
@@ -166,7 +172,8 @@ public class UserChatRoomService {
         if (jsonObject.has(JsonKeyEnum.name.name()) && !jsonObject.get(JsonKeyEnum.name.name()).isJsonNull()) {
             try {
                 name = jsonObject.get(JsonKeyEnum.name.name()).getAsString();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         if (usersListStr == null) {
@@ -174,7 +181,8 @@ public class UserChatRoomService {
             returnJsonObject.setErrorMessage(ErrorType.usersIsZero.getErrorMessage());
             return returnJsonObject;
         }
-        List<String> userIds = gson.fromJson(usersListStr, new TypeToken<List<String>>(){}.getType());
+        List<String> userIds = gson.fromJson(usersListStr, new TypeToken<List<String>>() {
+        }.getType());
         String tokenId = accountDao.getIdWithToken(token);
         if (!userIds.contains(tokenId)) {
             returnJsonObject.setSuccess(false);
@@ -185,7 +193,7 @@ public class UserChatRoomService {
         ReturnJsonObject createRoomJson = userChatRoomDao.createUserChatRoom(usersListStr, name);
         if (!createRoomJson.isSuccess()) return createRoomJson;
         boolean flag = false;
-        for(String id : userIds) {
+        for (String id : userIds) {
             if (!accountDao.addChatRoomsWithId(id, String.valueOf(createRoomJson.getData()))) {
                 flag = true;
             }
@@ -196,6 +204,10 @@ public class UserChatRoomService {
             returnJsonObject.setErrorMessage(ErrorType.cantSuccessAddAccount.getErrorMessage());
             return returnJsonObject;
         }
+        messagesDao.systemSendMessage(String.valueOf(createRoomJson.getData()), "create ChatRoom", "create");
+//        messagesDao.userSendMessage(String.valueOf(createRoomJson.getData()), new MessageSendReceive(
+//                0, "system", "0", "create ChatRoom", "create", LocalDateTime.now(), false, false
+//        ));
         return createRoomJson;
 
     }

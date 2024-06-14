@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
-public class AccountDao {
+public class AccountDao { // todo mybatis
     private final Gson gson = new Gson();
     @Autowired
     private SqlDao sqlDao;

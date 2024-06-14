@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
-public class UserChatRoomDao {
+public class UserChatRoomDao { // todo mybatis
     private final Gson gson = new Gson();
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
@@ -55,7 +55,12 @@ public class UserChatRoomDao {
             UUID chatRoomUUID = UUID.fromString(chatRoomName);
             map.put("uuid", chatRoomUUID.toString());
         } catch (Exception e) {
-            map.put("uuid", RoomNameConverter.convertChatRoomName(chatRoomName).toString());
+            UUID chatRoomUUID = RoomNameConverter.convertChatRoomName(chatRoomName);
+            if (chatRoomUUID == null) {
+//                Printer.println("ErrorChatRoomName: " + chatRoomName);
+                return new ArrayList<>();
+            }
+            map.put("uuid", chatRoomUUID.toString());
         }
         List<UserChatRoom> userChatRoomList;
         try {
