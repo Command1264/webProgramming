@@ -13,6 +13,8 @@ const doms = {
     obj_content:document.querySelector('#obj_content'),
     back_btn:document.querySelector('#back_btn'),
     obj_list_ct:document.querySelector('#obj_list_ct'),
+    user_name:document.querySelector('#user_name'),
+    chatRoom_name:document.querySelector('#chatRoom_name'),
 }
 
 
@@ -305,12 +307,14 @@ const tokenlogin = async ()=>{
         // 標記響應體
         if(responseData.success){
             localStorage.setItem('userId',responseData.data.userId);
-            localStorage.setItem('name',responseData.data.name);
+            // localStorage.setItem('name',responseData.data.name);
             // localStorage.setItem('createTime',responseData.data.createTime);
             // localStorage.setItem('photo',responseData.data.photoStickerBase64);
             // localStorage.setItem('chatRooms',JSON.stringify(responseData.data.chatRooms.map(obj => Object.keys(obj)[0])));
             // console.log(Object.keys(responseData.data.chatRooms));
             return {
+                userId:responseData.data.userId,
+                name:responseData.data.name,
                 createTime:responseData.data.createTime,
                 photo:responseData.data.photoStickerBase64,
                 // chatRooms:responseData.data.chatRooms.map(obj => Object.keys(obj)),
@@ -331,8 +335,11 @@ const tokenlogin = async ()=>{
  */
 const lodMsg = async ()=>{
     if(window.location.hash){
-
         doms.msg.innerHTML='';
+        
+        //載入聊天室名稱
+        doms.chatRoom_name.innerText=doms.obj_list_ct.querySelector(`#room_${window.location.hash.substring(6).replace(/_/g,'-')}`).innerText;
+        
         const sendBody={
             token:localStorage.getItem('token'),
             chatRoomName:window.location.hash.substring(1),
@@ -354,8 +361,6 @@ const lodMsg = async ()=>{
             const responseData = await response.json();
             // 標記響應體
             if(responseData.success){
-                
-    
                 // 載入聊天內容
                 responseData.data[window.location.hash.substring(1)].forEach(item=>{
                     
@@ -489,7 +494,7 @@ doms.add_room.children[1].children[0].addEventListener('click',()=>{
 doms.add_room.children[1].children[1].addEventListener('click',()=>{
     const textbox_value=doms.add_room.children[0].children[1].value;
     if(textbox_value!==''){
-        crChatroom(`${localStorage.getItem('name')} 與 ${textbox_value}`,doms.add_room.children[0].children[1].value);
+        crChatroom(`${doms.user_name} 與 ${textbox_value}`,doms.add_room.children[0].children[1].value);
         doms.add_room.close();
     }
 });
@@ -582,7 +587,7 @@ const refreshMsg_ct = async()=>{
 /**
  * 畫面重複刷新至最新聊天室順序
  */
-const refreshChatroom = async()=>{ 
+const refreshChatroom = async()=>{
     const temp_obj_list_ct=document.createElement('div');
     temp_obj_list_ct.innerHTML='';
     tokenlogin().then(async userDt=>{
@@ -591,7 +596,7 @@ const refreshChatroom = async()=>{
             Object.entries(chat_room_object).forEach(async ([key,item])=>{
                 const ctName = document.createElement('a');
                 ctName.href=`#${key}`;
-                ctName.id=item.uuid;
+                ctName.id=`room_${item.uuid}`;
                 ctName.innerText=item.name;
                 temp_obj_list_ct.appendChild(ctName);
             });
@@ -607,16 +612,37 @@ const refreshChatroom = async()=>{
     
     
 }
+/**
+ * 載入聊天室名稱
+ */
+const lodchatRoomName = ()=>{
+    try {
+        doms.chatRoom_name.innerText=doms.obj_list_ct.querySelector(`#room_${window.location.hash.substring(6).replace(/_/g,'-')}`).innerText;
+    } catch {
+        setTimeout(()=>{
+            lodchatRoomName();
+        },200)
+    }
+        
+}
 //==========window畫面載入==========
 window.addEventListener('DOMContentLoaded',() => {
     tokenlogin().then(async userDt=>{
+        const setneme = document.createElement('li');
         doms.setting.innerHTML='';
-        const setli = document.createElement('li');
-        setli.innerText=`${userDt.name}`;
-        doms.setting.appendChild(setli);
+        setneme.id='user_neme';
+        setneme.innerText=`Name:${userDt.name}`;
+        doms.setting.appendChild(setneme);
+        const setid = document.createElement('li');
+        setid.innerText=`ID:${userDt.userId}`;
+        doms.setting.appendChild(setid);
+        const setCrtime = document.createElement('li');
+        setCrtime.innerText=`創建時間:${userDt.createTime}`;
+        doms.setting.appendChild(setCrtime);
     });
     refreshMsg_ct();
     refreshChatroom();
+    lodchatRoomName()
     setTimeout(()=>{
         tokenChange();
     },100)
