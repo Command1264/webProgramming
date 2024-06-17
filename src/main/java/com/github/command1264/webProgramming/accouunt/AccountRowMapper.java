@@ -6,10 +6,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class AccountRowMapper implements RowMapper<Account> {
+    private boolean hasRawId = false;
+    public AccountRowMapper() {
+        this(false);
+    }
+    public AccountRowMapper(boolean hasRawId) {
+        this.hasRawId = hasRawId;
+    }
     @Override
     public Account mapRow(ResultSet rs, int rowNum) throws SQLException {
         Account account = new Account();
-        account.setId(rs.getString("id"));
+        account.setId((hasRawId) ? rs.getString("id") : "");
         account.setUserId(rs.getString("userId"));
         account.setName(rs.getString("name"));
         account.setCreateTime(rs.getString("createTime"));

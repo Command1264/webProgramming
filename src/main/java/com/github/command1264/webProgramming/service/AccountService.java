@@ -142,7 +142,7 @@ public class AccountService {
                         .replaceAll(":key", key));
             }
         }
-        for (String key : new String[]{"userId", "loginAccount"}) {
+        for (String key : new String[]{/*"userId",*/ "loginAccount"}) {
             if (sqlDao.checkRepeat(SqlTableEnum.accountInfo.name(), key, accountAndRooms.get(key))) {
                 return returnJsonObject.setSuccessAndErrorMessage(ErrorType.findKey.getErrorMessage().replaceAll(":key", key));
             }

@@ -40,7 +40,8 @@ public class AccountDao { // todo mybatis
                         room.chatRooms
                         from :tableNameInfo info inner join :tableNameChatRooms room
                     on info.id=room.id
-                where info.loginAccount=:loginAccount or info.userId=:loginAccount;
+                where (info.loginAccount=:loginAccount or info.userId=:loginAccount) and
+                        info.deleted=false;
         """,
                 new String[] {":tableNameInfo", ":tableNameChatRooms"},
                 new String[] {SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -73,7 +74,8 @@ public class AccountDao { // todo mybatis
                         room.chatRooms
                         from :tableNameInfo info inner join :tableNameChatRooms room
                     on info.id=room.id
-                where (info.loginAccount=:loginAccount or info.userId=:loginAccount);
+                where (info.loginAccount=:loginAccount or info.userId=:loginAccount) and
+                        info.deleted=false;
         """,
                 new String[] {":tableNameInfo", ":tableNameChatRooms"},
                 new String[] {SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -108,7 +110,7 @@ public class AccountDao { // todo mybatis
         }};
         List<Token> tokenList;
         try {
-            tokenList = jdbcTemplate.query(sql, map, new TokenRowMapper());
+            tokenList = jdbcTemplate.query(sql, map, new TokenRowMapper(true));
         } catch (Exception e) {
             return null;
         }
@@ -148,7 +150,7 @@ public class AccountDao { // todo mybatis
             tokenStr = BaseRandomGenerator.base64(generateLength);
             map.put("token", tokenStr);
             try {
-                tokenList = jdbcTemplate.query(checkTokenSql, map, new TokenRowMapper());
+                tokenList = jdbcTemplate.query(checkTokenSql, map, new TokenRowMapper(true));
             } catch (Exception e) {
                 return null;
             }
@@ -172,6 +174,7 @@ public class AccountDao { // todo mybatis
             return null;
         }
         if (count != 1) return null;
+        token.setId("");
         return token;
     }
 
@@ -255,7 +258,7 @@ public class AccountDao { // todo mybatis
 //        }
 
         try {
-            accountList = jdbcTemplate.query(selectInfoSql, map, new AccountRowMapper());
+            accountList = jdbcTemplate.query(selectInfoSql, map, new AccountRowMapper(true));
         } catch (Exception e) {
             return false;
         }
@@ -334,8 +337,9 @@ public class AccountDao { // todo mybatis
                         room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
-                where (info.loginAccount=:loginAccount or info.userId=:loginAccount)
-                        and info.loginPassword=:loginPassword;
+                where (info.loginAccount=:loginAccount or info.userId=:loginAccount) and
+                        info.loginPassword=:loginPassword and
+                        info.deleted=false;
             """,
                 new String[]{":tableInfo", ":tableChatRooms"},
                 new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -346,7 +350,7 @@ public class AccountDao { // todo mybatis
 
         List<UserAndRooms> userAndRoomsList;
         try {
-            userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+            userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper(true));
         } catch (Exception e) {
             return null;
         }
@@ -366,8 +370,9 @@ public class AccountDao { // todo mybatis
                         room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
-                where (info.loginAccount=:loginAccount or info.userId=:loginAccount)
-                        and info.loginPassword=:loginPassword;
+                where (info.loginAccount=:loginAccount or info.userId=:loginAccount) and
+                        info.loginPassword=:loginPassword and
+                        info.deleted=false;
             """,
                 new String[]{":tableInfo", ":tableChatRooms"},
                 new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -396,7 +401,8 @@ public class AccountDao { // todo mybatis
                         room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
-                where info.userId=:userId;
+                where info.userId=:userId and
+                        info.deleted=false;
             """,
                 new String[]{":tableInfo", ":tableChatRooms"},
                 new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -406,7 +412,7 @@ public class AccountDao { // todo mybatis
 
         List<UserAndRooms> userAndRoomsList;
         try {
-            userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper());
+            userAndRoomsList = jdbcTemplate.query(sql, map, new UserAndRoomsRowMapper(true));
         } catch (Exception e) {
             return null;
         }
@@ -425,7 +431,8 @@ public class AccountDao { // todo mybatis
                         room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
-                where info.userId=:userId;
+                where info.userId=:userId and
+                        info.deleted=false;
             """,
                 new String[]{":tableInfo", ":tableChatRooms"},
                 new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -453,7 +460,8 @@ public class AccountDao { // todo mybatis
                         room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
-                where info.id=:id;
+                where info.id=:id and
+                        info.deleted=false;
             """,
                 new String[]{":tableInfo", ":tableChatRooms"},
                 new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -511,7 +519,8 @@ public class AccountDao { // todo mybatis
                         room.chatRooms
                     from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
-                where info.id=:id;
+                where info.id=:id and
+                        info.deleted=false;
             """,
                 new String[]{":tableInfo", ":tableChatRooms"},
                 new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
@@ -692,7 +701,8 @@ public class AccountDao { // todo mybatis
                             room.chatRooms
                         from :tableInfo info inner join :tableChatRooms room
                     on info.id=room.id
-                where info.userId=:userId;
+                where info.userId=:userId and
+                        info.deleted=false;
                 """,
                 new String[]{":tableInfo", ":tableChatRooms"},
                 new String[]{SqlTableEnum.accountInfo.name(), SqlTableEnum.accountChatRooms.name()});
