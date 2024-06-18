@@ -4,10 +4,15 @@ import{sv} from'./share.js';
 
 //==========資料==========
 const doms ={
+    /**email輸入框*/
     email:document.querySelector('#log_name'),
+    /**emali錯誤訊息*/
     email_text:document.querySelector('#log_name_text'),
+    /**密碼輸入框*/
     pw:document.querySelector('#log_pw'),
+    /**密碼錯誤訊息*/
     pw_text:document.querySelector('#log_pw_text'),
+    /**送出按鈕*/
     submit:document.querySelector('#submit'),
 }
 
@@ -54,15 +59,12 @@ const login_submit=async ()=>{
             },
             body: JSON.stringify(sendBody)
         })
-        
         // 檢查請求是否成功
         if (!response.ok) {
             throw new Error(`${response.status}`);
         }
-
         // 解析響應體
         const responseData = await response.json();
-
         // 標記響應體
         if(responseData.success){
             localStorage.setItem('token',responseData.data.token)
@@ -79,12 +81,25 @@ const login_submit=async ()=>{
 
 
 //==========事件監聽function==========
-// 登入按鈕
+// 登入動作
+
+// doms.submit.addEventListener('submit',event=>{
+//     event.preventDefault();//阻止提交表單
+//     if(checknull()){
+//         login_submit()
+//     }
+//     console.log('object');
+// });
 doms.submit.addEventListener('click',()=>{
     if(checknull()){
         login_submit()
     }
-})
+});
+document.addEventListener('keydown',event=>{
+    if(checknull() && event.key==='Enter'){
+        login_submit()
+    }
+});
 
 
 

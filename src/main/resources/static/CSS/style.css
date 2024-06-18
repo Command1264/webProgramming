@@ -3,6 +3,8 @@
     --main-bg-col:#eee;
     --list-bg-col:#ddd;
     --user-col:#cce;
+    --choose-col:rgb(75, 180, 225);
+    --touch-col:rgb(178, 225, 245);
 }
 
 
@@ -198,6 +200,9 @@ dialog{
     padding: 2rem;
 
 }
+#add_room{
+    width: 50vw;
+}
 #add_room input[type="text"]{
     width: auto;
     outline: none;
@@ -206,7 +211,7 @@ dialog{
     background-color: var(--main-bg-col);
     padding: 0.5rem;
     border-radius: 0.3rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 #add_room input[type="submit"],#add_room input[type="button"]{
     margin-left: auto;
@@ -215,6 +220,27 @@ dialog{
     border: none;
     transition: all .1s;
     cursor: pointer;
-    margin: 0 0.5rem;
+    margin: 0.5rem 0.5rem;
     border-radius: 0.3rem;
+}
+#add_room_users{
+    max-height: 30vh;
+    overflow: auto;
+    background-color: var(--main-bg-col);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+#add_room_users>div{
+    border-radius: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    margin: 0.2rem 0;
+}
+#add_room_users>div:hover{
+    background-color: var(--touch-col);
+}
+.choose{
+    background-color: var(--choose-col);
 }

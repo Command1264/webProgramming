@@ -41,14 +41,14 @@ a{
     padding: 0.5rem;
     border-radius: 0.5rem;
 }
-.wrap input[type="button"]{
+.wrap input[type="button"],.wrap input[type="submit"]{
     border: none;
     background-color: #fff;
     border-radius: 0.5rem;
     padding: 0.5rem 5.5rem;
     margin: 0.8rem auto;
 }
-.wrap input[type="button"]:hover{
+.wrap input[type="button"]:hover,.wrap input[type="submit"]:hover{
     background-color: #ddd;
     cursor: pointer;
 

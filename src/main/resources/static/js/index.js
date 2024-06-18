@@ -3,18 +3,41 @@ import{sv} from'./share.js';
 
 //==========資料==========
 const doms = {
-    msg:document.querySelector('#msg'),
-    menu:document.querySelector('#menu'),
-    setting:document.querySelector('#setting'),
-    add_room:document.querySelector('#add_room'),
-    textin:document.querySelector('#textin'),
-    msg_text:document.querySelector('#msg_text'),
+    /**整個左半部使用者列表+功能*/
     obj_list:document.querySelector('#obj_list'),
+    /**整個右半部聊天室*/
     obj_content:document.querySelector('#obj_content'),
+    /**聊天室訊息列表*/
+    msg:document.querySelector('#msg'),
+    /**聊天文字輸入(全部)*/
+    textin:document.querySelector('#textin'),
+    /**聊天文字輸入(輸入框)*/
+    msg_text:document.querySelector('#msg_text'),
+    /**返回按鈕 退出聊天室*/
     back_btn:document.querySelector('#back_btn'),
+    /**聊天室選擇列表*/
     obj_list_ct:document.querySelector('#obj_list_ct'),
-    user_name:document.querySelector('#user_name'),
+    /**聊天室顯示名稱*/
     chatRoom_name:document.querySelector('#chatRoom_name'),
+    /**房間名稱*/
+    add_room_rn:document.querySelector('#add_room_rn'),
+    /**功能列表(左上)*/
+    menu:document.querySelector('#menu'),
+    /**menu彈窗*/
+    setting:document.querySelector('#setting'),
+    /**menu內使用者名稱*/
+    user_name:document.querySelector('#user_name'),
+    /**新增聊天室彈窗*/
+    add_room:document.querySelector('#add_room'),
+    /**找尋使用者(輸入框)*/
+    add_room_userSearch:document.querySelector('#add_room_userSearch'),
+    /**使用者查詢結果列表*/
+    add_room_users:document.querySelector('#add_room_users'),
+    /**創建聊天室按鈕*/
+    add_room_establish:document.querySelector('#add_room_establish'),
+    /**取消聊天室按鈕*/
+    add_room_cancel:document.querySelector('#add_room_cancel'),
+
 }
 
 
@@ -94,9 +117,17 @@ const newMsgId=()=>{
 
 //==========畫面function==========
 /**
+ * addRoom還原至初始值
+*/
+const addRoomReset = ()=>{
+    doms.add_room_rn.value='';
+    doms.add_room_userSearch.value='';
+    doms.add_room_users.innerHTML='<p>查無結果<p/>'
+}
+/**
  * 視窗刷新
  */
-const winRefresh=()=>{
+const winRefresh = ()=>{
     if(window.innerWidth>getRemSize(50)){
         if(window.location.hash!==''){
             doms.obj_list.style.display='block';
@@ -247,38 +278,42 @@ const crChatroom = async (room_name,...user_name)=>{
     } catch (error) {
         sv.urlToError(error);
     }
-    doms.add_room.children[0].children[1].value='';
+    doms.add_room.querySelector('#add_room_rn').value='';
+    doms.add_room.querySelector('#add_room_userSearch').value='';
+    // ============
 }
 
 /**
  * token登入刷新
  */
 const tokenChange = async ()=>{
-    const sendBody={
-        token:localStorage.getItem('token'),
-    }
-    try {
-        const response = await fetch(sv.ip+sv.changeToken,{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(sendBody),
-        });
-        // 檢查請求是否成功
-        if (!response.ok) {
-            sv.urlToError(`${response.status}`);
+    // 避免正在載入時token被換掉
+    setTimeout(async()=>{
+        const sendBody={
+            token:localStorage.getItem('token'),
         }
-        // 解析響應體
-        const responseData = await response.json();
-        // 標記響應體
-        if(responseData.success){
-            localStorage.setItem('token',responseData.data.token);
-
+        try {
+            const response = await fetch(sv.ip+sv.changeToken,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(sendBody),
+            });
+            // 檢查請求是否成功
+            if (!response.ok) {
+                sv.urlToError(`${response.status}`);
+            }
+            // 解析響應體
+            const responseData = await response.json();
+            // 標記響應體
+            if(responseData.success){
+                localStorage.setItem('token',responseData.data.token);
+            }
+        } catch (error) {
+            sv.urlToError(error);
         }
-    } catch (error) {
-        sv.urlToError(error);
-    }
+    },100);
 }
 /**
  * token登入
@@ -475,30 +510,73 @@ const sendMsg = async ()=>{
         doms.msg_text.value='';
     }
 }
+/**
+ * 查尋使用者
+ * @param {String} searchStr 搜尋內容(使用者)
+ * @returns 使用者資訊物件
+ */
+const searchAllUser = async (searchStr)=>{
+    const sendBody={
+        token:localStorage.getItem('token'),
+        name:searchStr,
+    }
+    try {
+        const response = await fetch(sv.ip+sv.getContainsUser,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(sendBody),
+        });
+        // 檢查請求是否成功
+        if (!response.ok) {
+            sv.urlToError(`${response.status}`);
+        }
+        // 解析響應體
+        const responseData = await response.json();
+        // 標記響應體
+        if(responseData.success){
+            return responseData.data;
+        }
+    } catch (error) {
+        sv.urlToError(error);
+    }
+}
+
 
 
 //==========事件監聽function==========
-// 顯示設定彈窗
+
+// 顯示'創建聊天室'彈窗
+doms.menu.children[1].addEventListener('click',()=>{
+    addRoomReset();
+    doms.add_room.showModal();
+});
+// '創建聊天室'取消按紐
+doms.add_room_cancel.addEventListener('click',()=>{
+    addRoomReset();
+    doms.add_room.close();
+});
+// 按下'設定'按鈕
 doms.menu.children[0].addEventListener('click',()=>{
     doms.setting.showModal();
 });
-// 顯示創建聊天室彈窗
-doms.menu.children[1].addEventListener('click',()=>{
-    doms.add_room.showModal();
-});
-// 創建聊天室取消按紐
-doms.add_room.children[1].children[0].addEventListener('click',()=>{
-    doms.add_room.close();
-});
-// 創建聊天室創建按紐
-doms.add_room.children[1].children[1].addEventListener('click',()=>{
-    const textbox_value=doms.add_room.children[0].children[1].value;
+// 按下'創建聊天室'創建按紐
+doms.add_room_establish.addEventListener('click',()=>{
+    const textbox_value=doms.add_room_rn.value;
+    const userls=[];
     if(textbox_value!==''){
-        crChatroom(`${doms.user_name} 與 ${textbox_value}`,doms.add_room.children[0].children[1].value);
+        doms.add_room_users.querySelectorAll(`.choose`).forEach(item=>{
+            userls.push(item.children[1].innerText);
+        });
+        crChatroom(doms.add_room_rn.value,...userls);
+        addRoomReset();
         doms.add_room.close();
+    }else{
+        window.alert('尚未輸入房間名稱')
     }
 });
-// 設定按下彈窗外面關閉
+// '設定'按下彈窗外面關閉
 doms.setting.addEventListener('click',event=>{
     const rect = event.target.getBoundingClientRect();
     const isInDialog = (event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom);
@@ -507,19 +585,62 @@ doms.setting.addEventListener('click',event=>{
         doms.setting.close();
     }
 });
-// 創建聊天室按下彈窗外面關閉
+// '創建聊天室'按下彈窗外面關閉
 doms.add_room.addEventListener('click',event=>{
     const rect = event.target.getBoundingClientRect();
     const isInDialog = (event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom);
 
     if (!isInDialog) {
+        addRoomReset();
         doms.add_room.close();
     }
 });
-// 設定按鈕按下
-doms.menu.children[0].addEventListener('click',()=>{
-    doms.setting.showModal();
+// '創建聊天室'找尋使用者
+doms.add_room_userSearch.addEventListener('input',async ()=>{
+    const showUsers = await searchAllUser(doms.add_room_userSearch.value);
+    const serls = document.createElement('div');
+    serls.innerHTML='';
+    doms.add_room_users.querySelectorAll('.choose').forEach(item=>{
+        serls.appendChild(item);
+    })
+    showUsers.forEach(item=>{
+        if(!serls.querySelector(`#add_room_serli_${item.userId}`)){
+            const serUserObj = document.createElement('div');
+            const serUserObj_name = document.createElement('span');
+            const serUserObj_id = document.createElement('span');
+            serUserObj_name.innerText=`${item.name}`;
+            serUserObj_id.innerText=`${item.userId}`;
+            serUserObj.appendChild(serUserObj_name);
+            serUserObj.appendChild(serUserObj_id);
+            serUserObj.id=`add_room_serli_${item.userId}`
+            // document.querySelector(`#add_room_serli_${item.userId}`).addEventListener('click',()=>{
+            
+            serls.appendChild(serUserObj);
+        }
+    });
+    if(serls.innerHTML!==doms.add_room_users.innerHTML){
+        doms.add_room_users.innerHTML=serls.innerHTML;
+        if(doms.add_room_users.innerHTML===''){
+            doms.add_room_users.innerHTML='<p>查無結果<p/>';
+        }else{
+            for (let key=0;key<doms.add_room_users.children.length;key++) {
+                // if()
+                doms.add_room_users.children[key].addEventListener('click',()=>{
+                    if(doms.add_room_users.children[key].classList.contains('choose')){
+                        doms.add_room_users.children[key].classList.remove('choose');
+                    }else{
+                        doms.add_room_users.children[key].classList.add('choose');
+                    }
+                    // console.log(doms.add_room_users.children[key].classList.contains);
+                });
+                // doms.add_room_users.children[key];
+                // console.log(key);
+            }
+        }
+    }
+
 });
+
 // 訊息傳送(按鈕)
 doms.textin.querySelector('input[type="button"]').addEventListener('click',()=>{
     sendMsg();
@@ -552,7 +673,7 @@ window.addEventListener('hashchange', ()=>{
 //視窗size變更
 window.addEventListener('resize', winRefresh);
 
-//==========持續刷新==========
+//==========遞迴型function==========
 
 /**
  * 畫面重複刷新至最新訊息
@@ -642,9 +763,9 @@ window.addEventListener('DOMContentLoaded',() => {
     });
     refreshMsg_ct();
     refreshChatroom();
-    lodchatRoomName()
-    setTimeout(()=>{
-        tokenChange();
-    },100)
+    lodchatRoomName();
+    
+    tokenChange();
+    
 });
 

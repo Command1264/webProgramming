@@ -4,14 +4,23 @@ import{sv} from'./share.js';
 
 //==========資料==========
 const doms ={
+    /**使用者名稱輸入框*/
     username:document.querySelector("#cr_name"),
+    /**使用者名稱錯誤訊息*/
     username_text:document.querySelector("#cr_name_text"),
+    /**email輸入框*/
     email:document.querySelector("#cr_email"),
+    /**email錯誤訊息*/
     email_text:document.querySelector("#cr_email_text"),
+    /**密碼輸入框*/
     pw:document.querySelector("#cr_pw"),
+    /**密碼錯誤訊息*/
     pw_text:document.querySelector("#cr_pw_text"),
+    /**密碼2輸入框*/
     pw2:document.querySelector("#cr_pw2"),
+    /**密碼2錯誤訊息*/
     pw2_text:document.querySelector("#cr_pw2_text"),
+    /**送出按鈕*/
     submit:document.querySelector("#submit"),
 }
 
@@ -118,8 +127,12 @@ doms.submit.addEventListener("click",()=>{
     if (submitOK()){
         create_submit();
     }
-})
-
+});
+document.addEventListener('keydown',event=>{
+    if(submitOK() && event.key==='Enter'){
+        create_submit()
+    }
+});
 
 
 //==========window畫面載入==========
