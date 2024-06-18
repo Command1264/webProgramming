@@ -580,7 +580,7 @@ doms.add_room_establish.addEventListener('click',()=>{
     }
 });
 // '設定'按下彈窗外面關閉
-doms.setting.addEventListener('click',event=>{
+doms.setting.addEventListener('mousedown',event=>{
     const rect = event.target.getBoundingClientRect();
     const isInDialog = (event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom);
 
@@ -589,7 +589,7 @@ doms.setting.addEventListener('click',event=>{
     }
 });
 // '創建聊天室'按下彈窗外面關閉
-doms.add_room.addEventListener('click',event=>{
+doms.add_room.addEventListener('mousedown',event=>{
     const rect = event.target.getBoundingClientRect();
     const isInDialog = (event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom);
 

@@ -704,7 +704,9 @@ public class AccountDao { // todo mybatis
     public boolean addChatRoomsWithId(String id, String chatRoomName) {
         if (id == null || chatRoomName == null || jdbcTemplate == null) return false;
 
-        String selectSql = "select * from :tableName where id=:id and deleted=false;"
+        if (getUserWithId(id) == null) return false;
+
+        String selectSql = "select * from :tableName where id=:id;"
                 .replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
         Map<String, Object> map = new HashMap<>() {{
             put("id", id);
