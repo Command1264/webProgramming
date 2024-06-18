@@ -11,11 +11,32 @@ import java.util.List;
 import java.util.UUID;
 
 public class UserChatRoom {
-    private UUID uuid = null;
-    private String name = "";
-    private String users = "";
-    private String lastModify = "";
-    public UserChatRoom() {}
+    protected UUID uuid = null;
+    protected String name = "";
+    protected String users = "";
+    protected String lastModify = "";
+
+    public UserChatRoom() {
+        this(null);
+    }
+    public UserChatRoom(UUID uuid) {
+        this(uuid, "[]");
+    }
+    public UserChatRoom(UUID uuid, String users) {
+        this(uuid, (uuid == null) ? null : uuid.toString(), users);
+    }
+    public UserChatRoom(UUID uuid, String name, String users) {
+        this(uuid, name, users, LocalDateTime.now());
+    }
+    public UserChatRoom(UUID uuid, String name, String users, LocalDateTime lastModify) {
+        this(uuid, name, users, lastModify.format(DateTimeFormat.formatter));
+    }
+    public UserChatRoom(UUID uuid, String name, String users, String lastModify) {
+        this.uuid = uuid;
+        this.name = name;
+        this.users = users;
+        this.lastModify = lastModify;
+    }
 
     public void setUUID(String uuid) {
         if (uuid == null) return;

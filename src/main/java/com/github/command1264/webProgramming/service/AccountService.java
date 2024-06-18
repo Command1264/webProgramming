@@ -12,7 +12,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -218,7 +217,7 @@ public class AccountService {
     }
 
     @Deprecated
-    public ReturnJsonObject getAccount(@RequestBody String json) {
+    public ReturnJsonObject getAccount(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
 
         JsonObject jsonObject;
@@ -253,6 +252,55 @@ public class AccountService {
         } else {
             return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindAccount.getErrorMessage());
         }
+    }
+
+    public ReturnJsonObject deleteAccount(String json) {
+        ReturnJsonObject returnJsonObject = new ReturnJsonObject();
+        if (json == null) return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+        }
+
+        if (!JsonChecker.checkKey(jsonObject, JsonKeyEnum.token.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+        }
+        if (!JsonChecker.checkKey(jsonObject, JsonKeyEnum.userId.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.name());
+        }
+
+        String token;
+        try {
+            token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
+        } catch (Exception e) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.name());
+        }
+
+        String tokenId = accountDao.getIdWithToken(token);
+        if (tokenId == null)
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.tokenIsExpired.getErrorMessage());
+
+        String userId;
+        try {
+            userId = jsonObject.get(JsonKeyEnum.userId.name()).getAsString();
+        } catch (Exception e) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.getErrorMessage());
+        }
+
+
+        UserAndRooms userAndRooms = accountDao.getUserAndRoomsWithId(tokenId);
+        if (userAndRooms == null)
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.getErrorMessage());
+
+        if (Objects.equals(userAndRooms.getUserId(), userId)) {
+            if (accountDao.deleteAccountByUserId(userAndRooms.getUserId())) {
+                return returnJsonObject.setSuccessAndData("");
+            }
+        }
+
+        return returnJsonObject.setSuccessAndErrorMessage(ErrorType.deleteUserFailed.getErrorMessage());
     }
 
     // todo

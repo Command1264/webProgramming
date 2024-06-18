@@ -1,7 +1,7 @@
 # 指令Command1 
 ## 網路程式設計 API文件
-##### version: 24w25a
-##### last edit time: 2024/06/17 10:39:30 PM
+##### version: 24w25e
+##### last edit time: 2024/06/19 01:30:30 AM
 
 #### [API文件](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6.md)
 #### [API文件-Account](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6-Account.md)
@@ -44,7 +44,7 @@ http://26.208.147.218:60922/api/v1/getUserChatRoom
     + Body
 
             {
-                "token": "EF8kw6n3/9BeBGZWGDqzEsgU+UaYjCwQ",
+                "token": "DlyxXh9C9pTCTDUNPFNjEPl/k68oFRQG",
                 "chatRoomName": [
                     "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0",
                     "room_a84013c4_06a9_46f6_bdfa_272d408c9581",
@@ -62,38 +62,92 @@ http://26.208.147.218:60922/api/v1/getUserChatRoom
                 "errorMessage": "",
                 "exception": "",
                 "data": {
-                    "room_431c1373_2b76_4176_8962_b8419ffa6112": {
-                        "uuid": "431c1373-2b76-4176-8962-b8419ffa6112",
-                        "name": "431c1373-2b76-4176-8962-b8419ffa6112",
-                        "users": "[\"1\"]",
-                        "lastModify": "2024-06-04 16:41:17",
-                        "userList": [
-                            "1"
-                        ],
-                        "lastModifyWithTime": "2024-06-04T16:41:17"
-                    },
                     "room_e9ac0054_fd27_44a8_b2ca_eb704aebf8c0": {
                         "uuid": "e9ac0054-fd27-44a8-b2ca-eb704aebf8c0",
-                        "name": "e9ac0054-fd27-44a8-b2ca-eb704aebf8c0",
+                        "name": "chatRoom6",
                         "users": "[\"1\",\"2\",\"3\"]",
-                        "lastModify": "2024-06-04 16:28:30",
+                        "lastModify": "2024-06-18 02:59:37",
+                        "usersObject": [
+                            {
+                                "id": "",
+                                "userId": "Command1",
+                                "name": "指令 Command1",
+                                "createTime": "2004-01-06 20:07:09",
+                                "photoStickerBase64": "",
+                                "deleted": false
+                            },
+                            {
+                                "id": "",
+                                "userId": "Taiwan_PingLord",
+                                "name": "台灣Ping霸主",
+                                "createTime": "2007-09-22 20:04:01",
+                                "photoStickerBase64": "",
+                                "deleted": false
+                            },
+                            {
+                                "id": "",
+                                "userId": "Taiwan_PingLord2",
+                                "name": "台灣Ping霸主",
+                                "createTime": "2024-06-04 01:18:15",
+                                "photoStickerBase64": "",
+                                "deleted": false
+                            }
+                        ],
+                        "lastModifyWithTime": "2024-06-18T02:59:37",
                         "userList": [
                             "1",
                             "2",
                             "3"
-                        ],
-                        "lastModifyWithTime": "2024-06-04T16:28:30"
+                        ]
                     },
                     "room_a84013c4_06a9_46f6_bdfa_272d408c9581": {
                         "uuid": "a84013c4-06a9-46f6-bdfa-272d408c9581",
-                        "name": "",
+                        "name": "chatRoom4",
                         "users": "[\"1\",\"2\"]",
-                        "lastModify": "2024-06-04 16:29:22",
+                        "lastModify": "2024-06-16 18:12:56",
+                        "usersObject": [
+                            {
+                                "id": "",
+                                "userId": "Command1",
+                                "name": "指令 Command1",
+                                "createTime": "2004-01-06 20:07:09",
+                                "photoStickerBase64": "",
+                                "deleted": false
+                            },
+                            {
+                                "id": "",
+                                "userId": "Taiwan_PingLord",
+                                "name": "台灣Ping霸主",
+                                "createTime": "2007-09-22 20:04:01",
+                                "photoStickerBase64": "",
+                                "deleted": false
+                            }
+                        ],
+                        "lastModifyWithTime": "2024-06-16T18:12:56",
                         "userList": [
                             "1",
                             "2"
+                        ]
+                    },
+                    "room_431c1373_2b76_4176_8962_b8419ffa6112": {
+                        "uuid": "431c1373-2b76-4176-8962-b8419ffa6112",
+                        "name": "chatRoom1",
+                        "users": "[\"1\"]",
+                        "lastModify": "2024-06-04 16:41:17",
+                        "usersObject": [
+                            {
+                                "id": "",
+                                "userId": "Command1",
+                                "name": "指令 Command1",
+                                "createTime": "2004-01-06 20:07:09",
+                                "photoStickerBase64": "",
+                                "deleted": false
+                            }
                         ],
-                        "lastModifyWithTime": "2024-06-04T16:29:22"
+                        "lastModifyWithTime": "2024-06-04T16:41:17",
+                        "userList": [
+                            "1"
+                        ]
                     }
                 }
             }

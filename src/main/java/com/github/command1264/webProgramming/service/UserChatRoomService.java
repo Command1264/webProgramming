@@ -6,7 +6,7 @@ import com.github.command1264.webProgramming.dao.SqlDao;
 import com.github.command1264.webProgramming.dao.UserChatRoomDao;
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
-import com.github.command1264.webProgramming.userChatRoom.UserChatRoom;
+import com.github.command1264.webProgramming.userChatRoom.UserChatRoomAndUsers;
 import com.github.command1264.webProgramming.util.JsonChecker;
 import com.github.command1264.webProgramming.util.JsonKeyEnum;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
@@ -94,14 +94,14 @@ public class UserChatRoomService {
             return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoomName.getErrorMessage());
         }
 
-        Map<String, UserChatRoom> dataMap = new HashMap<>();
+        Map<String, UserChatRoomAndUsers> dataMap = new HashMap<>();
         for (UUID uuid : chatRoomUUIDs) {
-            UserChatRoom userChatRoom = userChatRoomDao.getUserChatRoom(uuid);
-            if (userChatRoom != null) {
-                if (userChatRoom.getUserList().contains(tokenId)) {
+            UserChatRoomAndUsers userChatRoomAndUsers = userChatRoomDao.getUserChatRoomAndUsers(uuid);
+            if (userChatRoomAndUsers != null) {
+                if (userChatRoomAndUsers.getUserList().contains(tokenId)) {
                     dataMap.put(
                             RoomNameConverter.convertChatRoomName(uuid),
-                            userChatRoom
+                            userChatRoomAndUsers
                     );
                 }
             }
@@ -112,7 +112,7 @@ public class UserChatRoomService {
         // 進行對於時間的排序(由最晚的時間至最早的時間)
         dataMap = dataMap.entrySet()
                         .stream()
-                        .sorted((Map.Entry<String, UserChatRoom> e1, Map.Entry<String, UserChatRoom> e2) ->
+                        .sorted((Map.Entry<String, UserChatRoomAndUsers> e1, Map.Entry<String, UserChatRoomAndUsers> e2) ->
                             e2.getValue().getLastModifyWithTime().compareTo(e1.getValue().getLastModifyWithTime()))
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey, Map.Entry::getValue,

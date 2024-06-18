@@ -143,8 +143,8 @@ public class AccountDao { // todo mybatis
         String checkTokenSql = "select * from :tableName where token=:token;"
                 .replaceAll(":tableName", SqlTableEnum.loginTokens.name());
         Map<String, Object> map = new HashMap<>();
-        String tokenStr = null;
-        List<Token> tokenList = new ArrayList<>();
+        String tokenStr;
+        List<Token> tokenList;
         int tryCount = 0, generateLength = 32;
         do {
             tokenStr = BaseRandomGenerator.base64(generateLength);
@@ -158,6 +158,7 @@ public class AccountDao { // todo mybatis
 
         token = new Token(id, tokenStr, LocalDateTime.now().plusDays(1));
 
+        // todo need test replace
         String sql = """
             replace into :tableName(id, token, expiredTime)
             values(:id, :token, :expiredTime);
@@ -276,12 +277,25 @@ public class AccountDao { // todo mybatis
     }
 
 
-    @Deprecated
     public @Nullable User getUserWithUserId(String userId) {
-        return (User) getAccountWithUserId(userId);
+        if (jdbcTemplate == null) return null;
+
+        String sql = "select * from :tableName where userId=:userId"
+                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+        Map<String, Object> map = new HashMap<>() {{
+            put("userId", userId);
+        }};
+
+        List<User> userList;
+        try {
+            userList = jdbcTemplate.query(sql, map, new UserRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
+        if (userList.size() != 1) return null;
+        return userList.get(0);
     }
 
-    @Deprecated
     public @Nullable Account getAccountWithUserId(String userId) {
         if (jdbcTemplate == null) return null;
 
@@ -301,12 +315,25 @@ public class AccountDao { // todo mybatis
         return accountList.get(0);
     }
 
-    @Deprecated
     public @Nullable User getUserWithId(String id) {
-        return (User) getAccountWithId(id);
+        if (jdbcTemplate == null) return null;
+
+        String sql = "select * from :tableName where id=:id"
+                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+        Map<String, Object> map = new HashMap<>() {{
+            put("id", id);
+        }};
+
+        List<User> userList;
+        try {
+            userList = jdbcTemplate.query(sql, map, new UserRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
+        if (userList.size() != 1) return null;
+        return userList.get(0);
     }
 
-    @Deprecated
     public @Nullable Account getAccountWithId(String id) {
         if (jdbcTemplate == null) return null;
 
@@ -316,14 +343,14 @@ public class AccountDao { // todo mybatis
             put("id", id);
         }};
 
-        List<Account> queryList;
+        List<Account> accountList;
         try {
-            queryList = jdbcTemplate.query(sql, map, new AccountRowMapper());
+            accountList = jdbcTemplate.query(sql, map, new AccountRowMapper());
         } catch (Exception e) {
             return null;
         }
-        if (queryList.size() != 1) return null;
-        return queryList.get(0);
+        if (accountList.size() != 1) return null;
+        return accountList.get(0);
     }
 
     public @Nullable UserAndRooms getUserAndRoomsWithLogin(String loginAccount, String loginPassword) {
@@ -622,14 +649,34 @@ public class AccountDao { // todo mybatis
     }
 
     // todo need test
-    public boolean deleteAccount(Account account) {
-        if (account == null) return false;
-        return this.deleteAccount(account.getUserId());
+    public boolean deleteAccountById(String id) {
+        if (jdbcTemplate == null || id == null) return false;
+
+        String selectSql = "select * from :tableName where id=:id and deleted=false;"
+                .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
+        Map<String, Object> map = new HashMap<>() {{
+            put("id", id);
+        }};
+        List<Account> accountList;
+        try {
+            accountList = jdbcTemplate.query(selectSql, map, new AccountRowMapper());
+        } catch (Exception e) {
+            return false;
+        }
+        if (accountList.size() != 1) return false;
+
+        int count;
+        try {
+            count = jdbcTemplate.update("update :tableName set deleted=true where id=:id;"
+                    .replaceAll(":tableName", SqlTableEnum.accountInfo.name()), map);
+        } catch (Exception e) {
+            return false;
+        }
+        return (count == 1);
     }
 
-    public boolean deleteAccount(String userId) {
-        if (jdbcTemplate == null) return false;
-        if (userId == null || Objects.equals(userId, "")) return false;
+    public boolean deleteAccountByUserId(String userId) {
+        if (jdbcTemplate == null || userId == null) return false;
 
         String selectSql = "select * from :tableName where userId=:userId;"
                 .replaceAll(":tableName", SqlTableEnum.accountInfo.name());
@@ -646,7 +693,7 @@ public class AccountDao { // todo mybatis
 
         int count;
         try {
-            count = jdbcTemplate.update("delete from :tableName where userId=:userId;"
+            count = jdbcTemplate.update("update :tableName set deleted=true where userId=:userId;"
                     .replaceAll(":tableName", SqlTableEnum.accountInfo.name()), map);
         } catch (Exception e) {
             return false;
@@ -657,7 +704,7 @@ public class AccountDao { // todo mybatis
     public boolean addChatRoomsWithId(String id, String chatRoomName) {
         if (id == null || chatRoomName == null || jdbcTemplate == null) return false;
 
-        String selectSql = "select * from :tableName where id=:id;"
+        String selectSql = "select * from :tableName where id=:id and deleted=false;"
                 .replaceAll(":tableName", SqlTableEnum.accountChatRooms.name());
         Map<String, Object> map = new HashMap<>() {{
             put("id", id);

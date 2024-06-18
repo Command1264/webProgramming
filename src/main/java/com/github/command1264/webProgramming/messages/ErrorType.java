@@ -16,6 +16,7 @@ public enum ErrorType {
     usersHasMulti("找到多組使用者"),
     usersSaveFailed("使用者儲存失敗"),
     cantSuccessAddAccount("無法成功新增帳戶"),
+    deleteUserFailed("刪除使用者失敗"),
 
     cantFindChatRoomNameAndUsersRaw("找不到chatRoomName或是users"),
 

@@ -1,8 +1,10 @@
 package com.github.command1264.webProgramming;
 
+import com.github.command1264.webProgramming.dao.SqlDao;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -14,7 +16,13 @@ public class WebProgrammingApplication {
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(WebProgrammingApplication.class);
 //		app.setDefaultProperties(Collections.singletonMap("server.port", "60922"));
-		app.run(args);
+		ApplicationContext context = app.run(args);
+		try {
+			SqlDao sqlDao = (SqlDao) context.getBean("sqlDao");
+			sqlDao.initTable();
+		} catch (Exception e ){
+			e.printStackTrace();
+		}
 	}
 
 //	@Bean

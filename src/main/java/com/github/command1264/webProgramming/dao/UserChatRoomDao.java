@@ -3,6 +3,8 @@ package com.github.command1264.webProgramming.dao;
 import com.github.command1264.webProgramming.messages.ErrorType;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.userChatRoom.UserChatRoom;
+import com.github.command1264.webProgramming.userChatRoom.UserChatRoomAndUsers;
+import com.github.command1264.webProgramming.userChatRoom.UserChatRoomAndUsersRowMapper;
 import com.github.command1264.webProgramming.userChatRoom.UserChatRoomRowMapper;
 import com.github.command1264.webProgramming.util.DateTimeFormat;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
@@ -94,6 +96,29 @@ public class UserChatRoomDao { // todo mybatis
         }
         if (userChatRoomList.size() != 1) return null;
         return userChatRoomList.get(0);
+    }
+
+    public @Nullable UserChatRoomAndUsers getUserChatRoomAndUsers(String chatRoomName) {
+        if (jdbcTemplate == null || chatRoomName == null) return null;
+        UUID chatRoomUUID = RoomNameConverter.getUUID(chatRoomName);
+        if (chatRoomUUID == null) return null;
+        return getUserChatRoomAndUsers(chatRoomUUID);
+    }
+
+    public @Nullable UserChatRoomAndUsers getUserChatRoomAndUsers(UUID chatRoomUUID) {
+        if (jdbcTemplate == null || chatRoomUUID == null) return null;
+        String sql = "select * from :tableName where uuid=:uuid;"
+                .replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
+        List<UserChatRoomAndUsers> userChatRoomAndUsersList;
+        try {
+            userChatRoomAndUsersList =jdbcTemplate.query(sql, new HashMap<>() {{
+                put("uuid", chatRoomUUID.toString());
+            }}, new UserChatRoomAndUsersRowMapper(accountDao));
+        } catch (Exception e) {
+            return null;
+        }
+        if (userChatRoomAndUsersList.size() != 1) return null;
+        return userChatRoomAndUsersList.get(0);
     }
 
     public @Nullable String createUserChatRoom(@NotNull String userListStr, @Nullable String name) {
