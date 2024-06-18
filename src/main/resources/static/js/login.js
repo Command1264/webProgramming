@@ -106,4 +106,5 @@ document.addEventListener('keydown',event=>{
 //==========window畫面載入==========
 window.addEventListener('DOMContentLoaded', () => {
     sv.pingsv();
+    window.localStorage.clear();
 });

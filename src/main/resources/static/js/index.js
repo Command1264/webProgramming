@@ -460,8 +460,9 @@ const chatRoom_ct = async (RoomName)=>{
             // }
             return rearr;
         }
-    } catch (error) {
-        sv.urlToError(error);
+    } catch {
+        // sv.urlToError(error);
+        chatRoom_ct(RoomName);
     }
 }
 /**
@@ -470,19 +471,21 @@ const chatRoom_ct = async (RoomName)=>{
  */
 const sendMsg = async ()=>{
     if(doms.msg_text.value!=''){
+        const msg_ct = doms.msg_text.value;
+        doms.msg_text.value='';
         const now = new Date();
         const fu_now_time=`${datatime_str.year(now)}-${datatime_str.mobth(now)}-${datatime_str.date(now)} ${datatime_str.hours(now)}:${datatime_str.minutes(now)}:${datatime_str.seconds(now)}`;
         const sendMsgid=`${parseInt(newMsgId())+1}`;
-        addMsg(localStorage.getItem('userId'),localStorage.getItem('userId'),doms.msg_text.value,fu_now_time,sendMsgid,'傳送中...');
+        addMsg(localStorage.getItem('userId'),localStorage.getItem('userId'),msg_ct,fu_now_time,sendMsgid,'傳送中...');
         const sendBody={
-        token:localStorage.getItem('token'),
-        chatRoomName:window.location.hash.substring(1),
-        message:{
-            sender : localStorage.getItem('userId'),
-            message : doms.msg_text.value,
-            type : "text",
-            time : fu_now_time
-        }
+            token:localStorage.getItem('token'),
+            chatRoomName:window.location.hash.substring(1),
+            message:{
+                sender : localStorage.getItem('userId'),
+                message : msg_ct,
+                type : "text",
+                time : fu_now_time,
+            }
         }
         try {
             const response = await fetch(sv.ip+sv.userSendMessage,{
@@ -508,7 +511,6 @@ const sendMsg = async ()=>{
         } catch (error) {
             sv.urlToError(error);
         }
-        doms.msg_text.value='';
     }
 }
 /**
@@ -675,7 +677,6 @@ window.addEventListener('hashchange', ()=>{
 window.addEventListener('resize', winRefresh);
 // 帳號登出
 doms.signOut.addEventListener('click',()=>{
-    window.localStorage.clear();
     sv.urlToLogin();
 });
 
