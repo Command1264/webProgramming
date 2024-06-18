@@ -37,7 +37,8 @@ const doms = {
     add_room_establish:document.querySelector('#add_room_establish'),
     /**取消聊天室按鈕*/
     add_room_cancel:document.querySelector('#add_room_cancel'),
-
+    /**登出按鈕*/
+    signOut:document.querySelector('#signOut'),
 }
 
 
@@ -672,6 +673,11 @@ window.addEventListener('hashchange', ()=>{
 });
 //視窗size變更
 window.addEventListener('resize', winRefresh);
+// 帳號登出
+doms.signOut.addEventListener('click',()=>{
+    window.localStorage.clear();
+    sv.urlToLogin();
+});
 
 //==========遞迴型function==========
 
@@ -749,17 +755,9 @@ const lodchatRoomName = ()=>{
 //==========window畫面載入==========
 window.addEventListener('DOMContentLoaded',() => {
     tokenlogin().then(async userDt=>{
-        const setneme = document.createElement('li');
-        doms.setting.innerHTML='';
-        setneme.id='user_neme';
-        setneme.innerText=`Name:${userDt.name}`;
-        doms.setting.appendChild(setneme);
-        const setid = document.createElement('li');
-        setid.innerText=`ID:${userDt.userId}`;
-        doms.setting.appendChild(setid);
-        const setCrtime = document.createElement('li');
-        setCrtime.innerText=`創建時間:${userDt.createTime}`;
-        doms.setting.appendChild(setCrtime);
+        doms.setting.querySelector('#user_name').innerText=`Name:${userDt.name}`;
+        doms.setting.querySelector('#setting_user_id').innerText=`ID:${userDt.userId}`;
+        doms.setting.querySelector('#setting_Crtime').innerText=`創建時間:${userDt.createTime}`;
     });
     refreshMsg_ct();
     refreshChatroom();

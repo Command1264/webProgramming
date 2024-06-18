@@ -244,3 +244,17 @@ dialog{
 .choose{
     background-color: var(--choose-col);
 }
+#setting{
+    text-align: center;
+}
+#setting>div{
+    border: 0.2rem solid var(--main-bg-col);
+    padding: 0.5rem;
+    margin: 0.5rem;
+    border-radius: 0.3rem;
+}
+#signOut{
+    user-select: none;
+    cursor: pointer;
+    background-color: var(--user-col);
+}
