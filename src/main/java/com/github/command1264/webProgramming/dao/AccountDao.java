@@ -158,7 +158,6 @@ public class AccountDao { // todo mybatis
 
         token = new Token(id, tokenStr, LocalDateTime.now().plusDays(1));
 
-        // todo need test replace
         String sql = """
             replace into :tableName(id, token, expiredTime)
             values(:id, :token, :expiredTime);
@@ -478,7 +477,7 @@ public class AccountDao { // todo mybatis
     }
 
     public @Nullable UserAndRooms getUserAndRoomsWithId(String id) {
-        if (jdbcTemplate == null) return null;
+        if (jdbcTemplate == null || id == null) return null;
 
         String sql = StringUtils.replaceEach("""
                 select info.id, info.userId,
@@ -507,22 +506,46 @@ public class AccountDao { // todo mybatis
         return userAndRoomsList.get(0);
     }
 
-    public @NotNull List<User> getUserContainsUserIdOrName(String userId) {
+    public @NotNull List<User> getUserContainsUserByUserId(String userId) {
         if (jdbcTemplate == null || userId == null) return new ArrayList<>();
 
         String sql = StringUtils.replace("""
                 select id, userId, name, createTime, photoStickerBase64, deleted
                 from :tableInfo
                 where
-                (userId regexp :userId or
-                    name regexp :userId) and
+                userId like :userId escape '\\\\' and
                 deleted=false;
             """,
                 ":tableInfo",
                 SqlTableEnum.accountInfo.name());
 
         Map<String, Object> map = new HashMap<>() {{
-            put("userId", userId);
+            put("userId", sqlLikeConvertor(userId));
+        }};
+
+        List<User> userList;
+        try {
+            userList = jdbcTemplate.query(sql, map, new UserRowMapper());
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+        return userList;
+    }
+    public @NotNull List<User> getUserContainsByName(String name) {
+        if (jdbcTemplate == null || name == null) return new ArrayList<>();
+
+        String sql = StringUtils.replace("""
+                select id, userId, name, createTime, photoStickerBase64, deleted
+                from :tableInfo
+                where
+                name like :name escape '\\\\' and
+                deleted=false;
+            """,
+                ":tableInfo",
+                SqlTableEnum.accountInfo.name());
+
+        Map<String, Object> map = new HashMap<>() {{
+            put("name", sqlLikeConvertor(name));
         }};
 
         List<User> userList;
@@ -534,9 +557,22 @@ public class AccountDao { // todo mybatis
         return userList;
     }
 
+    private @NotNull String sqlLikeConvertor(@Nullable String str) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (str == null) return stringBuilder.toString();
+
+        if (str.charAt(0) == '@') str = str.substring(1);
+
+        for (char ch : str.toCharArray()) {
+            stringBuilder.append("%\\").append(ch);
+        }
+        stringBuilder.append("%");
+        return stringBuilder.toString();
+    }
+
 
     public @Nullable AccountAndRooms getAccountAndRoomsWithId(String id) {
-        if (jdbcTemplate == null) return null;
+        if (jdbcTemplate == null || id == null) return null;
 
         String sql = StringUtils.replaceEach("""
                 select info.id, info.userId,

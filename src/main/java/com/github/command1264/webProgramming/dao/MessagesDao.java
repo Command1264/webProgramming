@@ -9,6 +9,7 @@ import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -62,12 +63,12 @@ public class MessagesDao { // todo mybatis
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getMessage());
             return returnJsonObject;
         }
         if (oldMessage == null || newMessage == null) {
             returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getMessage());
             return returnJsonObject;
         }
         String selectSql = StringUtils.replaceEach("""
@@ -91,16 +92,16 @@ public class MessagesDao { // todo mybatis
         try {
             messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
         } catch (Exception e){
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getMessage());
             return returnJsonObject;
         }
         if (messagesList.isEmpty()) {
             returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getMessage());
             return returnJsonObject;
         } else if (messagesList.size() != 1) {
             returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.messageHasMulti.getErrorMessage());
+            returnJsonObject.setErrorMessage(ErrorType.messageHasMulti.getMessage());
             return returnJsonObject;
         }
 
@@ -113,11 +114,11 @@ public class MessagesDao { // todo mybatis
         try {
             count = jdbcTemplate.update(updateSql, map);
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getMessage());
             return returnJsonObject;
         }
         if (count != 1) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getMessage());
             return returnJsonObject;
         }
         returnJsonObject.setSuccess(true);
@@ -128,12 +129,12 @@ public class MessagesDao { // todo mybatis
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (jdbcTemplate == null) {
             returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getErrorMessage());
+            returnJsonObject.setErrorMessage(ErrorType.sqlNotConnect.getMessage());
             return returnJsonObject;
         }
         if (chatRoomName == null || message == null) {
             returnJsonObject.setSuccess(false);
-            returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            returnJsonObject.setErrorMessage(ErrorType.cantFindMessage.getMessage());
             return returnJsonObject;
         }
 
@@ -158,14 +159,14 @@ public class MessagesDao { // todo mybatis
         try {
             messagesList = jdbcTemplate.query(selectSql, map, new MessageSendReceiveRowMapper());
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getMessage());
             return returnJsonObject;
         }
         if (messagesList.isEmpty()) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getMessage());
             return returnJsonObject;
         } else if (messagesList.size() != 1) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageHasMulti.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageHasMulti.getMessage());
             return returnJsonObject;
         }
         String deleteSql = "update :chatRoomName set deleted=true where id=:id;"
@@ -175,11 +176,11 @@ public class MessagesDao { // todo mybatis
         try {
             count = jdbcTemplate.update(deleteSql, map);
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageDeleteFailed.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageDeleteFailed.getMessage());
             return returnJsonObject;
         }
         if (count != 1) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageDeleteFailed.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageDeleteFailed.getMessage());
             return returnJsonObject;
         }
         returnJsonObject.setSuccessAndData("");
@@ -229,8 +230,6 @@ public class MessagesDao { // todo mybatis
                 new String [] {":tableRoomName", ":tableInfo"},
                 new String [] {chatRoomName, SqlTableEnum.accountInfo.name()}
         );
-//        String selectMessageSql = "select * from :tableName where id>:id;"
-//                .replaceAll(":tableName", chatRoomName);
 
         Map<String, Object> map = new HashMap<>() {{
             put("id", id);
@@ -240,5 +239,11 @@ public class MessagesDao { // todo mybatis
         } catch (Exception e ){
             return new ArrayList<>();
         }
+    }
+
+    public @Nullable MessageSendReceive getUserChatRoomLastChat(String token, String chatRoomName) {
+        if (token == null || chatRoomName == null) return null;
+        List<MessageSendReceive> messageSendReceiveList = this.getUserChatRoomChat(token, chatRoomName);
+        return (messageSendReceiveList.isEmpty()) ? null : messageSendReceiveList.get(messageSendReceiveList.size() - 1);
     }
 }

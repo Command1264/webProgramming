@@ -10,4 +10,7 @@ public class JsonChecker {
             return false;
         }
     }
+    public static boolean checkNoKey(JsonObject jsonObject, String key) {
+        return !checkKey(jsonObject, key);
+    }
 }

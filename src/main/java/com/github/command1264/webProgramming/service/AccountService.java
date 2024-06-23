@@ -27,28 +27,29 @@ public class AccountService {
     public ReturnJsonObject loginAccount(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (json == null)
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindLoginDataOrToken.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindLoginDataOrToken.getMessage());
 
         JsonObject jsonObject;
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindLoginDataOrToken.getErrorMessage());
+            returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindLoginDataOrToken.getMessage());
         }
-        if ((!jsonObject.has(JsonKeyEnum.loginAccount.name()) || !jsonObject.has(JsonKeyEnum.loginPassword.name())) &&
-                !jsonObject.has(JsonKeyEnum.token.name())) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindLoginDataOrToken.getErrorMessage());
+        if ((JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.loginAccount.name()) ||
+                JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.loginPassword.name())) &&
+                JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.token.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindLoginDataOrToken.getMessage());
         }
 
         String loginAccount = null;
         String loginPassword = null;
         String token = null;
-        if (jsonObject.has(JsonKeyEnum.loginAccount.name()))
+        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.loginAccount.name()))
             loginAccount = jsonObject.get(JsonKeyEnum.loginAccount.name()).getAsString();
-        if (jsonObject.has(JsonKeyEnum.loginPassword.name()))
+        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.loginPassword.name()))
             loginPassword = jsonObject.get(JsonKeyEnum.loginPassword.name()).getAsString();
-        if (jsonObject.has(JsonKeyEnum.token.name()))
+        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.token.name()))
             token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
 
 
@@ -61,7 +62,7 @@ public class AccountService {
                     return returnJsonObject.setSuccessAndData(userAndRooms);
                 }
             } else {
-                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.tokenIsExpired.getErrorMessage());
+                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.tokenIsExpired.getMessage());
             }
         }
         if (loginAccount != null && loginPassword != null) {
@@ -78,44 +79,44 @@ public class AccountService {
                 case 0:
                     break;
                 case -1:
-                    return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindLoginAccount.getErrorMessage());
+                    return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindLoginAccount.getMessage());
                 case -2:
-                    return returnJsonObject.setSuccessAndErrorMessage(ErrorType.wrongPassword.getErrorMessage());
+                    return returnJsonObject.setSuccessAndErrorMessage(ErrorType.wrongPassword.getMessage());
             }
         }
-        return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantLogin.getErrorMessage());
+        return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantLogin.getMessage());
     }
 
     public ReturnJsonObject changeToken(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
         if (json == null) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
         }
 
         JsonObject jsonObject;
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         }
-        if (!(jsonObject.has(JsonKeyEnum.token.name()) || jsonObject.get(JsonKeyEnum.token.name()).isJsonNull())) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+        if (JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.token.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
         }
         String token;
         try {
             token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
         }
         String id = accountDao.getIdWithToken(token);
         if (id == null) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
         }
 
         int tryCount = 0;
         while(!accountDao.deleteToken(token)) {
             if (++tryCount >= 10) {
-                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.changeTokenFailed.getErrorMessage());
+                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.changeTokenFailed.getMessage());
             }
         }
         return returnJsonObject.setSuccessAndData(accountDao.createToken(id));
@@ -129,7 +130,7 @@ public class AccountService {
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         }
         AccountAndRooms accountAndRooms = new AccountAndRooms();
         for(String key : new String[] {"name", "loginAccount", "loginPassword"}) {
@@ -137,18 +138,18 @@ public class AccountService {
                     !Objects.equals(jsonObject.get(key).getAsString(), "")) {
                 accountAndRooms.set(key, jsonObject.get(key).getAsString());
             } else {
-                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.keyNoData.getErrorMessage()
+                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.keyNoData.getMessage()
                         .replaceAll(":key", key));
             }
         }
         for (String key : new String[]{/*"userId",*/ "loginAccount"}) {
             if (sqlDao.checkRepeat(SqlTableEnum.accountInfo.name(), key, accountAndRooms.get(key))) {
-                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.findKey.getErrorMessage().replaceAll(":key", key));
+                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.findKey.getMessage().replaceAll(":key", key));
             }
         }
 
         if (!accountDao.createAccount(accountAndRooms)) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantCreateAccount.getMessage());
         }
         return returnJsonObject.setSuccessAndData(true);
     }
@@ -160,33 +161,38 @@ public class AccountService {
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         }
         String token = null;
         try {
             token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
         }
 
         String tokenId = accountDao.getIdWithToken(token);
         if (tokenId == null)
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.tokenIsExpired.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.tokenIsExpired.getMessage());
 
-        String userId = null;
+        String userIdOrName = null;
         try {
-            userId = jsonObject.get(JsonKeyEnum.name.name()).getAsString();
+            userIdOrName = jsonObject.get(JsonKeyEnum.name.name()).getAsString();
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.getMessage());
         }
 
         try {
-            return returnJsonObject.setSuccessAndData(new ArrayList<>(accountDao.getUserContainsUserIdOrName(userId)));
+            if (userIdOrName.charAt(0) == '@') {
+                return returnJsonObject.setSuccessAndData(accountDao.getUserContainsUserByUserId(userIdOrName.substring(1)));
+            } else {
+                return returnJsonObject.setSuccessAndData(accountDao.getUserContainsByName(userIdOrName));
+            }
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         }
     }
 
+    @Deprecated
     public ReturnJsonObject getUser(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
 
@@ -194,11 +200,11 @@ public class AccountService {
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         }
         if ((!jsonObject.has(JsonKeyEnum.id.name()) || jsonObject.get(JsonKeyEnum.id.name()).isJsonNull()) &&
                 (!jsonObject.has(JsonKeyEnum.userId.name()) || jsonObject.get(JsonKeyEnum.userId.name()).isJsonNull())) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindIdOrUserId.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindIdOrUserId.getMessage());
         }
 
         UserAndRooms userAndRooms = null;
@@ -212,7 +218,7 @@ public class AccountService {
         if (userAndRooms != null) {
             return returnJsonObject.setSuccessAndData(userAndRooms);
         } else {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindAccount.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindAccount.getMessage());
         }
     }
 
@@ -224,13 +230,13 @@ public class AccountService {
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         }
         if ((!jsonObject.has(JsonKeyEnum.id.name()) || jsonObject.get(JsonKeyEnum.id.name()).isJsonNull()) &&
                 (!jsonObject.has(JsonKeyEnum.userId.name()) || jsonObject.get(JsonKeyEnum.userId.name()).isJsonNull()) &&
                 (!jsonObject.has(JsonKeyEnum.loginAccount.name()) || jsonObject.get(JsonKeyEnum.loginAccount.name()).isJsonNull() ||
                         !jsonObject.has(JsonKeyEnum.loginPassword.name()) || jsonObject.get(JsonKeyEnum.loginPassword.name()).isJsonNull() )) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindIdOrUserId.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindIdOrUserId.getMessage());
         }
 
         UserAndRooms userAndRooms = null;
@@ -250,24 +256,24 @@ public class AccountService {
         if (userAndRooms != null) {
             return returnJsonObject.setSuccessAndData(userAndRooms);
         } else {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindAccount.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindAccount.getMessage());
         }
     }
 
     public ReturnJsonObject deleteAccount(String json) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if (json == null) return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+        if (json == null) return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         JsonObject jsonObject;
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         }
 
-        if (!JsonChecker.checkKey(jsonObject, JsonKeyEnum.token.name())) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getErrorMessage());
+        if (JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.token.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
         }
-        if (!JsonChecker.checkKey(jsonObject, JsonKeyEnum.userId.name())) {
+        if (JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.userId.name())) {
             return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.name());
         }
 
@@ -280,19 +286,19 @@ public class AccountService {
 
         String tokenId = accountDao.getIdWithToken(token);
         if (tokenId == null)
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.tokenIsExpired.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.tokenIsExpired.getMessage());
 
         String userId;
         try {
             userId = jsonObject.get(JsonKeyEnum.userId.name()).getAsString();
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.getMessage());
         }
 
 
         UserAndRooms userAndRooms = accountDao.getUserAndRoomsWithId(tokenId);
         if (userAndRooms == null)
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindUsers.getMessage());
 
         if (Objects.equals(userAndRooms.getUserId(), userId)) {
             if (accountDao.deleteAccountByUserId(userAndRooms.getUserId())) {
@@ -300,7 +306,7 @@ public class AccountService {
             }
         }
 
-        return returnJsonObject.setSuccessAndErrorMessage(ErrorType.deleteUserFailed.getErrorMessage());
+        return returnJsonObject.setSuccessAndErrorMessage(ErrorType.deleteUserFailed.getMessage());
     }
 
     // todo
@@ -311,10 +317,10 @@ public class AccountService {
         try {
             jsonObject = gson.fromJson(json, JsonObject.class);
         } catch (Exception e) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getErrorMessage());
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         }
-        if (!jsonObject.has(JsonKeyEnum.id.name())) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindIdOrUserId.getErrorMessage());
+        if (!JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.userIds.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindIdOrUserId.getMessage());
         }
         return returnJsonObject;
     }

@@ -43,11 +43,11 @@ public enum ErrorType {
 
     exception("例外");
 
-    private String errorMessage = "";
-    ErrorType(String errorMessage) {
-        this.errorMessage = errorMessage;
+    private String message = "";
+    ErrorType(String message) {
+        this.message = message;
     }
-    public String getErrorMessage() {
-        return this.errorMessage;
+    public String getMessage() {
+        return this.message;
     }
 }

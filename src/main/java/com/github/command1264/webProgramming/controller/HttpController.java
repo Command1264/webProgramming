@@ -44,7 +44,6 @@ public class HttpController {
 
     @PostMapping("/test")
     public String test(@RequestBody String json) {
-//        accountDao.createToken("1");
         return "test";
     }
 

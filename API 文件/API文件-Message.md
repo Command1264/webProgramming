@@ -1,7 +1,7 @@
 # 指令Command1
 ## 網路程式設計 API文件
-##### version: 24w25e
-##### last edit time: 2024/06/19 01:30:30 AM
+##### version: 24w25g
+##### last edit time: 2024/06/23 06:07:30 PM
 
 #### [API文件](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6.md)
 #### [API文件-Account](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6-Account.md)
@@ -72,7 +72,7 @@ http://26.208.147.218:60922/api/v1/getUserChatRoomChats
 ### 使用者傳送訊息 [PUT]
 http://26.208.147.218:60922/api/v1/userSendMessage
 
-#### chatRoomName (String/JsonArray)
+#### chatRoomName
 + 輸入 (application/json)
 
     + Body
@@ -98,6 +98,61 @@ http://26.208.147.218:60922/api/v1/userSendMessage
                 "exception": "",
                 "data": ""
             }
+
+#### File (type 可以隨便填寫)
++ 輸入 (application/json)
+
+    + Body
+
+            {
+                "token": "wIzBwZ9P/6EOdhMAKczQNMVvxTxfQMMN",
+                "chatRoomName": "room_6747db05_4d30_430c_bec6_1c49f942a7c3",
+                "message" : {
+                    "sender" : "Taiwan_PingLord2",
+                    "message" : "/room_6747db05_4d30_430c_bec6_1c49f942a7c3/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg",
+                    "type" : "image",
+                    "time" : "2024-05-30 01:10:17"
+                }
+            }
+
++ 回傳 200 (application/json)
+
+    + Body
+
+            {
+                "success": true,
+                "errorMessage": "",
+                "exception": "",
+                "data": ""
+            }
+---
+### 上傳聊天室檔案 [PUT]
+http://26.208.147.218:60922/api/v1/uploadFile
+
+#### chatRoomName
++ 輸入 (application/json)
+    + Header
+
+            "Content-Type": "multipart/form-data"
+
+    + Body From-data
+
+            "token": "aKbjO7IHCCDjaXFlvw1qP3MUH87fjsL2"
+            "chatRoomName": "room_431c1373_2b76_4176_8962_b8419ffa6112"
+            "type": 檔案類型
+            "file": 檔案
+
++ 回傳 200 (application/json)
+
+    + Body
+
+            {
+                "success": true,
+                "errorMessage": "",
+                "exception": "",
+                "data": "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg"
+            }
+
 ---
 
 ### 取得聊天室更新訊息 [POST]
