@@ -24,7 +24,7 @@ public class FileController {
                                        @RequestPart("token") String token,
                                        @RequestPart("chatRoomName") String chatRoomName,
                                        @RequestPart("type") String type,
-                                       @RequestPart("file") MultipartFile file) {
-        return fileService.uploadFile(request, token, chatRoomName, type, file);
+                                       @RequestPart("file") MultipartFile[] files) {
+        return fileService.uploadFile(request, token, chatRoomName, type, files);
     }
 }

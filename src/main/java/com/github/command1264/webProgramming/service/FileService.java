@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
-import java.text.MessageFormat;
 
 @Component
 public class FileService {
@@ -29,9 +28,9 @@ public class FileService {
     @Value(("${web.upload-path}"))
     private String uploadPath;
 
-    public ReturnJsonObject uploadFile(HttpServletRequest request, String token, String chatRoomName, String type, MultipartFile file) {
+    public ReturnJsonObject uploadFile(HttpServletRequest request, String token, String chatRoomName, String type, MultipartFile[] files) {
         ReturnJsonObject returnJsonObject = new ReturnJsonObject();
-        if (request == null || token == null || chatRoomName == null || type == null || file == null)
+        if (request == null || token == null || chatRoomName == null || type == null || files == null)
             return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
 
         UserAndRooms userAndRooms = accountDao.getUserAndRoomsWithId(accountDao.getIdWithToken(token));
@@ -49,30 +48,22 @@ public class FileService {
 //            case "video" -> "videoData";
 //            default -> "fileData";
 //        };
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < files.length; i++) {
+            MultipartFile file = files[i];
 
+            Path filePath = Path.of(chatRoomName, fileMessageId, file.getOriginalFilename());
+            Path saveFilePath = Path.of(uploadPath, filePath.toString());
 
-        Path filePath = Path.of(chatRoomName, fileMessageId, file.getOriginalFilename());
-        Path saveFilePath = Path.of(uploadPath, filePath.toString());
+            if (!fileDao.saveMultipartFile(saveFilePath.toFile(), file))
+                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getMessage());
+            stringBuilder.append("/").append(StringUtils.replace(
+                    filePath.toString(),
+                    "\\", "/"
+            ));
+            if (i < files.length - 1) stringBuilder.append(" | ");
+        }
 
-        if (!fileDao.saveMultipartFile(saveFilePath.toFile(), file))
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getMessage());
-
-//        return returnJsonObject
-//                .setSuccessAndData(
-//                        MessageFormat.format("{0}://{1}:{2,number,#}/{3}",
-//                                request.getScheme(),
-//                                request.getServerName(),
-//                                request.getServerPort(),
-//                                StringUtils.replace(
-//                                    filePath.toString(),
-//                                    "\\", "/"
-//                                )
-//                ));
-        return returnJsonObject
-                .setSuccessAndData("/" + StringUtils.replace(
-                        filePath.toString(),
-                        "\\", "/"
-                )
-        );
+        return returnJsonObject .setSuccessAndData(stringBuilder.toString());
     }
 }

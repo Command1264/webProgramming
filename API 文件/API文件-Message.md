@@ -1,7 +1,7 @@
 # 指令Command1
 ## 網路程式設計 API文件
-##### version: 24w25g
-##### last edit time: 2024/06/23 06:07:30 PM
+##### version: 24w26a
+##### last edit time: 2024/06/24 01 32 11 AM
 
 #### [API文件](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6.md)
 #### [API文件-Account](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6-Account.md)
@@ -105,13 +105,13 @@ http://26.208.147.218:60922/api/v1/userSendMessage
     + Body
 
             {
-                "token": "wIzBwZ9P/6EOdhMAKczQNMVvxTxfQMMN",
-                "chatRoomName": "room_6747db05_4d30_430c_bec6_1c49f942a7c3",
+                "token": "kBeoN9AN5W6pq5FVoU7BJN+Hy1Z9d9mK",
+                "chatRoomName": "room_431c1373_2b76_4176_8962_b8419ffa6112",
                 "message" : {
-                    "sender" : "Taiwan_PingLord2",
-                    "message" : "/room_6747db05_4d30_430c_bec6_1c49f942a7c3/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg",
+                    "sender" : "Command1",
+                    "message" : "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg | /room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b5367b81f6b135598440fa10b9070d4.png | /room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b099a07f76b1b32.gif",
                     "type" : "image",
-                    "time" : "2024-05-30 01:10:17"
+                    "time" : "2024-06-23 20:42:17"
                 }
             }
 
@@ -140,18 +140,18 @@ http://26.208.147.218:60922/api/v1/uploadFile
             "token": "aKbjO7IHCCDjaXFlvw1qP3MUH87fjsL2"
             "chatRoomName": "room_431c1373_2b76_4176_8962_b8419ffa6112"
             "type": 檔案類型
-            "file": 檔案
+            "file": 檔案(可以多個)
 
 + 回傳 200 (application/json)
 
     + Body
 
-            {
-                "success": true,
-                "errorMessage": "",
-                "exception": "",
-                "data": "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg"
-            }
+                {
+                    "success": true,
+                    "errorMessage": "",
+                    "exception": "",
+                    "data": "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg | /room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b5367b81f6b135598440fa10b9070d4.png | /room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b099a07f76b1b32.gif"
+                }
 
 ---
 
