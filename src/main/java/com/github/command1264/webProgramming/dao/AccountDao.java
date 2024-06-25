@@ -561,7 +561,7 @@ public class AccountDao { // todo mybatis
         StringBuilder stringBuilder = new StringBuilder();
         if (str == null) return stringBuilder.toString();
 
-        if (str.charAt(0) == '@') str = str.substring(1);
+        if (str.startsWith("@")) str = str.substring(1);
 
         for (char ch : str.toCharArray()) {
             stringBuilder.append("%\\").append(ch);

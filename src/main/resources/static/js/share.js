@@ -1,6 +1,6 @@
 export const sv={
     /**server IP*/
-    ip:'http://26.208.147.218:60922',
+    ip: `${window.location.origin}`,
     /**登入 API*/
     loginAccount:'/api/v1/loginAccount',
     /**創建帳號 API*/

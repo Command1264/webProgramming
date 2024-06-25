@@ -9,10 +9,16 @@ import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.service.AccountService;
 import com.github.command1264.webProgramming.service.UserChatRoomService;
 import com.github.command1264.webProgramming.dao.SqlDao;
+import com.github.command1264.webProgramming.webSocket.WebSocket;
 import com.github.command1264.webProgramming.util.Printer;
 import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -43,8 +49,18 @@ public class HttpController {
     }
 
     @PostMapping("/test")
-    public String test(@RequestBody String json) {
-        return "test";
+    public Map<String, List<String>> test(@RequestBody String json) {
+        Map<String, List<String>> map = new HashMap<>();
+        WebSocket.webSocketMap.forEach((key, value) -> {
+            value.forEach(session -> {
+                List<String> integerList = map.getOrDefault(key, new ArrayList<>());
+                integerList.add(session.getId());
+                map.put(key, integerList);
+            });
+        });
+        return map;
+//        return gson.toJson(webSocketMap, new TypeToken<Map<String, List<Session>>>(){}.getType());
+//        return "test";
     }
 
 
