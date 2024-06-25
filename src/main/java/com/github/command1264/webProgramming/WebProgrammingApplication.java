@@ -30,7 +30,7 @@ public class WebProgrammingApplication {
 //		return new WebMvcConfigurer() {
 //			@Override
 //			public void addCorsMappings(@NotNull CorsRegistry registry) {
-////				final String ip = "http://26.208.147.218:60922";
+////				final String ip = "https://command1264.xserver.tw";
 //				final String ip = "*";
 //				registry.addMapping("/ping").allowedOrigins(ip);
 //				registry.addMapping("/test").allowedOrigins(ip);

@@ -32,7 +32,7 @@ public class MessageSendReceiveRowMapper implements RowMapper<MessageSendReceive
         messageSendReceive.setDeleted(rs.getBoolean("deleted"));
         if (messageSendReceive.getDeleted()) {
             messageSendReceive.setType("space");
-            messageSendReceive.setMessage("");
+            messageSendReceive.setMessage("{}");
         }
         return messageSendReceive;
     }

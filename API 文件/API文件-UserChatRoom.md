@@ -1,7 +1,7 @@
 # 指令Command1
 ## 網路程式設計 API文件
-##### version: 24w26a
-##### last edit time: 2024/06/24 01 32 11 AM
+##### version: 24w26c
+##### last edit time: 2024/06/26 05:03:40 AM
 
 #### [API文件](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6.md)
 #### [API文件-Account](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6-Account.md)
@@ -9,7 +9,7 @@
 #### [API文件-UserChatRoom](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6-UserChatRoom.md)
 ---
 ### 創建聊天室 [POST]
-http://26.208.147.218:60922/api/v1/createUserChatRoom
+https://command1264.xserver.tw/api/v1/createUserChatRoom
 
 + 輸入 (application/json)
     + Body
@@ -37,7 +37,7 @@ http://26.208.147.218:60922/api/v1/createUserChatRoom
 
 ---
 ### 取得聊天室資訊 [POST]
-http://26.208.147.218:60922/api/v1/getUserChatRoom
+https://command1264.xserver.tw/api/v1/getUserChatRoom
 
 #### chatRoomName (String/JsonArray)
 + 輸入 (application/json)

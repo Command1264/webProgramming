@@ -1,7 +1,7 @@
 # 指令Command1
 ## 網路程式設計 API文件
-##### version: 24w26a
-##### last edit time: 2024/06/24 01 32 11 AM
+##### version: 24w26c
+##### last edit time: 2024/06/26 05:03:40 AM
 
 #### [API文件](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6.md)
 #### [API文件-Account](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6-Account.md)
@@ -9,7 +9,7 @@
 #### [API文件-UserChatRoom](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6-UserChatRoom.md)
 ---
 ### 創建帳戶 [POST]
-http://26.208.147.218:60922/api/v1/createAccount
+https://command1264.xserver.tw/api/v1/createAccount
 
 + 輸入 (application/json)
 
@@ -80,7 +80,7 @@ http://26.208.147.218:60922/api/v1/createAccount
 ---
 
 ### 登入帳戶 [POST]
-http://26.208.147.218:60922/api/v1/loginAccount
+https://command1264.xserver.tw/api/v1/loginAccount
 
 #### onlyToken
 + 輸入 (application/json)
@@ -154,7 +154,7 @@ http://26.208.147.218:60922/api/v1/loginAccount
             同 onlyToken
 ---
 ### 更換Token [POST]
-http://26.208.147.218:60922/api/v1/changeToken
+https://command1264.xserver.tw/api/v1/changeToken
 + 輸入 (application/json)
     + Body
 
@@ -179,7 +179,7 @@ http://26.208.147.218:60922/api/v1/changeToken
 
 ---
 ### 搜尋使用者(Contains) [POST]
-http://26.208.147.218:60922/api/v1/getContainsUser
+https://command1264.xserver.tw/api/v1/getContainsUser
 
 + 輸入 (application/json)
 
@@ -246,7 +246,7 @@ http://26.208.147.218:60922/api/v1/getContainsUser
 
 ---
 ### 刪除使用者 [POST]
-http://26.208.147.218:60922/api/v1/deleteAccount
+https://command1264.xserver.tw/api/v1/deleteAccount
 + 輸入 (application/json)
     + Body
 

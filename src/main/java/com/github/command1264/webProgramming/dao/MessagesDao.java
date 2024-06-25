@@ -1,9 +1,6 @@
 package com.github.command1264.webProgramming.dao;
 
-import com.github.command1264.webProgramming.messages.ErrorType;
-import com.github.command1264.webProgramming.messages.MessageSendReceive;
-import com.github.command1264.webProgramming.messages.MessageSendReceiveRowMapper;
-import com.github.command1264.webProgramming.messages.ReturnJsonObject;
+import com.github.command1264.webProgramming.messages.*;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
@@ -189,7 +186,9 @@ public class MessagesDao { // todo mybatis
 
     public boolean systemSendMessage(String chatRoomName, String message, String type) {
         return userSendMessage(chatRoomName, new MessageSendReceive(
-                0, "system", "0", message, type, LocalDateTime.now(), false, false
+                0, "system", "0", new HashMap<>() {{
+                    put(MessageKeyEnum.message.name(), "message");
+        }}, type, LocalDateTime.now(), false, false
         ));
     }
 
@@ -201,7 +200,7 @@ public class MessagesDao { // todo mybatis
 
         Map<String, Object> map = new HashMap<>() {{
             put("sender", messageSendReceive.getSender());
-            put("message", messageSendReceive.getMessage());
+            put("message", gson.toJson(messageSendReceive.getMessage()));
             put("type", messageSendReceive.getType());
             put("time", messageSendReceive.getTime());
         }};

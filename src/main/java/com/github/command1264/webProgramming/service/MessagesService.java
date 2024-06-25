@@ -51,10 +51,10 @@ public class MessagesService {
         }
         String chatRoomName = null;
         MessageSendReceive messageSendReceive = null;
-        if (JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.chatRoomName.name())) {
+        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.chatRoomName.name())) {
             chatRoomName = jsonObject.get(JsonKeyEnum.chatRoomName.name()).getAsString();
         }
-        if (JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.message.name())) {
+        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.message.name())) {
             messageSendReceive = MessageSendReceive.deserialize(jsonObject.getAsJsonObject(JsonKeyEnum.message.name()));
         }
 

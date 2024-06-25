@@ -165,7 +165,8 @@ const addMsg = (my,sender,cont,time,id,state='')=>{
     const msgBubble = document.createElement('div');
     const msgCt = document.createElement('span');
     const msgSt = document.createElement('span');
-    msgCt.innerText = cont;
+
+    msgCt.innerText = (cont.message === undefined) ? "" : cont.message;
     msgSt.innerText = `${state} ${time}`
     msgSt.classList.add(sender===my?'my_msg_state':'you_msg_state');
     msgBubble.classList.add(sender===my?'my_mes':'you_mes');
@@ -471,7 +472,9 @@ const chatRoom_ct = async (RoomName)=>{
  */
 const sendMsg = async ()=>{
     if(doms.msg_text.value!=''){
-        const msg_ct = doms.msg_text.value;
+        const msg_ct = {
+            message: doms.msg_text.value
+        };
         doms.msg_text.value='';
         const now = new Date();
         const fu_now_time=`${datatime_str.year(now)}-${datatime_str.mobth(now)}-${datatime_str.date(now)} ${datatime_str.hours(now)}:${datatime_str.minutes(now)}:${datatime_str.seconds(now)}`;

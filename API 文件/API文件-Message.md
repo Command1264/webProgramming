@@ -1,7 +1,7 @@
 # 指令Command1
 ## 網路程式設計 API文件
-##### version: 24w26a
-##### last edit time: 2024/06/24 01 32 11 AM
+##### version: 24w26c
+##### last edit time: 2024/06/26 05:03:40 AM
 
 #### [API文件](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6.md)
 #### [API文件-Account](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6-Account.md)
@@ -9,7 +9,7 @@
 #### [API文件-UserChatRoom](https://github.com/Command1264/webProgramming/blob/master/API%20%E6%96%87%E4%BB%B6/API%E6%96%87%E4%BB%B6-UserChatRoom.md)
 ---
 ### 取得聊天室訊息 [POST]
-http://26.208.147.218:60922/api/v1/getUserChatRoomChats
+https://command1264.xserver.tw/api/v1/getUserChatRoomChats
 
 #### chatRoomName (String/JsonArray)
 + 輸入 (application/json)
@@ -38,7 +38,9 @@ http://26.208.147.218:60922/api/v1/getUserChatRoomChats
                             "id": 1,
                             "sender": "指令 Command1",
                             "senderId": "Command1",
-                            "message": "",
+                            "message": {
+                                "message": ""
+                            },
                             "type": "space",
                             "time": "2024-05-30 01:10:15",
                             "modify": false,
@@ -48,7 +50,9 @@ http://26.208.147.218:60922/api/v1/getUserChatRoomChats
                             "id": 9,
                             "sender": "台灣Ping霸主",
                             "senderId": "Taiwan_PingLord2",
-                            "message": "測試訊息1",
+                            "message": {
+                                "message": "測試訊息1"
+                            },
                             "type": "text",
                             "time": "2024-05-30 01:10:17",
                             "modify": false,
@@ -58,7 +62,9 @@ http://26.208.147.218:60922/api/v1/getUserChatRoomChats
                             "id": 10,
                             "sender": null,
                             "senderId": null,
-                            "message": "test1",
+                            "message": {
+                                "message": "test1"
+                            },
                             "type": "text",
                             "time": "2024-06-09 22:30:25",
                             "modify": false,
@@ -70,7 +76,7 @@ http://26.208.147.218:60922/api/v1/getUserChatRoomChats
 
 ---
 ### 使用者傳送訊息 [PUT]
-http://26.208.147.218:60922/api/v1/userSendMessage
+https://command1264.xserver.tw/api/v1/userSendMessage
 
 #### chatRoomName
 + 輸入 (application/json)
@@ -82,7 +88,9 @@ http://26.208.147.218:60922/api/v1/userSendMessage
                 "chatRoomName": "room_6747db05_4d30_430c_bec6_1c49f942a7c3",
                 "message" : {
                     "sender" : "Taiwan_PingLord2",
-                    "message" : "測試訊息1",
+                    "message": {
+                        "message": "測試訊息1"
+                    },
                     "type" : "text",
                     "time" : "2024-05-30 01:10:17"
                 }
@@ -109,7 +117,13 @@ http://26.208.147.218:60922/api/v1/userSendMessage
                 "chatRoomName": "room_431c1373_2b76_4176_8962_b8419ffa6112",
                 "message" : {
                     "sender" : "Command1",
-                    "message" : "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg | /room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b5367b81f6b135598440fa10b9070d4.png | /room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b099a07f76b1b32.gif",
+                    "message": {
+                        "image" : [
+                            "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg",
+                            "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b5367b81f6b135598440fa10b9070d4.png",
+                            "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b099a07f76b1b32.gif"
+                        ]
+                    },
                     "type" : "image",
                     "time" : "2024-06-23 20:42:17"
                 }
@@ -127,7 +141,7 @@ http://26.208.147.218:60922/api/v1/userSendMessage
             }
 ---
 ### 上傳聊天室檔案 [PUT]
-http://26.208.147.218:60922/api/v1/uploadFile
+https://command1264.xserver.tw/api/v1/uploadFile
 
 #### chatRoomName
 + 輸入 (application/json)
@@ -156,7 +170,7 @@ http://26.208.147.218:60922/api/v1/uploadFile
 ---
 
 ### 取得聊天室更新訊息 [POST]
-http://26.208.147.218:60922/api/v1/getUserReceiveMessage
+https://command1264.xserver.tw/api/v1/getUserReceiveMessage
 
 #### chatRoomName (String/JsonArray)
 + 輸入 (application/json)
@@ -185,7 +199,9 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
                             "id": 2,
                             "sender": "指令 Command1",
                             "senderId": "Command1",
-                            "message": "測試訊息1",
+                            "message": {
+                                "message": "測試訊息1"
+                            },
                             "type": "text",
                             "time": "2024-05-30 01:10:15",
                             "modify": false,
@@ -195,7 +211,9 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
                             "id": 9,
                             "sender": "台灣Ping霸主",
                             "senderId": "Taiwan_PingLord2",
-                            "message": "測試訊息1",
+                            "message": {
+                                "message": "測試訊息1"
+                            },
                             "type": "text",
                             "time": "2024-05-30 01:10:17",
                             "modify": false,
@@ -205,7 +223,9 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
                             "id": 10,
                             "sender": null,
                             "senderId": null,
-                            "message": "test1",
+                            "message": {
+                                "message": "test1"
+                            },
                             "type": "text",
                             "time": "2024-06-09 22:30:25",
                             "modify": false,
@@ -217,7 +237,7 @@ http://26.208.147.218:60922/api/v1/getUserReceiveMessage
 ---
 
 ### 已讀聊天室訊息進度更新 [POST]
-http://26.208.147.218:60922/api/v1/userReadMessage
+https://command1264.xserver.tw/api/v1/userReadMessage
 
 #### chatRoomName
 + 輸入 (application/json)
