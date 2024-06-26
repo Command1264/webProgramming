@@ -1,6 +1,8 @@
 package com.github.command1264.webProgramming.dao;
 
 import com.github.command1264.webProgramming.messages.*;
+import com.github.command1264.webProgramming.userChatRoom.UserChatRoom;
+import com.github.command1264.webProgramming.userChatRoom.UserChatRoomRowMapper;
 import com.github.command1264.webProgramming.util.RoomNameConverter;
 import com.github.command1264.webProgramming.util.SqlTableEnum;
 import com.google.gson.Gson;
@@ -19,7 +21,7 @@ public class MessagesDao { // todo mybatis
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
     @Autowired
-    AccountDao accountDao;
+    private AccountDao accountDao;
     private final Gson gson = new Gson();
 
     public @NotNull List<MessageSendReceive> getUserChatRoomChat(String token, String chatRoomName) {
@@ -188,17 +190,18 @@ public class MessagesDao { // todo mybatis
         return userSendMessage(chatRoomName, new MessageSendReceive(
                 0, "system", "0", new HashMap<>() {{
                     put(MessageKeyEnum.message.name(), "message");
-        }}, type, LocalDateTime.now(), false, false
+                }}, type, LocalDateTime.now(), false, false
         ));
     }
 
     public boolean userSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
         if (jdbcTemplate == null || chatRoomName == null || messageSendReceive == null) return false;
 
-        String sql = "insert ignore into :tableName (sender, message, type, time) values(:sender, :message, :type, :time);"
+        String sql = "insert ignore into :tableName (id, sender, message, type, time) values(:id, :sender, :message, :type, :time);"
                 .replaceAll(":tableName", chatRoomName);
 
         Map<String, Object> map = new HashMap<>() {{
+            put("id", messageSendReceive.getId());
             put("sender", messageSendReceive.getSender());
             put("message", gson.toJson(messageSendReceive.getMessage()));
             put("type", messageSendReceive.getType());
@@ -244,5 +247,71 @@ public class MessagesDao { // todo mybatis
         if (token == null || chatRoomName == null) return null;
         List<MessageSendReceive> messageSendReceiveList = this.getUserChatRoomChat(token, chatRoomName);
         return (messageSendReceiveList.isEmpty()) ? null : messageSendReceiveList.get(messageSendReceiveList.size() - 1);
+    }
+
+    public boolean fixMessages() {
+        String findAllUserChatRoomsSql = """
+                select * from :tableName;
+                """.replaceAll(":tableName", SqlTableEnum.userChatRooms.name());
+        List<UserChatRoom> userChatRoomList;
+        try {
+            userChatRoomList = jdbcTemplate.query(findAllUserChatRoomsSql, new HashMap<>(), new UserChatRoomRowMapper());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        String findAllChatsSql = """
+                select room.id,
+                    info.name, room.sender as userId, room.message,
+                    room.type, room.time,
+                    room.modify, room.deleted
+                    from :tableRoomName room left join :tableInfo info
+                on room.sender=info.id;
+                """.replaceAll(":tableInfo", SqlTableEnum.accountInfo.name());
+        String replaceChatsSql = """
+                update :tableName set id=:id, sender=:sender, message=:message, type=:type, time=:time, modify=:modify, deleted=:deleted
+                where id=:id;
+            """;
+//        String replaceChatsSql = """
+//                replace into :tableName(id, sender, message, type, time, modify, deleted)
+//                values(:id, :sender, :message, :type, :time, :modify, :deleted);
+//            """;
+        for (UserChatRoom userChatRoom : userChatRoomList) {
+            try {
+                String userChatRoomName = RoomNameConverter.convertChatRoomName(userChatRoom.getUUID());
+                List<MessageSendReceive> messageSendReceiveList = jdbcTemplate.query(
+                        StringUtils.replace(findAllChatsSql,
+                                ":tableRoomName",
+                                userChatRoomName
+                        ), new HashMap<>(), new MessageSendReceiveRowMapper(true));
+
+                for (MessageSendReceive messageSendReceive : messageSendReceiveList) {
+                    try {
+                        Map<String, Object> messageReplaceMap = new HashMap<>() {{
+                            put("id", messageSendReceive.getId());
+                            put("sender", messageSendReceive.getSenderId());
+                            put("message", gson.toJson(messageSendReceive.getMessage()));
+                            put("type", messageSendReceive.getType());
+                            put("time", messageSendReceive.getTime());
+                            put("modify", messageSendReceive.getModify());
+                            put("deleted", messageSendReceive.getDeleted());
+                        }};
+                        jdbcTemplate.update(
+                                StringUtils.replace(replaceChatsSql,
+                                        ":tableName",
+                                        userChatRoomName
+                                        ), messageReplaceMap);
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
+                        return false;
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
     }
 }

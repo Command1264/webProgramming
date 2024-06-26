@@ -48,9 +48,7 @@ public class MessageSendReceive {
             this.message = new Gson().fromJson(message, new TypeToken<Map<String, String>>(){}.getType());
         } catch (Exception e) {
             try {
-                this.message = new HashMap<>() {{
-                    put(MessageKeyEnum.message.name(), message);
-                }};
+                this.message.put(MessageKeyEnum.message.name(), message);
             } catch (Exception e2) {}
         }
     }

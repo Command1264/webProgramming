@@ -49,18 +49,9 @@ public class HttpController {
     }
 
     @PostMapping("/test")
-    public Map<String, List<String>> test(@RequestBody String json) {
-        Map<String, List<String>> map = new HashMap<>();
-        WebSocket.webSocketMap.forEach((key, value) -> {
-            value.forEach(session -> {
-                List<String> integerList = map.getOrDefault(key, new ArrayList<>());
-                integerList.add(session.getId());
-                map.put(key, integerList);
-            });
-        });
-        return map;
-//        return gson.toJson(webSocketMap, new TypeToken<Map<String, List<Session>>>(){}.getType());
-//        return "test";
+    public String test(@RequestBody String json) {
+//        return String.valueOf(messagesDao.fixMessages());
+        return "test";
     }
 
 

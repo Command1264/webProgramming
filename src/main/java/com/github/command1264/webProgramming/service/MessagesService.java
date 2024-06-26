@@ -46,31 +46,28 @@ public class MessagesService {
             return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
         }
 
-        if (JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.token.name())) {
-            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
-        }
-        String chatRoomName = null;
-        MessageSendReceive messageSendReceive = null;
-        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.chatRoomName.name())) {
-            chatRoomName = jsonObject.get(JsonKeyEnum.chatRoomName.name()).getAsString();
-        }
-        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.message.name())) {
-            messageSendReceive = MessageSendReceive.deserialize(jsonObject.getAsJsonObject(JsonKeyEnum.message.name()));
-        }
-
         String token = null;
         try {
             token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
         } catch (Exception e) {
             return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
         }
+
         String tokenId = accountDao.getIdWithToken(token);
 
-        if (chatRoomName == null || !userChatRoomDao.checkHasUserChatRoom(chatRoomName)) {
+        String chatRoomName = null;
+        MessageSendReceive messageSendReceive = null;
+        try {
+            chatRoomName = jsonObject.get(JsonKeyEnum.chatRoomName.name()).getAsString();
+            if (!userChatRoomDao.checkHasUserChatRoom(chatRoomName)) {
+                return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoomName.getMessage());
+            }
+        } catch (Exception e) {
             return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoomName.getMessage());
         }
-
-        if (messageSendReceive == null) {
+        try {
+            messageSendReceive = MessageSendReceive.deserialize(jsonObject.getAsJsonObject(JsonKeyEnum.message.name()));
+        } catch (Exception e){
             return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessage.getMessage());
         }
 
