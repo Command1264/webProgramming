@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class FileService {
@@ -43,27 +45,19 @@ public class FileService {
         MessageSendReceive messageSendReceive = messagesDao.getUserChatRoomLastChat(token, chatRoomName);
         String fileMessageId = (messageSendReceive == null) ? "0" : String.valueOf(messageSendReceive.getId() + 1);
 
-//        String typePath = switch (type.toLowerCase()) {
-//            case "image" -> "imageData";
-//            case "video" -> "videoData";
-//            default -> "fileData";
-//        };
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < files.length; i++) {
-            MultipartFile file = files[i];
-
+        List<String> multipartFilePathList = new ArrayList<>();
+        for (MultipartFile file : files) {
             Path filePath = Path.of(chatRoomName, fileMessageId, file.getOriginalFilename());
             Path saveFilePath = Path.of(uploadPath, filePath.toString());
 
             if (!fileDao.saveMultipartFile(saveFilePath.toFile(), file))
                 return returnJsonObject.setSuccessAndErrorMessage(ErrorType.messageSaveFailed.getMessage());
-            stringBuilder.append("/").append(StringUtils.replace(
+            multipartFilePathList.add("/" + StringUtils.replace(
                     filePath.toString(),
                     "\\", "/"
             ));
-            if (i < files.length - 1) stringBuilder.append(" | ");
         }
 
-        return returnJsonObject .setSuccessAndData(stringBuilder.toString());
+        return returnJsonObject .setSuccessAndData(multipartFilePathList);
     }
 }

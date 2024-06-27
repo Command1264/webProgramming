@@ -28,7 +28,8 @@ public class MessagesDao { // todo mybatis
         if (jdbcTemplate == null  || token == null || chatRoomName == null) return new ArrayList<>();
 
         String selectMessageSql = StringUtils.replaceEach("""
-                select room.id, info.userId,
+                select room.sender as primaryId,
+                    room.id, info.userId,
                     info.name, room.message,
                     room.type, room.time,
                     room.modify, room.deleted
@@ -71,7 +72,8 @@ public class MessagesDao { // todo mybatis
             return returnJsonObject;
         }
         String selectSql = StringUtils.replaceEach("""
-                select room.id, info.userId,
+                select room.sender as primaryId,
+                    room.id, info.userId,
                     info.name, room.message,
                     room.type, room.time,
                     room.modify, room.deleted
@@ -138,7 +140,8 @@ public class MessagesDao { // todo mybatis
         }
 
         String selectSql = StringUtils.replaceEach("""
-                select room.id, info.userId,
+                select room.sender as primaryId,
+                    room.id, info.userId,
                     info.name, room.message,
                     room.type, room.time,
                     room.modify, room.deleted
@@ -221,7 +224,8 @@ public class MessagesDao { // todo mybatis
             return new ArrayList<>();
         }
         String selectMessageSql = StringUtils.replaceEach("""
-                select room.id, info.userId,
+                select room.sender as primaryId,
+                    room.id, info.userId,
                     info.name, room.message,
                     room.type, room.time,
                     room.modify, room.deleted

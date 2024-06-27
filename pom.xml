@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.github.command1264</groupId>
 	<artifactId>webProgramming</artifactId>
-	<version>24w26d</version>
+	<version>24w26e</version>
 	<name>webProgramming</name>
 	<description>Web Programming Server</description>
 	<properties>

@@ -17,8 +17,18 @@ public class MessageSendReceiveRowMapper implements RowMapper<MessageSendReceive
     public MessageSendReceive mapRow(ResultSet rs, int rowNum) throws SQLException {
         MessageSendReceive messageSendReceive = new MessageSendReceive();
         messageSendReceive.setId(rs.getInt("id"));
-        messageSendReceive.setSender(rs.getString("name"));
-        messageSendReceive.setSenderId(rs.getString("userId"));
+        try {
+            if ("0".equals(rs.getString("primaryId"))) {
+                messageSendReceive.setSender("system");
+                messageSendReceive.setSenderId("system");
+            } else {
+                messageSendReceive.setSender(rs.getString("name"));
+                messageSendReceive.setSenderId(rs.getString("userId"));
+            }
+        } catch (Exception e) {
+            messageSendReceive.setSender(rs.getString("name"));
+            messageSendReceive.setSenderId(rs.getString("userId"));
+        }
         messageSendReceive.setTime(rs.getString("time"));
         messageSendReceive.setModify(rs.getBoolean("modify"));
         messageSendReceive.setDeleted(rs.getBoolean("deleted"));

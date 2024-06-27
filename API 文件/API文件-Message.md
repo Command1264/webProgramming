@@ -1,7 +1,7 @@
 # 指令Command1
 ## 網路程式設計 API文件
-##### version: 24w26d
-##### last edit time: 2024/06/27 01:19:45 AM
+##### version: 24w26e
+##### last edit time: 2024/06/27 09:18:30 PM
 
 #### [API文件](API%E6%96%87%E4%BB%B6.md)
 #### [API文件-Account](API%E6%96%87%E4%BB%B6-Account.md)
@@ -108,7 +108,7 @@ https://command1264.xserver.tw/api/v1/userSendMessage
                 "data": ""
             }
 
-#### File (type 可以隨便填寫)
+#### File
 + 輸入 (application/json)
 
     + Body
@@ -161,12 +161,16 @@ https://command1264.xserver.tw/api/v1/uploadFile
 
     + Body
 
-                {
-                    "success": true,
-                    "errorMessage": "",
-                    "exception": "",
-                    "data": "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg | /room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b5367b81f6b135598440fa10b9070d4.png | /room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b099a07f76b1b32.gif"
-                }
+            {
+                "success": true,
+                "errorMessage": "",
+                "exception": "",
+                "data": [
+                    "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/9cf292d2dc9f4af790d56d54b7e5359a.jpg",
+                    "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b5367b81f6b135598440fa10b9070d4.png",
+                    "/room_431c1373_2b76_4176_8962_b8419ffa6112/0/0b099a07f76b1b32.gif"
+                ]
+            }
 
 ---
 

@@ -1,7 +1,7 @@
 # 指令Command1
 ## 網路程式設計 API文件
-##### version: 24w26d
-##### last edit time: 2024/06/27 01:19:45 AM
+##### version: 24w26e
+##### last edit time: 2024/06/27 09:18:30 PM
 
 #### [API文件](API%E6%96%87%E4%BB%B6.md)
 #### [API文件-Account](API%E6%96%87%E4%BB%B6-Account.md)
