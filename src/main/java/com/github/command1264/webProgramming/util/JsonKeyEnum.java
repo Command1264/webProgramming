@@ -20,4 +20,7 @@ public enum JsonKeyEnum {
 
     message,
 
+    messageCount,
+    inputEntryText
+
 }

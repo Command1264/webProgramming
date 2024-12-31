@@ -188,35 +188,52 @@ public class MessagesDao { // todo mybatis
         returnJsonObject.setSuccessAndData("");
         return returnJsonObject;
     }
-
     public boolean systemSendMessage(String chatRoomName, String message, String type) {
-        return userSendMessage(chatRoomName, new MessageSendReceive(
-                0, "system", "0", new HashMap<>() {{
-                    put(MessageKeyEnum.message.name(), "message");
-                }}, type, LocalDateTime.now(), false, false
+        return systemSendMessage(chatRoomName, new MessageSendReceive(
+                0, "0", "system", message, type, LocalDateTime.now(), false, false
         ));
     }
 
-    public boolean userSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
+    public boolean systemSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
         if (jdbcTemplate == null || chatRoomName == null || messageSendReceive == null) return false;
 
-        String sql = "insert ignore into :tableName (id, sender, message, type, time) values(:id, :sender, :message, :type, :time);"
-                .replaceAll(":tableName", chatRoomName);
+        String sql = """
+                insert ignore into :tableName (sender, message, type, time)
+                values(:sender, :message, :type, :time);
+            """.replaceAll(":tableName", chatRoomName);
 
         Map<String, Object> map = new HashMap<>() {{
-            put("id", messageSendReceive.getId());
+//            put("id", messageSendReceive.getId());
             put("sender", messageSendReceive.getSender());
             put("message", gson.toJson(messageSendReceive.getMessage()));
             put("type", messageSendReceive.getType());
             put("time", messageSendReceive.getTime());
         }};
-        int count;
         try {
-            count = jdbcTemplate.update(sql, map);
+            return jdbcTemplate.update(sql, map) > 0;
+        } catch (Exception e) {
+//            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean userSendMessage(String chatRoomName, MessageSendReceive messageSendReceive) {
+        if (jdbcTemplate == null || chatRoomName == null || messageSendReceive == null) return false;
+
+        String sql = "insert ignore into :tableName (sender, message, type, time) values(:sender, :message, :type, :time);"
+                .replaceAll(":tableName", chatRoomName);
+
+        Map<String, Object> map = new HashMap<>() {{
+            put("sender", messageSendReceive.getSender());
+            put("message", gson.toJson(messageSendReceive.getMessage()));
+            put("type", messageSendReceive.getType());
+            put("time", messageSendReceive.getTime());
+        }};
+        try {
+            return jdbcTemplate.update(sql, map) > 0;
         } catch (Exception e) {
             return false;
         }
-        return count > 0;
     }
 
     public @NotNull List<MessageSendReceive> userReceiveMessageWithId(String chatRoomName, String id) {

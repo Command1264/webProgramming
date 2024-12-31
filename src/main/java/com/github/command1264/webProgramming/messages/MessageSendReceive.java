@@ -24,6 +24,19 @@ public class MessageSendReceive {
     public MessageSendReceive(int id, String sender, String senderId, Map<String, String> message, String type, LocalDateTime time, boolean modify, boolean deleted) {
         this(id, sender, senderId, message, type, time.format(DateTimeFormatter.ofPattern(DateTimeFormat.format)), modify, deleted);
     }
+    public MessageSendReceive(int id, String sender, String senderId, String message, String type, LocalDateTime time, boolean modify, boolean deleted) {
+        this(id, sender, senderId, message, type, time.format(DateTimeFormatter.ofPattern(DateTimeFormat.format)), modify, deleted);
+    }
+    public MessageSendReceive(int id, String sender, String senderId, String message, String type, String time, boolean modify, boolean deleted) {
+        this.id = id;
+        this.sender = sender;
+        this.senderId = senderId;
+        this.message.put(MessageKeyEnum.message.name(), message);
+        this.type = type;
+        this.time = time;
+        this.modify = modify;
+        this.deleted = deleted;
+    }
     public MessageSendReceive(int id, String sender, String senderId, Map<String, String> message, String type, String time, boolean modify, boolean deleted) {
         this.id = id;
         this.sender = sender;

@@ -7,6 +7,7 @@ import com.github.command1264.webProgramming.dao.MessagesDao;
 import com.github.command1264.webProgramming.dao.SqlDao;
 import com.github.command1264.webProgramming.dao.UserChatRoomDao;
 import com.github.command1264.webProgramming.messages.ErrorType;
+import com.github.command1264.webProgramming.messages.MessageKeyEnum;
 import com.github.command1264.webProgramming.messages.MessageSendReceive;
 import com.github.command1264.webProgramming.messages.ReturnJsonObject;
 import com.github.command1264.webProgramming.util.DateTimeFormat;
@@ -18,6 +19,10 @@ import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -300,4 +305,117 @@ public class MessagesService {
 
         return returnJsonObject.setSuccessAndData(chatRoomsChats);
     }
+
+    public ReturnJsonObject messageReplayAi(String json) {
+        ReturnJsonObject returnJsonObject = new ReturnJsonObject();
+
+        JsonObject jsonObject;
+        try {
+            jsonObject = gson.fromJson(json, JsonObject.class);
+        } catch (Exception e) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.dataNotFound.getMessage());
+        }
+
+        if (JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.token.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
+        }
+        if (JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.chatRoomName.name())) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoomName.getMessage());
+        }
+//        if (JsonChecker.checkNoKey(jsonObject, JsonKeyEnum.messages.name())) {
+//            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindMessages.getMessage());
+//        }
+
+        int messageCount = 10;
+        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.messageCount.name())) {
+            try {
+                messageCount = jsonObject.get(JsonKeyEnum.messageCount.name()).getAsInt();
+            } catch (Exception e) {}
+        }
+
+        String token = null;
+        try {
+            token = jsonObject.get(JsonKeyEnum.token.name()).getAsString();
+        } catch (Exception e) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
+        }
+        String tokenId = accountDao.getIdWithToken(token);
+        if (tokenId == null) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindToken.getMessage());
+        }
+
+
+        String chatRoomName = null;
+        try {
+            chatRoomName = jsonObject.get(JsonKeyEnum.chatRoomName.name()).getAsString();
+        } catch (Exception e) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoomName.getMessage());
+        }
+
+        MessageSendReceive lastMessage = messagesDao.getUserChatRoomLastChat(token, chatRoomName);
+        if (lastMessage == null) {
+            return returnJsonObject.setSuccessAndErrorMessage(ErrorType.cantFindChatRoomName.getMessage());
+        }
+        List<MessageSendReceive> messageList = messagesDao.userReceiveMessageWithId(
+                chatRoomName,
+                String.valueOf(lastMessage.getId() - messageCount)
+        );
+
+
+        String inputEntryText = null;
+        if (JsonChecker.checkKey(jsonObject, JsonKeyEnum.inputEntryText.name())) {
+            try {
+                inputEntryText = jsonObject.get(JsonKeyEnum.inputEntryText.name()).getAsString();
+            } catch (Exception e) {}
+        }
+
+        List<Map<String, String>> userMessagesData = new ArrayList<>();
+        messageList.forEach(message -> {
+            userMessagesData.add(new HashMap<>() {{
+                put("speaker", message.getSender());
+                put("message", message.getMessage().getOrDefault(MessageKeyEnum.message.name(), ""));
+            }});
+        });
+
+
+        AISendMessageData aiSendMessageData = new AISendMessageData();
+        aiSendMessageData.inputEntryText = inputEntryText;
+        aiSendMessageData.userMessagesData = userMessagesData;
+
+//        return returnJsonObject.setSuccessAndData(aiSendMessageData);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://26.239.119.50:5000/api/v1/messageReplayAi"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(aiSendMessageData)))
+                .build();
+
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                return returnJsonObject.setSuccessAndErrorMessage(response.statusCode() + "\n" + response.body());
+            }
+            AIReceiveMessageData aiReceiveMessageData = gson.fromJson(response.body(), AIReceiveMessageData.class);
+
+//            System.out.println("Response Code: " + response.statusCode());
+//            System.out.println("Response Body: " + response.body());
+            return returnJsonObject.setSuccessAndData(aiReceiveMessageData);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return returnJsonObject.setSuccessAndErrorMessage(e.getMessage());
+        }
+    }
+
+    static class AISendMessageData {
+        public String inputEntryText = null;
+        public List<Map<String, String>> userMessagesData = new ArrayList<>();;
+    }
+
+    static class AIReceiveMessageData {
+        public String completionMessage = null;
+        public List<String> possibleReply = new ArrayList<>();;
+    }
 }
+
