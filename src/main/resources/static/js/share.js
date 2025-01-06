@@ -19,6 +19,9 @@ export const sv={
     changeToken:'/api/v1/changeToken',
     /**搜尋使用者 API*/
     getContainsUser:'/api/v1/getContainsUser',
+
+    /**生成AI提示**/
+    messageReplayAi:'/api/v1/messageReplayAi',
     
     /**ping API*/
     ping:'/ping',

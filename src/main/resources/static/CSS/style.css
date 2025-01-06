@@ -93,6 +93,24 @@ body{
 #main:has(#obj_list[style*="display: none"]) > #obj_content {
     border-radius: 1.5rem;
 }
+/* AI提示 */
+#obj_content #ai_text_list{
+    background-color: #fff;
+    margin: 0 1.2rem;
+    border-radius: 0.5rem;
+    max-height: 5rem;
+    overflow: auto;
+    margin-bottom: -0.5rem;
+    padding: 0;
+    display: flex;
+
+}
+#obj_content #ai_text_list li{
+    padding: 0.1rem 1rem;
+}
+#obj_content #ai_text_list li:hover{
+    background-color: #80bcf0;
+}
 
 .msg_name{
     background-color: var(--main-col);
@@ -161,6 +179,7 @@ body{
     padding: 0.5rem;
     margin: 1rem;
     border-radius: 1rem;
+    position: relative;
 }
 #textin>input[type="button"]{
     margin-left: auto;
@@ -181,6 +200,13 @@ body{
     outline: none;
     border: none;
     width: 100%;
+}
+
+#ai_text_tab{
+    color: #888;
+    position: absolute;
+    bottom: 0.15rem;
+    font-size: 0.85rem;
 }
 /* 設定選單 */
 dialog{

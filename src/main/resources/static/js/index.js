@@ -13,6 +13,12 @@ const doms = {
     textin:document.querySelector('#textin'),
     /**聊天文字輸入(輸入框)*/
     msg_text:document.querySelector('#msg_text'),
+    /**聊天文字輸入(整體+AI輔助區)*/
+    intext_outdiv:document.querySelector('#intext_outdiv'),
+    /**AI提示列表**/ 
+    ai_text_list:document.querySelector('#ai_text_list'),
+    /**AI提示tab**/ 
+    ai_text_tab:document.querySelector('#ai_text_tab'),
     /**返回按鈕 退出聊天室*/
     back_btn:document.querySelector('#back_btn'),
     /**聊天室選擇列表*/
@@ -39,8 +45,11 @@ const doms = {
     add_room_cancel:document.querySelector('#add_room_cancel'),
     /**登出按鈕*/
     signOut:document.querySelector('#signOut'),
-}
 
+}
+let intext = false;
+let aiok = true
+let ai_tabMsg = '';
 
 //==========輔助功能function==========
 /**
@@ -548,6 +557,92 @@ const searchAllUser = async (searchStr)=>{
         sv.urlToError(error);
     }
 }
+//AI 推薦訊息咧表刷新
+const AIlistSead = async(RoomName,msg)=>{
+    if(aiok){
+        aiok = false;
+        let sendBody = {
+            token:localStorage.getItem('token'),
+            chatRoomName:RoomName,
+            inputEntryText: msg,
+        }
+        if(msg.trim() == ''){
+            sendBody={
+                token:localStorage.getItem('token'),
+                chatRoomName:RoomName,
+            }
+        }
+        try {
+            const response = await fetch(sv.ip+sv.messageReplayAi,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(sendBody),
+            });
+            
+            // 檢查請求是否成功
+            if (!response.ok) {
+                sv.urlToError(`${response.status}`);
+            }
+            // 解析響應體
+            const responseData = await response.json();
+            // 標記響應體
+            if(responseData.success){
+                const rearr =responseData.data;
+                aiok = true
+                // console.log(rearr);
+                return rearr;
+            }
+    
+        } catch {
+            aiok = true
+            sv.urlToError(error);
+        }
+    }
+}
+
+const AIlistchange = async(event)=>{
+    const msging = event.target.value;
+    // console.log(`目前輸入：${msging}`);
+    // doms.ai_text_list.innerHTML = '';
+    const AIobj = await AIlistSead(window.location.hash.substring(1),msging)
+    // console.log(AIobj);
+    doms.ai_text_list.innerHTML = '';
+    
+    let mymsg=AIobj.completionMessage.substring(0,msg_text.value.length)
+    if(AIobj.completionMessage != null){
+        // console.log(`AI:${AIobj.completionMessage} Msg:${AIobj.completionMessage.substring(0,msg_text.value.length)}`);
+        // if(AIobj.completionMessage.substring(0,msg_text.value.length)!=AIobj.completionMessage)
+        console.log(AIobj.completionMessage);
+        // if(AIobj.completionMessage.substring(0,mymsg.length))
+        ai_tabMsg = await AIobj.completionMessage.substring(0,msg_text.value.length);
+        if(msging!=ai_tabMsg){
+            setTimeout(()=>{
+                console.log('collr');
+                AIlistchange(event);
+            },100)
+        }else{
+            doms.ai_text_tab.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;'+('&nbsp;&nbsp;&nbsp;'.repeat(mymsg.length))+AIobj.completionMessage.substring(mymsg.length);
+            // doms.ai_text_tab.innerHTML = AIobj.completionMessage.substring(mymsg.length);
+        }
+        // doms.ai_text_tab.innerText = 'ststring';
+
+        
+        // doms.ai_text_tab.innertext = ' '.repeat(msg_text.value.length+AIobj).completionMessage.substring(msg_text.value.length);
+    }
+    
+    AIobj.possibleReply.forEach((element,key)=>{
+        const aimsg_li = document.createElement('li');
+        aimsg_li.id=`aimsg_${key}`;
+        aimsg_li.innerText=element;
+        doms.ai_text_list.appendChild(aimsg_li);
+    });
+    // try{
+    // }catch{
+        
+    // }
+}
 
 
 
@@ -656,6 +751,11 @@ doms.textin.addEventListener('keydown',event=>{
     if(event.key=== 'Enter'){
         sendMsg();
     }
+});
+
+//訊息輸入刷新
+doms.textin.addEventListener('input',async event=>{
+    AIlistchange(event);
 });
 // 返回BTN
 doms.back_btn.addEventListener('click',()=>{
